@@ -1,0 +1,25 @@
+.home {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.play {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 40px minmax(0, 1fr);
+
+  .body {
+    display: grid;
+    grid-template-columns: var(--dictionary-width) 3px minmax(0, 1fr) 3px var(--subtitle-width);
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
+.resize {
+  cursor: col-resize;
+  background: var(--main-background-color);
+  &:hover {
+    background: var(--main-border-color);
+  }
+}

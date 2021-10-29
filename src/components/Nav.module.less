@@ -1,0 +1,76 @@
+.nav {
+  border-bottom: 1px solid;
+  border-color: var(--main-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.icon {
+  cursor: pointer;
+  color: var(--main-icon-color);
+}
+
+.play {
+  .icon {
+    padding: 3px;
+    border: 0px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.15);
+    margin: 3px;
+    &:hover {
+      box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.5);
+    }
+  }
+  .icon.disabled {
+    color: var(--main-background-color);
+    &:hover {
+      cursor: default;
+      box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+.right {
+  .icon {
+    margin-right: 5px;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.settings,
+.info {
+  display: grid;
+  grid-template-columns: minmax(50px, auto) 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.settings {
+  .title {
+  }
+
+  .body {
+  }
+}
+
+.shortcuts {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 30px;
+}
+
+.info {
+  grid-template-columns: 1fr 1fr;
+  .title {
+    display: flex;
+    align-items: center;
+  }
+
+  .body {
+    justify-self: end;
+  }
+}

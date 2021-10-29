@@ -1,0 +1,32 @@
+.list {
+  font-size: 16px;
+
+  .item {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    &:nth-child(odd) {
+      background: var(--main-background-color);
+    }
+
+    svg {
+      text {
+        cursor: pointer;
+      }
+    }
+
+    .icon {
+      width: 15px;
+      cursor: pointer;
+      color: var(--main-danger-color);
+    }
+  }
+}
+
+.off-screen {
+  position: fixed;
+  top: -99999px;
+  left: -99999px;
+}
