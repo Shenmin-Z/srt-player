@@ -1,20 +1,24 @@
-import { useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
-import { setVideo, useDispatch } from '../state'
+import { setVideo, useDispatch, useSelector } from '../state'
 import cn from 'classnames'
+import { WatchHistory } from '../utils'
 
 const videoInput = () => document.querySelector('#video-input') as HTMLInputElement
 
-export let Video = () => {
+export let Video: FC = () => {
   let [videoUrl, setVideoUrl] = useState('')
 
   let videoRef = useRef<HTMLVideoElement>(null)
 
   let dispatch = useDispatch()
+  let file = useSelector(state => state.files.selected)
 
   useEffect(() => {
     if (!videoUrl) return
     dispatch(setVideo(videoRef.current))
+    let history = new WatchHistory(file as string)
+    history.restoreVideo()
     return () => {
       URL.revokeObjectURL(videoUrl)
       dispatch(setVideo(null))
@@ -24,7 +28,7 @@ export let Video = () => {
   if (videoUrl) {
     return (
       <div className={styles['video-container']}>
-        <video ref={videoRef} src={videoUrl} controls />
+        <video id="srt-player-video" ref={videoRef} src={videoUrl} controls />
       </div>
     )
   }

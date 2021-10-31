@@ -2,8 +2,8 @@ import { FC, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
 import { Modal } from './Modal'
-import { useDispatch, useSelector, setSelected, videoElement } from '../state'
-import { SubtitleWidth, DictionaryWidth, getCSS, DictionaryUrl, DictionaryLeftOffset } from '../utils'
+import { useDispatch, useSelector, setSelected, videoElement, toggleDictionary } from '../state'
+import { SubtitleWidthWithDictionary, SubtitleWidthWithoutDictionary, DictionaryWidth, getCSS, DictionaryUrl, DictionaryLeftOffset } from '../utils'
 
 export let Nav = () => {
   let dispatch = useDispatch()
@@ -55,8 +55,11 @@ let Controls = () => {
   let hasVideo = useSelector(s => s.video.hasVideo)
   let status = useSelector(s => s.video.status)
 
+  let dispatch = useDispatch()
+
   let forward = (t: number) => () => {
     if (videoElement === null) return
+    videoElement.blur()
     videoElement.currentTime += t
   }
 
@@ -78,18 +81,23 @@ let Controls = () => {
         togglePlay()
       }
       if (e.code === 'ArrowLeft') {
+        e.preventDefault()
         if (e.shiftKey) {
-          forward(-2)()
+          forward(-3)()
         } else {
           forward(-10)()
         }
       }
       if (e.code === 'ArrowRight') {
+        e.preventDefault()
         if (e.shiftKey) {
-          forward(2)()
+          forward(3)()
         } else {
           forward(10)()
         }
+      }
+      if (e.code === 'KeyD') {
+        dispatch(toggleDictionary())
       }
     }
     window.addEventListener('keydown', keyListener)
@@ -123,7 +131,7 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
         <div className={styles['title']}>
           Shfit +<span className="material-icons">arrow_back</span>
         </div>
-        <div className={styles['body']}>-2s</div>
+        <div className={styles['body']}>-3s</div>
         <div className={styles['title']}>
           <span className="material-icons">arrow_forward</span>
         </div>
@@ -131,7 +139,11 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
         <div className={styles['title']}>
           Shfit +<span className="material-icons">arrow_forward</span>
         </div>
-        <div className={styles['body']}>+2s</div>
+        <div className={styles['body']}>+3s</div>
+        <div className={styles['title']}>
+          d
+        </div>
+        <div className={styles['body']}>Toggle dictionary</div>
       </div>
     </Modal>
   )
@@ -139,73 +151,92 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
 
 let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   let [dw, setDW] = useState(getCSS(DictionaryWidth))
-  let [sw, setSW] = useState(getCSS(SubtitleWidth))
+  let [dicWidth, setDicWidth] = useState(getCSS(SubtitleWidthWithDictionary))
+  let [noDicWidth, setNoDicWidth] = useState(getCSS(SubtitleWidthWithoutDictionary))
   let [url, setURL] = useState(DictionaryUrl.get())
   let [offset, setOffset] = useState(getCSS(DictionaryLeftOffset))
+
+  let hasDictionary = useSelector(s => s.settings.hasDictionary)
+  let dispatch = useDispatch()
 
   useEffect(() => {
     if (props.show) {
       setDW(getCSS(DictionaryWidth))
-      setSW(getCSS(SubtitleWidth))
+      setDicWidth(getCSS(SubtitleWidthWithDictionary))
+      setNoDicWidth(getCSS(SubtitleWidthWithoutDictionary))
     }
   }, [props.show])
 
   return (
     <Modal {...props}>
       <div className={styles['settings']}>
-        <div className={styles['title']}>Dictionary width</div>
+        <div className={styles['title']}>Enable dictionary</div>
         <div className={styles['body']}>
           <input
-            value={dw}
+            type="checkbox"
+            checked={hasDictionary}
             onChange={e => {
-              setDW(e.target.value)
-            }}
-            onBlur={() => {
-              let width = parseInt(dw, 10)
-              if (!isNaN(width)) {
-                DictionaryWidth.set(width + 'px')
-              }
+              dispatch(toggleDictionary(e.target.checked))
             }}
           />
         </div>
-        <div className={styles['title']}>Dictionary URL</div>
-        <div className={styles['body']}>
-          <input
-            value={url || ''}
-            onChange={e => {
-              setURL(e.target.value)
-            }}
-            onBlur={() => {
-              DictionaryUrl.set(url || '')
-            }}
-          />
-        </div>
-        <div className={styles['title']}>Dictionary Left Offset</div>
-        <div className={styles['body']}>
-          <input
-            value={offset}
-            onChange={e => {
-              setOffset(e.target.value)
-            }}
-            onBlur={() => {
-              let width = parseInt(offset, 10)
-              if (!isNaN(width)) {
-                DictionaryLeftOffset.set(width + 'px')
-              }
-            }}
-          />
-        </div>
+        {hasDictionary && (
+          <>
+            <div className={styles['title']}>Dictionary width</div>
+            <div className={styles['body']}>
+              <input
+                value={dw}
+                onChange={e => {
+                  setDW(e.target.value)
+                }}
+                onBlur={() => {
+                  let width = parseInt(dw, 10)
+                  if (!isNaN(width)) {
+                    DictionaryWidth.set(width + 'px')
+                  }
+                }}
+              />
+            </div>
+            <div className={styles['title']}>Dictionary URL</div>
+            <div className={styles['body']}>
+              <input
+                value={url || ''}
+                onChange={e => {
+                  setURL(e.target.value)
+                }}
+                onBlur={() => {
+                  DictionaryUrl.set(url || '')
+                }}
+              />
+            </div>
+            <div className={styles['title']}>Dictionary Left Offset</div>
+            <div className={styles['body']}>
+              <input
+                value={offset}
+                onChange={e => {
+                  setOffset(e.target.value)
+                }}
+                onBlur={() => {
+                  let width = parseInt(offset, 10)
+                  if (!isNaN(width)) {
+                    DictionaryLeftOffset.set(width + 'px')
+                  }
+                }}
+              />
+            </div>
+          </>
+        )}
         <div className={styles['title']}>Subtitle width</div>
         <div className={styles['body']}>
           <input
-            value={sw}
+            value={hasDictionary ? dicWidth : noDicWidth}
             onChange={e => {
-              setSW(e.target.value)
+              (hasDictionary ? setDicWidth : setNoDicWidth)(e.target.value)
             }}
             onBlur={() => {
-              let width = parseInt(sw, 10)
+              let width = parseInt(hasDictionary ? dicWidth : noDicWidth, 10)
               if (!isNaN(width)) {
-                SubtitleWidth.set(width + 'px')
+                (hasDictionary ? SubtitleWidthWithDictionary : SubtitleWidthWithoutDictionary).set(width + 'px')
               }
             }}
           />

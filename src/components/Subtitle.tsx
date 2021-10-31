@@ -1,10 +1,44 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useRef } from 'react'
+import cn from 'classnames'
 import { get } from 'idb-keyval'
 import { useSelector } from '../state'
 import styles from './Subtitle.module.less'
+import { WatchHistory } from '../utils'
 
 export let Subtitle: FC = () => {
   let { nodes, raw } = useSelected()
+  let [highlight, setHighlight] = useState<number | null>(null)
+  let divRef = useRef<HTMLDivElement>(null)
+  let file = useSelector(state => state.files.selected)
+
+  useEffect(()=> {
+    function keyListener(e: KeyboardEvent) {
+      if (!divRef.current) return
+      let step = divRef.current.offsetHeight / 2
+      let top = divRef.current.scrollTop
+      if (e.code === 'ArrowUp') {
+        e.preventDefault()
+        top -= step
+      }
+      if (e.code === 'ArrowDown') {
+        e.preventDefault()
+        top += step
+      }
+      divRef.current.scroll({ top, behavior: 'smooth' })
+    }
+    window.addEventListener('keydown', keyListener)
+    return () => {
+      window.removeEventListener('keydown', keyListener)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (nodes !== null) {
+      let history = new WatchHistory(file as string)
+      history.restoreSubtitle()
+    }
+  }, [nodes])
+
   if (nodes === null) {
     if (raw !== '') {
       return <pre>{raw}</pre>
@@ -13,29 +47,31 @@ export let Subtitle: FC = () => {
     }
   } else {
     return (
-      <div className={styles['subtitle']}>
+      <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']}>
         {nodes.map(n => (
-          <SubtitleNode {...n} key={n.counter} />
+          <SubtitleNode {...n} key={n.counter} highlight={highlight} setHighlight={setHighlight} />
         ))}
       </div>
     )
   }
 }
 
-let SubtitleNode: FC<Node> = ({ counter, start, end, text }) => {
+let SubtitleNode: FC<Node & { highlight: number | null, setHighlight: (h: number) => void }> = ({ counter, start, end, text, highlight, setHighlight }) => {
   return (
-    <div className={styles['node']}>
-      <div className={styles['line']}>
-        <span className={styles['counter']}>{counter}</span>
-        <span className={styles['start']}>{start.raw}</span>
-        <span className={styles['hyphen']}> - </span>
-        <span className={styles['end']}>{end.raw}</span>
+    <div className={cn(styles['node'], {[styles['highlight']]: highlight === counter })} onClick={() => { setHighlight(counter) }}>
+      <span className={styles['counter']}>{counter}</span>
+      <div>
+        <div className={styles['line']}>
+          <span className={styles['start']}>{start.raw}</span>
+          <span className={styles['hyphen']}> - </span>
+          <span className={styles['end']}>{end.raw}</span>
+        </div>
+        {text.map((i, idx) => (
+          <p key={idx} className={styles['text']}>
+            {i}
+          </p>
+        ))}
       </div>
-      {text.map((i, idx) => (
-        <p key={idx} className={styles['text']}>
-          {i}
-        </p>
-      ))}
     </div>
   )
 }
