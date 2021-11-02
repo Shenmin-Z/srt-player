@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { set, del, keys } from 'idb-keyval'
+import { createStore, get, set, del, keys } from 'idb-keyval'
+
+const SubtitleStore = createStore('subtitle', 'keyval')
+
+export function getSubtitle(file: string) {
+  return get(file, SubtitleStore)
+}
 
 async function readText(file: File, encoding: string) {
   let reader = new FileReader()
@@ -21,27 +27,24 @@ async function readText(file: File, encoding: string) {
 export let uploadFiles = createAsyncThunk<void, { files: FileList; encoding?: string }>(
   'files/uploadFiles',
   async ({ files, encoding = 'UTF-8' }, { dispatch }) => {
-    for (let i = 0; i < files.length; i++) {
-      let file = files[i]
-      try {
+    await Promise.all(
+      Array.from(files).map(async file => {
         let text = await readText(file, encoding)
-        await set(file.name, text)
-      } catch (e) {
-        console.error(e)
-      }
-    }
+        return await set(file.name, text, SubtitleStore)
+      }),
+    )
     dispatch(getList())
   },
 )
 
 export let getList = createAsyncThunk('files/getList', async () => {
-  let fileNames = (await keys()) as string[]
+  let fileNames = (await keys(SubtitleStore)) as string[]
   fileNames.sort((a, b) => a.localeCompare(b))
   return fileNames
 })
 
 export let deleteFile = createAsyncThunk<void, string>('files/deleteFile', async (file, { dispatch }) => {
-  await del(file)
+  await del(file, SubtitleStore)
   dispatch(getList())
 })
 

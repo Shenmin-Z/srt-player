@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styles from './Uploader.module.less'
 import { uploadFiles, useDispatch } from '../state'
-
-const fileInput = () => document.querySelector('#file-input') as HTMLInputElement
 
 export let Uploader = () => {
   let dispatch = useDispatch()
 
   let [isUTF8, setIsUTF8] = useState(true)
   let [encoding, setEncoding] = useState('UTF-8')
+  let inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setEncoding(isUTF8 ? 'UTF-8' : encodingList[0])
@@ -19,20 +18,24 @@ export let Uploader = () => {
       <div
         className={styles['uploader']}
         onClick={() => {
-          fileInput().click()
+          if (!inputRef.current) return
+          inputRef.current.click()
         }}
       >
         Upload
         <input
+          ref={inputRef}
           type="file"
-          id="file-input"
           accept=".srt"
           multiple
-          onChange={() => {
-            let { files } = fileInput()
+          onChange={e => {
+            let { files } = e.target
             if (files) {
               dispatch(uploadFiles({ files, encoding }))
             }
+          }}
+          onClick={e => {
+            ;(e.target as HTMLInputElement).value = ''
           }}
         />
       </div>

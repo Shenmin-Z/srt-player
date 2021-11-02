@@ -11,10 +11,12 @@
 
   .body {
     display: grid;
-    grid-template-columns: 0 0 minmax(0, 1fr) 3px var(--subtitle-width-without-dictionary);
     grid-template-rows: minmax(0, 1fr);
-    &.has-dictionary {
-      grid-template-columns: var(--dictionary-width) 3px minmax(0, 1fr) 3px var(--subtitle-width-with-dictionary);
+    &.2col {
+      grid-template-columns: 0 0 minmax(0, 1fr) 3px var(--subtitle-width);
+    }
+    &.3col {
+      grid-template-columns: var(--dictionary-width) 3px minmax(0, 1fr) 3px var(--subtitle-width);
     }
   }
 }

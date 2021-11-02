@@ -2,8 +2,17 @@ import { FC, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
 import { Modal } from './Modal'
-import { useDispatch, useSelector, setSelected, videoElement, toggleDictionary } from '../state'
-import { SubtitleWidthWithDictionary, SubtitleWidthWithoutDictionary, DictionaryWidth, getCSS, DictionaryUrl, DictionaryLeftOffset } from '../utils'
+import {
+  useDispatch,
+  useSelector,
+  setSelected,
+  videoElement,
+  updateLayout,
+  updateSubtitleWidth,
+  updateDictionaryWidth,
+  updateDictionaryLeftOffset,
+  updateDictionaryUrl,
+} from '../state'
 
 export let Nav = () => {
   let dispatch = useDispatch()
@@ -51,6 +60,8 @@ export let Nav = () => {
   )
 }
 
+window.enableShortcuts = true
+
 let Controls = () => {
   let hasVideo = useSelector(s => s.video.hasVideo)
   let status = useSelector(s => s.video.status)
@@ -76,6 +87,7 @@ let Controls = () => {
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
+      if (!window.enableShortcuts) return
       if (e.code === 'Space') {
         e.preventDefault()
         togglePlay()
@@ -97,7 +109,7 @@ let Controls = () => {
         }
       }
       if (e.code === 'KeyD') {
-        dispatch(toggleDictionary())
+        dispatch(updateLayout())
       }
     }
     window.addEventListener('keydown', keyListener)
@@ -140,9 +152,7 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
           Shfit +<span className="material-icons">arrow_forward</span>
         </div>
         <div className={styles['body']}>+3s</div>
-        <div className={styles['title']}>
-          d
-        </div>
+        <div className={styles['title']}>d</div>
         <div className={styles['body']}>Toggle dictionary</div>
       </div>
     </Modal>
@@ -150,22 +160,24 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
 }
 
 let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
-  let [dw, setDW] = useState(getCSS(DictionaryWidth))
-  let [dicWidth, setDicWidth] = useState(getCSS(SubtitleWidthWithDictionary))
-  let [noDicWidth, setNoDicWidth] = useState(getCSS(SubtitleWidthWithoutDictionary))
-  let [url, setURL] = useState(DictionaryUrl.get())
-  let [offset, setOffset] = useState(getCSS(DictionaryLeftOffset))
+  let settings = useSelector(s => s.settings)
+  let { layout } = settings
+  let [dw, setDW] = useState(`${settings.dictionaryWidth}`)
+  let [sw, setSW] = useState(`${settings.subtitleWidth}`)
+  let [url, setURL] = useState(settings.dictionaryUrl)
+  let [offset, setOffset] = useState(`${settings.dictionaryLeftOffset}`)
 
-  let hasDictionary = useSelector(s => s.settings.hasDictionary)
   let dispatch = useDispatch()
 
   useEffect(() => {
     if (props.show) {
-      setDW(getCSS(DictionaryWidth))
-      setDicWidth(getCSS(SubtitleWidthWithDictionary))
-      setNoDicWidth(getCSS(SubtitleWidthWithoutDictionary))
+      window.enableShortcuts = false
+      setDW(`${settings.dictionaryWidth}`)
+      setSW(`${settings.subtitleWidth}`)
+    } else {
+      window.enableShortcuts = true
     }
-  }, [props.show])
+  }, [props.show, settings.layout])
 
   return (
     <Modal {...props}>
@@ -174,13 +186,13 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
         <div className={styles['body']}>
           <input
             type="checkbox"
-            checked={hasDictionary}
+            checked={layout === '3col'}
             onChange={e => {
-              dispatch(toggleDictionary(e.target.checked))
+              dispatch(updateLayout(e.target.checked ? '3col' : '2col'))
             }}
           />
         </div>
-        {hasDictionary && (
+        {layout === '3col' && (
           <>
             <div className={styles['title']}>Dictionary width</div>
             <div className={styles['body']}>
@@ -192,7 +204,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                 onBlur={() => {
                   let width = parseInt(dw, 10)
                   if (!isNaN(width)) {
-                    DictionaryWidth.set(width + 'px')
+                    dispatch(updateDictionaryWidth(width))
                   }
                 }}
               />
@@ -205,7 +217,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                   setURL(e.target.value)
                 }}
                 onBlur={() => {
-                  DictionaryUrl.set(url || '')
+                  dispatch(updateDictionaryUrl(url))
                 }}
               />
             </div>
@@ -218,9 +230,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                 }}
                 onBlur={() => {
                   let width = parseInt(offset, 10)
-                  if (!isNaN(width)) {
-                    DictionaryLeftOffset.set(width + 'px')
-                  }
+                  dispatch(updateDictionaryLeftOffset(width))
                 }}
               />
             </div>
@@ -229,14 +239,14 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
         <div className={styles['title']}>Subtitle width</div>
         <div className={styles['body']}>
           <input
-            value={hasDictionary ? dicWidth : noDicWidth}
+            value={sw}
             onChange={e => {
-              (hasDictionary ? setDicWidth : setNoDicWidth)(e.target.value)
+              setSW(e.target.value)
             }}
             onBlur={() => {
-              let width = parseInt(hasDictionary ? dicWidth : noDicWidth, 10)
+              let width = parseInt(sw, 10)
               if (!isNaN(width)) {
-                (hasDictionary ? SubtitleWidthWithDictionary : SubtitleWidthWithoutDictionary).set(width + 'px')
+                dispatch(updateSubtitleWidth(width))
               }
             }}
           />

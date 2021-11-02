@@ -12,7 +12,7 @@
   .mask {
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.05);
     position: absolute;
   }
 
@@ -20,9 +20,10 @@
     background: #fff;
     z-index: 1;
     border-radius: 10px;
-    min-width: 200px;
+    min-width: 300px;
     max-width: calc(100vw - 200px);
     min-height: 300px;
+    box-shadow: 0 8px 10px 0 rgb(15 41 77 / 8%);
 
     .header {
       display: flex;
@@ -35,7 +36,7 @@
     }
 
     .body {
-      max-height: calc(100vh - 200px);
+      max-height: 100vh;
       overflow: auto;
       padding: 10px;
     }

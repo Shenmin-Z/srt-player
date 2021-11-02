@@ -6,9 +6,16 @@ import { Nav } from './components/Nav'
 import { Subtitle } from './components/Subtitle'
 import { Video } from './components/Video'
 import { Dictionary } from './components/Dictionary'
-import { useDispatch, useSelector, getList } from './state'
+import {
+  useDispatch,
+  useSelector,
+  getList,
+  LoadSettingsFromLocal,
+  updateSubtitleWidth,
+  updateDictionaryWidth,
+} from './state'
 import styles from './App.module.less'
-import { SubtitleWidthWithDictionary, SubtitleWidthWithoutDictionary, DictionaryWidth, DictionaryUrl, DictionaryLeftOffset, WatchHistory } from './utils'
+import { WatchHistory } from './utils'
 
 function App() {
   let dispatch = useDispatch()
@@ -16,11 +23,7 @@ function App() {
 
   useEffect(() => {
     dispatch(getList())
-    SubtitleWidthWithDictionary.set()
-    SubtitleWidthWithoutDictionary.set()
-    DictionaryWidth.set()
-    DictionaryUrl.set()
-    DictionaryLeftOffset.set()
+    dispatch(LoadSettingsFromLocal())
   }, [])
 
   return selected === null ? <Home /> : <Play />
@@ -36,7 +39,7 @@ function Home() {
 }
 
 function Play() {
-  let hasDictionary = useSelector(s => s.settings.hasDictionary)
+  let layout = useSelector(s => s.settings.layout)
   let file = useSelector(state => state.files.selected)
 
   useEffect(() => {
@@ -51,7 +54,7 @@ function Play() {
   return (
     <div className={styles['play']}>
       <Nav />
-      <div className={cn(styles['body'], { [styles['has-dictionary']]: hasDictionary })}>
+      <div className={cn(styles['body'], { [styles['2col']]: layout === '2col', [styles['3col']]: layout === '3col' })}>
         <Dictionary />
         <ResizeBar type="dictionary" />
         <Video />
@@ -65,7 +68,10 @@ function Play() {
 }
 
 let ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
-  let hasDictionary = useSelector(s => s.settings.hasDictionary)
+  let subtitleWidth = useSelector(s => s.settings.subtitleWidth)
+  let dictionaryWidth = useSelector(s => s.settings.dictionaryWidth)
+  let dispatch = useDispatch()
+
   let onMD = () => {
     if (type === 'dictionary') {
       let dictionaryIFrame = document.getElementById('dictionary-iframe')
@@ -74,15 +80,11 @@ let ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
       }
     }
     function onMouseMove(e: MouseEvent) {
-      let width = type === 'dictionary' ? DictionaryWidth : (hasDictionary ? SubtitleWidthWithDictionary : SubtitleWidthWithoutDictionary)
-      let prev = parseInt(width.get() as string)
-      let next: number
       if (type === 'dictionary') {
-        next = prev + e.movementX
+        dispatch(updateDictionaryWidth(dictionaryWidth + e.movementX))
       } else {
-        next = prev - e.movementX
+        dispatch(updateSubtitleWidth(subtitleWidth - e.movementX))
       }
-      width.set(next + 'px')
     }
     function onMouseUp() {
       window.removeEventListener('mousemove', onMouseMove)

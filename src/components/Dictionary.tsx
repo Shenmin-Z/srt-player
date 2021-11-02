@@ -1,6 +1,7 @@
 import styles from './Dictionary.module.less'
-import { DictionaryUrl } from '../utils'
+import { useSelector } from '../state'
 
 export let Dictionary = () => {
-  return <iframe id="dictionary-iframe" src={DictionaryUrl.get() as string} className={styles['dictionary']} />
+  let url = useSelector(s => s.settings.dictionaryUrl)
+  return <iframe id="dictionary-iframe" src={url} className={styles['dictionary']} />
 }

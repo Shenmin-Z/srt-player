@@ -1,7 +1,6 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
-import { get } from 'idb-keyval'
-import { useSelector } from '../state'
+import { useSelector, getSubtitle } from '../state'
 import styles from './Subtitle.module.less'
 import { WatchHistory } from '../utils'
 
@@ -11,9 +10,9 @@ export let Subtitle: FC = () => {
   let divRef = useRef<HTMLDivElement>(null)
   let file = useSelector(state => state.files.selected)
 
-  useEffect(()=> {
+  useEffect(() => {
     function keyListener(e: KeyboardEvent) {
-      if (!divRef.current) return
+      if (!divRef.current || !window.enableShortcuts) return
       let step = divRef.current.offsetHeight / 2
       let top = divRef.current.scrollTop
       if (e.code === 'ArrowUp') {
@@ -56,9 +55,21 @@ export let Subtitle: FC = () => {
   }
 }
 
-let SubtitleNode: FC<Node & { highlight: number | null, setHighlight: (h: number) => void }> = ({ counter, start, end, text, highlight, setHighlight }) => {
+let SubtitleNode: FC<Node & { highlight: number | null; setHighlight: (h: number) => void }> = ({
+  counter,
+  start,
+  end,
+  text,
+  highlight,
+  setHighlight,
+}) => {
   return (
-    <div className={cn(styles['node'], {[styles['highlight']]: highlight === counter })} onClick={() => { setHighlight(counter) }}>
+    <div
+      className={cn(styles['node'], { [styles['highlight']]: highlight === counter })}
+      onClick={() => {
+        setHighlight(counter)
+      }}
+    >
       <span className={styles['counter']}>{counter}</span>
       <div>
         <div className={styles['line']}>
@@ -82,7 +93,7 @@ let useSelected = () => {
   let [raw, setRaw] = useState('')
   useEffect(() => {
     if (fileName) {
-      get(fileName)
+      getSubtitle(fileName)
         .then(content => {
           setRaw(content)
           let nodes = parseSRT(content)
