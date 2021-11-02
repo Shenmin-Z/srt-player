@@ -15,7 +15,7 @@ import {
   updateDictionaryWidth,
 } from './state'
 import styles from './App.module.less'
-import { WatchHistory } from './utils'
+import { useSaveHistory } from './utils'
 
 function App() {
   let dispatch = useDispatch()
@@ -40,14 +40,15 @@ function Home() {
 
 function Play() {
   let layout = useSelector(s => s.settings.layout)
-  let file = useSelector(state => state.files.selected)
+  let saveHistory = useSaveHistory()
 
   useEffect(() => {
-    let history = new WatchHistory(file as string)
-    history.restoreSubtitle()
-    window.addEventListener('keydown', history.keyListener)
+    function listener() {
+      saveHistory()
+    }
+    window.addEventListener('beforeunload', listener)
     return () => {
-      window.removeEventListener('keydown', history.keyListener)
+      window.removeEventListener('beforeunload', listener)
     }
   }, [])
 
@@ -79,11 +80,14 @@ let ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
         dictionaryIFrame.style.pointerEvents = 'none'
       }
     }
+    let width = type === 'dictionary' ? dictionaryWidth : subtitleWidth
     function onMouseMove(e: MouseEvent) {
       if (type === 'dictionary') {
-        dispatch(updateDictionaryWidth(dictionaryWidth + e.movementX))
+        width += e.movementX
+        dispatch(updateDictionaryWidth(width))
       } else {
-        dispatch(updateSubtitleWidth(subtitleWidth - e.movementX))
+        width -= e.movementX
+        dispatch(updateSubtitleWidth(width))
       }
     }
     function onMouseUp() {

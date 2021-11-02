@@ -6,19 +6,20 @@ interface initialState {
 }
 let initialState: initialState = { hasVideo: false, status: 'stopped' }
 
-export let videoElement: HTMLVideoElement | null = null
-export let setVideo = createAsyncThunk<void, HTMLVideoElement | null>('video/setVideo', (v, { dispatch }) => {
-  if (videoElement === null && v !== null) {
+export let setVideo = createAsyncThunk<boolean, boolean>('video/setVideo', (v, { dispatch }) => {
+  if (!v) return false
+  let videoElement = document.getElementById('srt-player-video')
+  if (videoElement) {
     function playListener() {
       dispatch(setVideoStatus('playing'))
     }
     function pauseListener() {
       dispatch(setVideoStatus('stopped'))
     }
-    v.addEventListener('play', playListener)
-    v.addEventListener('pause', pauseListener)
+    videoElement.addEventListener('play', playListener)
+    videoElement.addEventListener('pause', pauseListener)
   }
-  videoElement = v
+  return true
 })
 
 export let videoSlice = createSlice({
@@ -30,8 +31,8 @@ export let videoSlice = createSlice({
     },
   },
   extraReducers: builder => {
-    builder.addCase(setVideo.fulfilled, state => {
-      state.hasVideo = videoElement !== null
+    builder.addCase(setVideo.fulfilled, (state, action) => {
+      state.hasVideo = action.payload
     })
   },
 })

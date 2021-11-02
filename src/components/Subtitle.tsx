@@ -2,13 +2,12 @@ import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useSelector, getSubtitle } from '../state'
 import styles from './Subtitle.module.less'
-import { WatchHistory } from '../utils'
+import { useRestoreSubtitle } from '../utils'
 
 export let Subtitle: FC = () => {
   let { nodes, raw } = useSelected()
   let [highlight, setHighlight] = useState<number | null>(null)
   let divRef = useRef<HTMLDivElement>(null)
-  let file = useSelector(state => state.files.selected)
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
@@ -31,10 +30,11 @@ export let Subtitle: FC = () => {
     }
   }, [])
 
+  let restoreSubtitle = useRestoreSubtitle()
+
   useEffect(() => {
     if (nodes !== null) {
-      let history = new WatchHistory(file as string)
-      history.restoreSubtitle()
+      restoreSubtitle()
     }
   }, [nodes])
 

@@ -1,55 +1,66 @@
-const MAP: {[s:string]: WatchHistory} = {}
+import { get, set } from 'idb-keyval'
+import { useSelector } from '../state'
 
-export class WatchHistory {
-  videoTime = 0;
-  subtitleTop = 0;
+const KEY_HISTORY = 'SRT-HISTORY'
 
-  constructor(private file: string) {
-    if (MAP[file]) return MAP[file]
-    try {
-      let history = JSON.parse(localStorage.getItem(file) || `{}`)
-      this.videoTime = history.videoTime ?? 0
-      this.subtitleTop = history.subtitleTop ?? 0
-    } catch {
-    }
-    MAP[file] = this
-    this.keyListener = this.keyListener.bind(this)
-  }
+interface WatchHistory {
+  videoTime: number
+  subtitleTop: number
+}
 
-  keyListener(e: KeyboardEvent) {
-    if (e.code === 'KeyS') {
-      this.save()
-    }
-  }
+interface WatchHistories {
+  [s: string]: WatchHistory
+}
 
-  get() {
-    let subtitle = document.getElementById('srt-player-subtitle') as HTMLDivElement | undefined
-    let video = document.getElementById('srt-player-video') as HTMLVideoElement | undefined
-    return {subtitle, video}
-  }
+function getSubtitleElm() {
+  return document.getElementById('srt-player-subtitle') as HTMLDivElement | undefined
+}
 
-  save() {
-    let {subtitle, video} = this.get()
+function getVideoElm() {
+  return document.getElementById('srt-player-video') as HTMLVideoElement | undefined
+}
+
+export let useRestoreSubtitle = () => {
+  let file = useSelector(s => s.files.selected)
+  return async () => {
+    if (!file) return
+    let hs: WatchHistories = (await get(KEY_HISTORY)) || {}
+    let subtitleTop = hs[file]?.subtitleTop ?? 0
+    let subtitle = getSubtitleElm()
     if (subtitle) {
-      this.subtitleTop = Math.floor(subtitle.scrollTop)
+      subtitle.scroll({ top: subtitleTop, behavior: 'auto' })
     }
-    if (video) {
-      this.videoTime = Math.floor(video.currentTime)
-    }
-    localStorage.setItem(this.file, JSON.stringify({ videoTime: this.videoTime, subtitleTop: this.subtitleTop}))
   }
+}
 
-  restoreSubtitle() {
-    let { subtitle } = this.get()
+export let useRestoreVideo = () => {
+  let file = useSelector(s => s.files.selected)
+  return async () => {
+    if (!file) return
+    let hs: WatchHistories = (await get(KEY_HISTORY)) || {}
+    let videoTime = hs[file]?.videoTime ?? 0
+    let video = getVideoElm()
+    if (video) {
+      video.currentTime = videoTime
+    }
+  }
+}
+
+export let useSaveHistory = () => {
+  let file = useSelector(s => s.files.selected)
+  return async () => {
+    if (!file) return
+    let hs: WatchHistories = (await get(KEY_HISTORY)) || {}
+    let h = { subtitleTop: 0, videoTime: 0, ...((hs[file] as WatchHistory | undefined) || {}) }
+    let subtitle = getSubtitleElm()
     if (subtitle) {
-      subtitle.scroll({ top: this.subtitleTop, behavior: 'auto' })
+      h.subtitleTop = Math.floor(subtitle.scrollTop)
     }
-  }
-
-  restoreVideo() {
-    let { video } = this.get()
+    let video = getVideoElm()
     if (video) {
-      video.currentTime = this.videoTime
+      h.videoTime = Math.floor(video.currentTime)
     }
+    hs[file] = h
+    await set(KEY_HISTORY, hs)
   }
 }

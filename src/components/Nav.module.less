@@ -47,6 +47,7 @@
   grid-template-columns: minmax(50px, auto) 1fr;
   gap: 10px;
   align-items: center;
+  padding: 0 10px;
 }
 
 .settings {
@@ -60,7 +61,7 @@
 .shortcuts {
   text-align: center;
   font-size: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .info {
@@ -68,6 +69,16 @@
   .title {
     display: flex;
     align-items: center;
+    justify-content: center;
+    color: #24292f;
+    background-color: #f6f8fa;
+    border: 1px solid rgba(27, 31, 36, 0.15);
+    border-radius: 5px;
+    padding: 5px;
+
+    span[class='material-icons'] {
+      font-size: 16px;
+    }
   }
 
   .body {

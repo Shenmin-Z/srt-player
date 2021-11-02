@@ -6,18 +6,19 @@ import {
   useDispatch,
   useSelector,
   setSelected,
-  videoElement,
   updateLayout,
   updateSubtitleWidth,
   updateDictionaryWidth,
   updateDictionaryLeftOffset,
   updateDictionaryUrl,
 } from '../state'
+import { useSaveHistory } from '../utils'
 
 export let Nav = () => {
   let dispatch = useDispatch()
   let [showSettings, setShowSettings] = useState(false)
   let [showInfo, setShowInfo] = useState(false)
+  let saveHistory = useSaveHistory()
 
   return (
     <>
@@ -25,7 +26,9 @@ export let Nav = () => {
         <Icon
           type="arrow_back"
           onClick={() => {
-            dispatch(setSelected(null))
+            saveHistory().then(() => {
+              dispatch(setSelected(null))
+            })
           }}
         />
         <Controls />
@@ -69,6 +72,7 @@ let Controls = () => {
   let dispatch = useDispatch()
 
   let forward = (t: number) => () => {
+    let videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
     if (videoElement === null) return
     videoElement.blur()
     videoElement.currentTime += t
@@ -76,6 +80,7 @@ let Controls = () => {
 
   function togglePlay() {
     if (!hasVideo) return
+    let videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
     if (videoElement === null) return
     videoElement.blur()
     if (status === 'playing') {
@@ -154,6 +159,14 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
         <div className={styles['body']}>+3s</div>
         <div className={styles['title']}>d</div>
         <div className={styles['body']}>Toggle dictionary</div>
+        <div className={styles['title']}>
+          <span className="material-icons">arrow_upward</span>
+        </div>
+        <div className={styles['body']}>Subtitle pageup</div>
+        <div className={styles['title']}>
+          <span className="material-icons">arrow_downward</span>
+        </div>
+        <div className={styles['body']}>Subtitle pagedown</div>
       </div>
     </Modal>
   )

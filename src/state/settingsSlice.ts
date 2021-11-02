@@ -9,8 +9,8 @@ export async function getSettings(): Promise<Settings> {
     settings = {
       layout: {
         layout: '3col',
-        subtitle2Col: 420,
-        subtitle3Col: 600,
+        subtitle2Col: 600,
+        subtitle3Col: 400,
         dictionary: 600,
         dictionaryLeftOffset: 0,
       },
