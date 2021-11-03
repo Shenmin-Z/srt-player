@@ -1,9 +1,11 @@
 .nav {
   border-bottom: 1px solid;
   border-color: var(--main-border-color);
-  display: flex;
+  width: 100vw;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
   align-items: center;
-  justify-content: space-between;
   padding: 0 10px;
 }
 
@@ -12,23 +14,13 @@
   color: var(--main-icon-color);
 }
 
-.play {
-  .icon {
-    padding: 3px;
-    border: 0px;
-    border-radius: 4px;
-    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.15);
-    margin: 3px;
-    &:hover {
-      box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.5);
-    }
-  }
-  .icon.disabled {
-    color: var(--main-background-color);
-    &:hover {
-      cursor: default;
-      box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.15);
-    }
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  .episode {
+    font-weight: bold;
   }
 }
 

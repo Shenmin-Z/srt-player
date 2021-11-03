@@ -3,12 +3,12 @@ import { useSelector } from '../state'
 
 const KEY_HISTORY = 'SRT-HISTORY'
 
-interface WatchHistory {
+export interface WatchHistory {
   videoTime: number
   subtitleTop: number
 }
 
-interface WatchHistories {
+export interface WatchHistories {
   [s: string]: WatchHistory
 }
 
@@ -63,4 +63,9 @@ export let useSaveHistory = () => {
     hs[file] = h
     await set(KEY_HISTORY, hs)
   }
+}
+
+export async function getWatchHistory() {
+  let hs: WatchHistories = (await get(KEY_HISTORY)) || {}
+  return hs
 }

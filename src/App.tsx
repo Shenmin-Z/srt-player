@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react'
+import { FC, useEffect, MouseEventHandler } from 'react'
 import cn from 'classnames'
 import { Uploader } from './components/Uploader'
 import { List } from './components/List'
@@ -73,21 +73,20 @@ let ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
   let dictionaryWidth = useSelector(s => s.settings.dictionaryWidth)
   let dispatch = useDispatch()
 
-  let onMD = () => {
+  let onMD: MouseEventHandler<HTMLDivElement> = e => {
     if (type === 'dictionary') {
       let dictionaryIFrame = document.getElementById('dictionary-iframe')
       if (dictionaryIFrame) {
         dictionaryIFrame.style.pointerEvents = 'none'
       }
     }
-    let width = type === 'dictionary' ? dictionaryWidth : subtitleWidth
+    let prev = e.clientX
     function onMouseMove(e: MouseEvent) {
+      let delta = e.clientX - prev
       if (type === 'dictionary') {
-        width += e.movementX
-        dispatch(updateDictionaryWidth(width))
+        dispatch(updateDictionaryWidth(dictionaryWidth + delta))
       } else {
-        width -= e.movementX
-        dispatch(updateSubtitleWidth(width))
+        dispatch(updateSubtitleWidth(subtitleWidth - delta))
       }
     }
     function onMouseUp() {

@@ -10,6 +10,8 @@ yarn build
 cd dist
 
 git init
+git config user.name "Shenmin Zhou"
+git config user.email "shenminzhou@gmail.com"
 git add -A
 git commit -m 'deploy'
 

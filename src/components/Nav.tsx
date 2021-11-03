@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, ReactElement, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
 import { Modal } from './Modal'
@@ -16,9 +16,23 @@ import { useSaveHistory } from '../utils'
 
 export let Nav = () => {
   let dispatch = useDispatch()
+  let file = useSelector(s => s.files.selected) as string
   let [showSettings, setShowSettings] = useState(false)
   let [showInfo, setShowInfo] = useState(false)
   let saveHistory = useSaveHistory()
+
+  useEffect(() => {
+    function keyListener(e: KeyboardEvent) {
+      if (!window.enableShortcuts) return
+      if (e.code === 'KeyD') {
+        dispatch(updateLayout())
+      }
+    }
+    window.addEventListener('keydown', keyListener)
+    return () => {
+      window.removeEventListener('keydown', keyListener)
+    }
+  }, [])
 
   return (
     <>
@@ -31,7 +45,7 @@ export let Nav = () => {
             })
           }}
         />
-        <Controls />
+        <Title file={file} />
         <div className={styles['right']}>
           <Icon
             type="info"
@@ -65,73 +79,19 @@ export let Nav = () => {
 
 window.enableShortcuts = true
 
-let Controls = () => {
-  let hasVideo = useSelector(s => s.video.hasVideo)
-  let status = useSelector(s => s.video.status)
-
-  let dispatch = useDispatch()
-
-  let forward = (t: number) => () => {
-    let videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
-    if (videoElement === null) return
-    videoElement.blur()
-    videoElement.currentTime += t
+let Title: FC<{ file: string }> = ({ file }) => {
+  if (/\.srt$/i.test(file)) file = file.substring(0, file.length - 4)
+  let inner: string | ReactElement = file
+  let match = file.match(/^(.*?)(\d+)$/)
+  if (match) {
+    inner = (
+      <>
+        {match[1]}
+        <span className={styles['episode']}>{match[2]}</span>
+      </>
+    )
   }
-
-  function togglePlay() {
-    if (!hasVideo) return
-    let videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
-    if (videoElement === null) return
-    videoElement.blur()
-    if (status === 'playing') {
-      videoElement.pause()
-    } else {
-      videoElement.play()
-    }
-  }
-
-  useEffect(() => {
-    function keyListener(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
-      if (e.code === 'Space') {
-        e.preventDefault()
-        togglePlay()
-      }
-      if (e.code === 'ArrowLeft') {
-        e.preventDefault()
-        if (e.shiftKey) {
-          forward(-3)()
-        } else {
-          forward(-10)()
-        }
-      }
-      if (e.code === 'ArrowRight') {
-        e.preventDefault()
-        if (e.shiftKey) {
-          forward(3)()
-        } else {
-          forward(10)()
-        }
-      }
-      if (e.code === 'KeyD') {
-        dispatch(updateLayout())
-      }
-    }
-    window.addEventListener('keydown', keyListener)
-    return () => {
-      window.removeEventListener('keydown', keyListener)
-    }
-  }, [togglePlay])
-
-  return (
-    <div className={styles['play']}>
-      <Icon type="replay_5" onClick={forward(-5)} disabled={!hasVideo} />
-      <Icon type="replay_10" onClick={forward(-10)} disabled={!hasVideo} />
-      <Icon type={status === 'playing' ? 'pause' : 'play_circle_outline'} onClick={togglePlay} disabled={!hasVideo} />
-      <Icon type="forward_5" onClick={forward(5)} disabled={!hasVideo} />
-      <Icon type="forward_10" onClick={forward(10)} disabled={!hasVideo} />
-    </div>
-  )
+  return <div className={styles['name']}>{inner}</div>
 }
 
 let Info: FC<{ show: boolean; onClose: () => void }> = props => {

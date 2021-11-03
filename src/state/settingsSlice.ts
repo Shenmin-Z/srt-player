@@ -55,35 +55,37 @@ let initialState: InitialState = {
   dictionaryUrl: '',
 }
 
+function setWidth(v: { [s: string]: number }) {
+  Object.entries(v).forEach(([k, v]) => {
+    document.documentElement.style.setProperty(k, v + 'px')
+  })
+}
+
 export let LoadSettingsFromLocal = createAsyncThunk('settings/init', async () => {
   let settings = await getSettings()
-  let root = document.documentElement
-  root.style.setProperty('--dictionary-width', `${settings.layout.dictionary}px`)
-  root.style.setProperty(
-    '--subtitle-width',
-    `${settings.layout.layout === '2col' ? settings.layout.subtitle2Col : settings.layout.subtitle3Col}px`,
-  )
-  root.style.setProperty('--dictionary-left-offset', `${settings.layout.dictionaryLeftOffset}px`)
+  setWidth({
+    '--dictionary-width': settings.layout.dictionary,
+    '--subtitle-width': settings.layout.layout === '2col' ? settings.layout.subtitle2Col : settings.layout.subtitle3Col,
+    '--dictionary-left-offset': settings.layout.dictionaryLeftOffset,
+  })
   return settings
 })
 
 export let updateDictionaryWidth = createAsyncThunk<number, number>('settings/updateDictionaryWidth', async v => {
+  setWidth({ '--dictionary-width': v })
   let settings = await getSettings()
   settings.layout.dictionary = v
   await set(SETTINGS_KEY, settings)
-  let root = document.documentElement
-  root.style.setProperty('--dictionary-width', `${v}px`)
   return v
 })
 
 export let updateDictionaryLeftOffset = createAsyncThunk<number, number>(
   'settings/updateDictionaryLeftOffset',
   async v => {
+    setWidth({ '--dictionary-left-offset': v })
     let settings = await getSettings()
     settings.layout.dictionaryLeftOffset = v
     await set(SETTINGS_KEY, settings)
-    let root = document.documentElement
-    root.style.setProperty('--dictionary-left-offset', `${v}px`)
     return v
   },
 )
@@ -98,6 +100,7 @@ export let updateDictionaryUrl = createAsyncThunk<string, string>('settings/upda
 export let updateSubtitleWidth = createAsyncThunk<number, number>(
   'settings/updateSubtitleWidth',
   async (v, { getState }) => {
+    setWidth({ '--subtitle-width': v })
     let state = getState() as { settings: InitialState }
     let settings = await getSettings()
     if (state.settings.layout === '2col') {
@@ -106,8 +109,6 @@ export let updateSubtitleWidth = createAsyncThunk<number, number>(
       settings.layout.subtitle3Col = v
     }
     await set(SETTINGS_KEY, settings)
-    let root = document.documentElement
-    root.style.setProperty('--subtitle-width', `${v}px`)
     return v
   },
 )
@@ -125,9 +126,8 @@ export let updateLayout = createAsyncThunk<[Layout, number], Layout | undefined>
     let settings = await getSettings()
     settings.layout.layout = next
     await set(SETTINGS_KEY, settings)
-    let root = document.documentElement
     let width = settings.layout.layout === '2col' ? settings.layout.subtitle2Col : settings.layout.subtitle3Col
-    root.style.setProperty('--subtitle-width', `${width}px`)
+    setWidth({ '--subtitle-width': width })
     return [next, width]
   },
 )
