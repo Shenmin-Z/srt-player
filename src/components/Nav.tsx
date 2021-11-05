@@ -14,12 +14,12 @@ import {
 } from '../state'
 import { useSaveHistory } from '../utils'
 
-export let Nav = () => {
-  let dispatch = useDispatch()
-  let file = useSelector(s => s.files.selected) as string
-  let [showSettings, setShowSettings] = useState(false)
-  let [showInfo, setShowInfo] = useState(false)
-  let saveHistory = useSaveHistory()
+export const Nav = () => {
+  const dispatch = useDispatch()
+  const file = useSelector(s => s.files.selected) as string
+  const [showSettings, setShowSettings] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
+  const saveHistory = useSaveHistory()
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
@@ -79,10 +79,10 @@ export let Nav = () => {
 
 window.enableShortcuts = true
 
-let Title: FC<{ file: string }> = ({ file }) => {
+const Title: FC<{ file: string }> = ({ file }) => {
   if (/\.srt$/i.test(file)) file = file.substring(0, file.length - 4)
   let inner: string | ReactElement = file
-  let match = file.match(/^(.*?)(\d+)$/)
+  const match = file.match(/^(.*?)(\d+)$/)
   if (match) {
     inner = (
       <>
@@ -94,7 +94,7 @@ let Title: FC<{ file: string }> = ({ file }) => {
   return <div className={styles['name']}>{inner}</div>
 }
 
-let Info: FC<{ show: boolean; onClose: () => void }> = props => {
+const Info: FC<{ show: boolean; onClose: () => void }> = props => {
   return (
     <Modal {...props}>
       <div className={styles['shortcuts']}>Shortcuts</div>
@@ -132,15 +132,15 @@ let Info: FC<{ show: boolean; onClose: () => void }> = props => {
   )
 }
 
-let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
-  let settings = useSelector(s => s.settings)
-  let { layout } = settings
-  let [dw, setDW] = useState(`${settings.dictionaryWidth}`)
-  let [sw, setSW] = useState(`${settings.subtitleWidth}`)
-  let [url, setURL] = useState(settings.dictionaryUrl)
-  let [offset, setOffset] = useState(`${settings.dictionaryLeftOffset}`)
+const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
+  const settings = useSelector(s => s.settings)
+  const { layout } = settings
+  const [dw, setDW] = useState(`${settings.dictionaryWidth}`)
+  const [sw, setSW] = useState(`${settings.subtitleWidth}`)
+  const [url, setURL] = useState(settings.dictionaryUrl)
+  const [offset, setOffset] = useState(`${settings.dictionaryLeftOffset}`)
 
-  let dispatch = useDispatch()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (props.show) {
@@ -175,7 +175,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                   setDW(e.target.value)
                 }}
                 onBlur={() => {
-                  let width = parseInt(dw, 10)
+                  const width = parseInt(dw, 10)
                   if (!isNaN(width)) {
                     dispatch(updateDictionaryWidth(width))
                   }
@@ -202,7 +202,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                   setOffset(e.target.value)
                 }}
                 onBlur={() => {
-                  let width = parseInt(offset, 10)
+                  const width = parseInt(offset, 10)
                   dispatch(updateDictionaryLeftOffset(width))
                 }}
               />
@@ -217,7 +217,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
               setSW(e.target.value)
             }}
             onBlur={() => {
-              let width = parseInt(sw, 10)
+              const width = parseInt(sw, 10)
               if (!isNaN(width)) {
                 dispatch(updateSubtitleWidth(width))
               }
@@ -229,7 +229,7 @@ let Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   )
 }
 
-let Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled }) => {
+const Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled }) => {
   return (
     <span className={cn(styles['icon'], 'material-icons', { [styles['disabled']]: disabled })} onClick={onClick}>
       {type}

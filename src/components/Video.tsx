@@ -1,32 +1,43 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
-import { setVideo, useDispatch, useSelector } from '../state'
-import cn from 'classnames'
+import { setVideo, getVideo, useDispatch, useSelector, deleteFile, setSelected } from '../state'
 import { useRestoreVideo } from '../utils'
 
-const videoInput = () => document.querySelector('#video-input') as HTMLInputElement
+export const Video: FC = () => {
+  const [videoUrl, setVideoUrl] = useState('')
+  const urlRef = useRef<string>('')
+  const restoreVideo = useRestoreVideo()
 
-export let Video: FC = () => {
-  let [videoUrl, setVideoUrl] = useState('')
-  let videoRef = useRef<HTMLVideoElement>(null)
-  let restoreVideo = useRestoreVideo()
-
-  let dispatch = useDispatch()
-  let hasVideo = useSelector(s => s.video.hasVideo)
-  let status = useSelector(s => s.video.status)
+  const dispatch = useDispatch()
+  const hasVideo = useSelector(s => s.video.hasVideo)
+  const file = useSelector(s => s.files.selected)
+  const status = useSelector(s => s.video.status)
 
   useEffect(() => {
-    if (!videoUrl) return
-    dispatch(setVideo(true))
-    restoreVideo()
+    if (!file) return
+    getVideo(file)
+      .then(f => {
+        const url = URL.createObjectURL(f)
+        setVideoUrl(url)
+        urlRef.current = url
+        dispatch(setVideo(true))
+        restoreVideo()
+      })
+      .catch(() => {
+        dispatch(deleteFile(file))
+        dispatch(setSelected(null))
+      })
     return () => {
-      URL.revokeObjectURL(videoUrl)
+      const url = urlRef.current
+      if (url) {
+        URL.revokeObjectURL(url)
+      }
       dispatch(setVideo(false))
     }
-  }, [videoUrl])
+  }, [])
 
-  let forward = (t: number) => () => {
-    let videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
+  const forward = (t: number) => () => {
+    const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
     if (videoElement === null) return
     videoElement.blur()
     videoElement.currentTime += t
@@ -34,7 +45,7 @@ export let Video: FC = () => {
 
   function togglePlay() {
     if (!hasVideo) return
-    let videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
+    const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
     if (videoElement === null) return
     videoElement.blur()
     if (status === 'playing') {
@@ -77,35 +88,9 @@ export let Video: FC = () => {
   if (videoUrl) {
     return (
       <div className={styles['video-container']}>
-        <video id="srt-player-video" ref={videoRef} src={videoUrl} controls />
+        <video id="srt-player-video" src={videoUrl} controls />
       </div>
     )
   }
-
-  return (
-    <div className={styles['upload']}>
-      <div
-        className={styles['click-area']}
-        onClick={() => {
-          videoInput().click()
-        }}
-      >
-        <div>
-          <div className={cn('material-icons', styles['icon'])}>movie</div>
-          Select Video
-          <input
-            type="file"
-            id="video-input"
-            accept="video/mp4,video/x-m4v,video/*"
-            onChange={() => {
-              let files = videoInput().files
-              if (files && files[0]) {
-                setVideoUrl(URL.createObjectURL(files[0]))
-              }
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  )
+  return <div />
 }

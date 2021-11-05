@@ -1,50 +1,44 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { createStore, get, set, del, keys } from 'idb-keyval'
+import { deleteHistory } from '../utils'
 
-const SubtitleStore = createStore('subtitle', 'keyval')
-
-export function getSubtitle(file: string) {
-  return get(file, SubtitleStore)
+interface VideoSubPair {
+  video: FileSystemHandle
+  subtitle: string
 }
 
-async function readText(file: File, encoding: string) {
-  let reader = new FileReader()
-  reader.readAsText(file, encoding)
-  return await new Promise((res, rej) => {
-    reader.onload = e => {
-      if (e.target) {
-        res(e.target.result)
-      } else {
-        rej()
-      }
-    }
-    reader.onerror = () => {
-      rej()
-    }
-  })
+const FilesStore = createStore('files', 'keyval')
+
+export async function getSubtitle(file: string): Promise<string> {
+  const pair = (await get(file, FilesStore)) as VideoSubPair | undefined
+  if (pair) {
+    return pair.subtitle
+  }
+  return ''
 }
 
-export let uploadFiles = createAsyncThunk<void, { files: FileList; encoding?: string }>(
-  'files/uploadFiles',
-  async ({ files, encoding = 'UTF-8' }, { dispatch }) => {
-    await Promise.all(
-      Array.from(files).map(async file => {
-        let text = await readText(file, encoding)
-        return await set(file.name, text, SubtitleStore)
-      }),
-    )
-    dispatch(getList())
-  },
-)
+export async function getVideo(file: string): Promise<File | undefined> {
+  const pair = (await get(file, FilesStore)) as VideoSubPair | undefined
+  if (pair) {
+    await pair.video.requestPermission({ mode: 'read' })
+    return (pair.video as any).getFile()
+  }
+  return undefined
+}
+
+export async function saveVideoSubPair(pair: VideoSubPair) {
+  await set(pair.video.name, pair, FilesStore)
+}
 
 export let getList = createAsyncThunk('files/getList', async () => {
-  let fileNames = (await keys(SubtitleStore)) as string[]
+  let fileNames = (await keys(FilesStore)) as string[]
   fileNames.sort((a, b) => a.localeCompare(b))
   return fileNames
 })
 
 export let deleteFile = createAsyncThunk<void, string>('files/deleteFile', async (file, { dispatch }) => {
-  await del(file, SubtitleStore)
+  await del(file, FilesStore)
+  await deleteHistory(file)
   dispatch(getList())
 })
 

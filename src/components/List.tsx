@@ -1,7 +1,8 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected } from '../state'
 import { debounce, getWatchHistory, WatchHistories } from '../utils'
+import { Text } from './Text'
 import styles from './List.module.less'
 
 const getVW = () => Math.floor(Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0))
@@ -64,44 +65,4 @@ let Label: FC<{ history: WatchHistories; file: string }> = ({ history, file }) =
   let str =
     time < 3600 ? new Date(time * 1000).toISOString().substr(14, 5) : new Date(time * 1000).toISOString().substr(11, 8)
   return <span className={styles['label']}>{str}</span>
-}
-
-interface TextProps {
-  width: number
-  height: number
-  text: string
-  onClick: () => void
-}
-
-let Text: FC<TextProps> = ({ width, height, text, onClick }) => {
-  let [size, setSize] = useState({ width: -1, height: -1 })
-  let textRef = useRef<SVGTextElement>(null)
-
-  useEffect(() => {
-    let svgText = textRef.current
-    if (svgText) {
-      let { width, height } = svgText.getBoundingClientRect()
-      setSize({ width, height })
-    }
-  }, [text])
-
-  let viewBox: string | undefined = undefined
-  if (size.width > width) {
-    viewBox = `0 0 ${size.width} ${size.height}`
-  }
-
-  return (
-    <>
-      <svg className={styles['off-screen']} width={width} height={height}>
-        <text ref={textRef}>{text + '~'}</text>
-      </svg>
-      <svg width={width} height={height} viewBox={viewBox}>
-        {size.width === -1 ? null : (
-          <text y="50%" dominantBaseline="middle" onClick={onClick}>
-            {text}
-          </text>
-        )}
-      </svg>
-    </>
-  )
 }
