@@ -2,7 +2,6 @@ import { FC, useState, useEffect } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected } from '../state'
 import { debounce, getWatchHistory, WatchHistories } from '../utils'
-import { Text } from './Text'
 import styles from './List.module.less'
 
 const getVW = () => Math.floor(Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0))
@@ -35,14 +34,15 @@ export let List = () => {
       {list.map(i => {
         return (
           <div key={i} className={styles['item']}>
-            <Text
-              width={vw}
-              height={32}
-              text={i}
+            <span
+              className={styles['file-name']}
               onClick={() => {
                 dispatch(setSelected(i))
               }}
-            />
+            >
+              {i}
+            </span>
+            <span />
             <Label history={hs} file={i} />
             <span
               className={cn('material-icons', styles['icon'])}

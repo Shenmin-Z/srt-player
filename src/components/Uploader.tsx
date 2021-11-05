@@ -14,12 +14,8 @@ export const Uploader = () => {
   const process = async () => {
     const vs = videoHandles.current
     const ss = subtitleHandles.current
-    if (vs.length === 0 || ss.length === 0) return
-    if (vs.length === 1 && ss.length === 1) {
-      await processPair([vs[0], ss[0]])
-    } else {
-      await Promise.all(group(vs, ss).map(p => processPair(p)))
-    }
+    if (vs.length === 0 || vs.length != ss.length) return
+    await Promise.all(vs.map((v, idx) => processPair([v, ss[idx]])))
     videoHandles.current = []
     subtitleHandles.current = []
     setSubtitles([])
@@ -39,7 +35,7 @@ export const Uploader = () => {
                 {
                   description: 'Videos',
                   accept: {
-                    'video/*': ['.mp4', '.mov', '.avi'],
+                    'video/*': ['.mp4', '.mov', '.avi', '.mkv'],
                   },
                 },
               ],
@@ -102,26 +98,6 @@ export const Uploader = () => {
 }
 
 type FilePair = [FileSystemHandle, FileSystemHandle]
-
-function group(vs: FileSystemHandle[], ss: FileSystemHandle[]): FilePair[] {
-  const res: FilePair[] = []
-  for (let i = 0; i < vs.length; i++) {
-    const ve = getEpisode(vs[i].name)
-    const s = ss.find(s => getEpisode(s.name) === ve)
-    if (s) {
-      res.push([vs[i], s])
-    }
-  }
-  return res
-}
-
-function getEpisode(s: string) {
-  const match = s.split('.')[0].match(/^(.*?)(\d+)$/)
-  if (match) {
-    return parseInt(match[2], 10)
-  }
-  return -1
-}
 
 async function processPair(pair: FilePair) {
   const [video, subtitle] = pair

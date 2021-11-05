@@ -3,6 +3,8 @@
 # abort on errors
 set -e
 
+rm -rf dist
+
 # build
 yarn build
 

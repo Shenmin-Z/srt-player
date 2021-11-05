@@ -82,7 +82,7 @@ window.enableShortcuts = true
 const Title: FC<{ file: string }> = ({ file }) => {
   if (/\.srt$/i.test(file)) file = file.substring(0, file.length - 4)
   let inner: string | ReactElement = file
-  const match = file.match(/^(.*?)(\d+)$/)
+  const match = file.split('.')[0].match(/^(.*?)(\d+)$/)
   if (match) {
     inner = (
       <>
@@ -91,7 +91,11 @@ const Title: FC<{ file: string }> = ({ file }) => {
       </>
     )
   }
-  return <div className={styles['name']}>{inner}</div>
+  return (
+    <div className={styles['name']}>
+      <div>{inner}</div>
+    </div>
+  )
 }
 
 const Info: FC<{ show: boolean; onClose: () => void }> = props => {

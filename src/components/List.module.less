@@ -11,9 +11,12 @@
       background: var(--main-background-color);
     }
 
-    svg {
-      text {
-        cursor: pointer;
+    .file-name {
+      cursor: pointer;
+      height: 30px;
+      line-height: 30px;
+      & + span {
+        flex-grow: 1;
       }
     }
 
@@ -30,4 +33,3 @@
     }
   }
 }
-
