@@ -10,9 +10,15 @@
   overflow-y: auto;
 
   .node {
-    margin-bottom: 15px;
+    padding: 8px 0;
     display: grid;
     grid-template-columns: minmax(@indentation, auto) 1fr;
+    &:first-child {
+      padding-top: 0;
+    }
+    &:last-child {
+      padding-bottom: 0;
+    }
     &.highlight {
       background: #484d5b;
     }

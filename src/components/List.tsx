@@ -1,26 +1,12 @@
 import { FC, useState, useEffect } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected } from '../state'
-import { debounce, getWatchHistory, WatchHistories } from '../utils'
+import { getWatchHistory, WatchHistories } from '../utils'
 import styles from './List.module.less'
-
-const getVW = () => Math.floor(Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0))
 
 export let List = () => {
   let list = useSelector(state => state.files.list)
   let dispatch = useDispatch()
-
-  let [vw, setVw] = useState(getVW)
-
-  useEffect(() => {
-    let listener = debounce(() => {
-      setVw(getVW())
-    }, 500)
-    window.addEventListener('resize', listener)
-    return () => {
-      window.removeEventListener('resize', listener)
-    }
-  }, [])
 
   let [hs, setHS] = useState<WatchHistories>({})
   useEffect(() => {

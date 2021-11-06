@@ -11,6 +11,8 @@ import {
   updateDictionaryWidth,
   updateDictionaryLeftOffset,
   updateDictionaryUrl,
+  updateSubtitleAuto,
+  updateSubtitleDelay,
 } from '../state'
 import { useSaveHistory } from '../utils'
 
@@ -138,11 +140,12 @@ const Info: FC<{ show: boolean; onClose: () => void }> = props => {
 
 const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   const settings = useSelector(s => s.settings)
-  const { layout } = settings
+  const { layout, subtitleAuto } = settings
   const [dw, setDW] = useState(`${settings.dictionaryWidth}`)
   const [sw, setSW] = useState(`${settings.subtitleWidth}`)
   const [url, setURL] = useState(settings.dictionaryUrl)
   const [offset, setOffset] = useState(`${settings.dictionaryLeftOffset}`)
+  const [delay, setDelay] = useState('0')
 
   const dispatch = useDispatch()
 
@@ -228,6 +231,36 @@ const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
             }}
           />
         </div>
+        <div className={styles['title']}>Auto subtitle</div>
+        <div className={styles['body']}>
+          <input
+            type="checkbox"
+            checked={subtitleAuto}
+            onChange={() => {
+              dispatch(updateSubtitleAuto())
+            }}
+          />
+        </div>
+        {subtitleAuto && (
+          <>
+            <div className={styles['title']}>Subtitle delay</div>
+            <div className={styles['body']}>
+              <input
+                value={delay}
+                onChange={e => {
+                  // seconds
+                  setDelay(e.target.value)
+                }}
+                onBlur={() => {
+                  const seconds = parseFloat(delay)
+                  if (!isNaN(seconds)) {
+                    dispatch(updateSubtitleDelay(Math.round(seconds * 1000)))
+                  }
+                }}
+              />
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   )

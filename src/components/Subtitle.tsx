@@ -4,15 +4,21 @@ import { useSelector, getSubtitle } from '../state'
 import styles from './Subtitle.module.less'
 import { useRestoreSubtitle } from '../utils'
 
-export let Subtitle: FC = () => {
-  let { nodes, raw } = useSelected()
-  let [highlight, setHighlight] = useState<number | null>(null)
-  let divRef = useRef<HTMLDivElement>(null)
+export const Subtitle: FC = () => {
+  const { nodes, raw } = useSelected()
+  const hasVideo = useSelector(s => s.video.hasVideo)
+  const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
+  const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
+  const [highlight, setHighlight] = useState<number | null>(null)
+  const divRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<number | null>(null)
+  const autoRef = useRef<boolean>(subtitleAuto)
+  const delayRef = useRef<number>(subtitleDelay)
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
       if (!divRef.current || !window.enableShortcuts) return
-      let step = divRef.current.offsetHeight / 2
+      const step = divRef.current.offsetHeight / 2
       let top = divRef.current.scrollTop
       if (e.code === 'ArrowUp') {
         e.preventDefault()
@@ -22,7 +28,7 @@ export let Subtitle: FC = () => {
         e.preventDefault()
         top += step
       }
-      divRef.current.scroll({ top, behavior: 'smooth' })
+      divRef.current.scrollTop = top
     }
     window.addEventListener('keydown', keyListener)
     return () => {
@@ -30,7 +36,66 @@ export let Subtitle: FC = () => {
     }
   }, [])
 
-  let restoreSubtitle = useRestoreSubtitle()
+  const scrollToNthChild = (n: number) => {
+    if (!divRef.current) return
+    const child = divRef.current.children[n] as HTMLDivElement | undefined
+    if (!child) return
+    const offset = child.offsetTop - divRef.current.offsetTop
+    const halfHeight = divRef.current.offsetHeight / 2
+    const selfHeight = child.clientHeight
+    divRef.current.scroll({ top: offset - halfHeight - selfHeight / 2, behavior: 'smooth' })
+    setHighlight(n)
+  }
+
+  useEffect(() => {
+    autoRef.current = subtitleAuto
+    delayRef.current = subtitleDelay
+  }, [subtitleAuto, subtitleDelay])
+
+  const tick = () => {
+    if (!autoRef.current) return
+    if (timerRef.current) {
+      console.log('clearTimeout')
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
+    if (!videoElement) return
+    if (videoElement.currentTime >= 0 && !videoElement.paused && !videoElement.ended) {
+      const current = Math.round(videoElement.currentTime * 1000) + delayRef.current
+      const node = findNode(nodes || [], current)
+      if (node === null) return
+      console.log(current, node.start.timestamp, node.end.timestamp)
+      if (isWithin(current, node)) {
+        console.log(node.counter + ': current is within')
+        scrollToNthChild(node.counter - 1)
+        timerRef.current = setTimeout(() => {
+          tick()
+          timerRef.current = null
+        }, node.end.timestamp - current)
+      } else {
+        console.log(node.counter + ': wait for next')
+        timerRef.current = setTimeout(() => {
+          tick()
+          timerRef.current = null
+        }, node.start.timestamp - current)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!hasVideo) return
+    const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement
+    tick()
+    videoElement.addEventListener('play', tick)
+    videoElement.addEventListener('seeked', tick)
+    return () => {
+      videoElement.removeEventListener('play', tick)
+      videoElement.removeEventListener('seeked', tick)
+    }
+  }, [hasVideo, subtitleAuto])
+
+  const restoreSubtitle = useRestoreSubtitle()
 
   useEffect(() => {
     if (nodes !== null) {
@@ -55,7 +120,7 @@ export let Subtitle: FC = () => {
   }
 }
 
-let SubtitleNode: FC<Node & { highlight: number | null; setHighlight: (h: number) => void }> = ({
+const SubtitleNode: FC<Node & { highlight: number | null; setHighlight: (h: number) => void }> = ({
   counter,
   start,
   end,
@@ -87,16 +152,16 @@ let SubtitleNode: FC<Node & { highlight: number | null; setHighlight: (h: number
   )
 }
 
-let useSelected = () => {
-  let fileName = useSelector(state => state.files.selected)
-  let [nodes, setNodes] = useState<null | Node[]>(null)
-  let [raw, setRaw] = useState('')
+const useSelected = () => {
+  const fileName = useSelector(state => state.files.selected)
+  const [nodes, setNodes] = useState<null | Node[]>(null)
+  const [raw, setRaw] = useState('')
   useEffect(() => {
     if (fileName) {
       getSubtitle(fileName)
         .then(content => {
           setRaw(content)
-          let nodes = parseSRT(content)
+          const nodes = parseSRT(content)
           setNodes(nodes)
         })
         .catch(e => {
@@ -115,7 +180,7 @@ interface Node {
 }
 
 function parseSRT(content: string): Node[] {
-  let lines = content.split('\r').map(i => i.trim())
+  const lines = content.split('\r').map(i => i.trim())
   let group: string[][] = []
   let p = 0
   for (let i = 0; i < lines.length; i++) {
@@ -125,16 +190,16 @@ function parseSRT(content: string): Node[] {
     }
   }
   group = group.filter(i => i.length !== 0)
-  let nodes: Node[] = []
-  for (let i of group) {
-    let counter = parseInt(i[0])
-    let matched = i[1].match(/([\d:,]+)\s*-->\s*([\d:,]+)/)
+  const nodes: Node[] = []
+  for (const i of group) {
+    const counter = parseInt(i[0])
+    const matched = i[1].match(/([\d:,]+)\s*-->\s*([\d:,]+)/)
     if (!matched) {
       throw new Error('Invalid time: ' + i[1])
     }
-    let start = new Time(matched[1])
-    let end = new Time(matched[2])
-    let text = i.slice(2)
+    const start = new Time(matched[1])
+    const end = new Time(matched[2])
+    const text = i.slice(2)
     nodes.push({ counter, start, end, text })
   }
   return nodes
@@ -145,12 +210,12 @@ class Time {
   m: number
   s: number
   ms: number
-  timestamp: number
+  timestamp: number // ms
 
   constructor(public raw: string) {
-    let matched = raw.match(/(\d+):(\d+):(\d+),(\d+)/)
+    const matched = raw.match(/(\d+):(\d+):(\d+),(\d+)/)
     if (matched) {
-      let [_, h, m, s, ms] = matched
+      const [_, h, m, s, ms] = matched
       this.h = parseInt(h)
       this.m = parseInt(m)
       this.s = parseInt(s)
@@ -160,4 +225,34 @@ class Time {
       throw new Error('Invalid time string: ' + raw)
     }
   }
+}
+
+function isBefore(ts: number, n: Node) {
+  return ts < n.start.timestamp
+}
+function isWithin(ts: number, n: Node) {
+  return ts >= n.start.timestamp && ts <= n.end.timestamp
+}
+function isAfter(ts: number, n: Node) {
+  return ts > n.end.timestamp
+}
+
+// current or next node
+function findNode(nodes: Node[], ts: number): Node | null {
+  if (nodes.length === 0) return null
+  let l = 0
+  let r = nodes.length - 1
+  if (isBefore(ts, nodes[l])) return nodes[0]
+  if (isAfter(ts, nodes[r])) return null
+  while (l < r) {
+    const m = Math.floor((l + r) / 2)
+    if (isWithin(ts, nodes[m])) return nodes[m]
+    if (isBefore(ts, nodes[m])) {
+      r = m
+    } else {
+      if (l === m) return nodes[r]
+      l = m
+    }
+  }
+  return null
 }
