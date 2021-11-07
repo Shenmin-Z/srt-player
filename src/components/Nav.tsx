@@ -151,8 +151,9 @@ const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   useEffect(() => {
     if (props.show) {
       window.enableShortcuts = false
-      setDW(`${settings.dictionaryWidth}`)
-      setSW(`${settings.subtitleWidth}`)
+      setDW(settings.dictionaryWidth + '')
+      setSW(settings.subtitleWidth + '')
+      setDelay((settings.subtitleDelay / 1000).toFixed(3) + '')
     } else {
       window.enableShortcuts = true
     }

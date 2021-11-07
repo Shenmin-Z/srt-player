@@ -1,6 +1,6 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
-import { useSelector, getSubtitle } from '../state'
+import { useSelector, useDispatch, getSubtitle, updateSubtitleDelay } from '../state'
 import styles from './Subtitle.module.less'
 import { useRestoreSubtitle } from '../utils'
 
@@ -9,6 +9,7 @@ export const Subtitle: FC = () => {
   const hasVideo = useSelector(s => s.video.hasVideo)
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
+  const dispath = useDispatch()
   const [highlight, setHighlight] = useState<number | null>(null)
   const divRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<number | null>(null)
@@ -43,8 +44,8 @@ export const Subtitle: FC = () => {
     const offset = child.offsetTop - divRef.current.offsetTop
     const halfHeight = divRef.current.offsetHeight / 2
     const selfHeight = child.clientHeight
-    divRef.current.scroll({ top: offset - halfHeight - selfHeight / 2, behavior: 'smooth' })
-    setHighlight(n)
+    divRef.current.scroll({ top: offset - halfHeight + selfHeight / 2, behavior: 'smooth' })
+    setHighlight(n + 1)
   }
 
   useEffect(() => {
@@ -109,26 +110,39 @@ export const Subtitle: FC = () => {
     return (
       <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']}>
         {nodes.map(n => (
-          <SubtitleNode {...n} key={n.counter} highlight={highlight} setHighlight={setHighlight} />
+          <SubtitleNode
+            {...n}
+            key={n.counter}
+            highlight={highlight}
+            onClick={h => {
+              if (subtitleAuto) {
+                const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
+                if (videoElement) {
+                  dispath(updateSubtitleDelay(Math.round(videoElement.currentTime * 1000 - n.start.timestamp)))
+                }
+              }
+              setHighlight(h)
+            }}
+          />
         ))}
       </div>
     )
   }
 }
 
-const SubtitleNode: FC<Node & { highlight: number | null; setHighlight: (h: number) => void }> = ({
+const SubtitleNode: FC<Node & { highlight: number | null; onClick: (h: number) => void }> = ({
   counter,
   start,
   end,
   text,
   highlight,
-  setHighlight,
+  onClick,
 }) => {
   return (
     <div
       className={cn(styles['node'], { [styles['highlight']]: highlight === counter })}
       onClick={() => {
-        setHighlight(counter)
+        onClick(counter)
       }}
     >
       <span className={styles['counter']}>{counter}</span>
