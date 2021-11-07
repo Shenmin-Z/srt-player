@@ -15,20 +15,25 @@ const INIT_SETTING: Settings = {
     url: 'https://www.mojidict.com/',
   },
   subtitle: {
-    auto: true,
+    auto: false,
   },
 }
 export async function getSettings(): Promise<Settings> {
-  let settings = await get<Settings>(SETTINGS_KEY)
+  const settings = await get<Settings>(SETTINGS_KEY)
+  let ns: Settings
   if (!settings) {
-    settings = INIT_SETTING
+    ns = INIT_SETTING
   } else {
-    settings.layout = { ...INIT_SETTING.layout, ...settings.layout }
-    settings.dictionary = { ...INIT_SETTING.dictionary, ...settings.dictionary }
-    settings.subtitle = { ...INIT_SETTING.subtitle, ...settings.subtitle }
+    ns = settings
+    Object.keys(INIT_SETTING).forEach(k => {
+      const key = k as keyof Settings
+      ns[key] = { ...INIT_SETTING[key], ...(ns[key] || {}) } as any
+    })
   }
-  await set(SETTINGS_KEY, settings)
-  return settings
+  if (JSON.stringify(settings) !== JSON.stringify(ns)) {
+    await set(SETTINGS_KEY, settings)
+  }
+  return ns
 }
 
 type Layout = '2col' | '3col'
@@ -173,12 +178,13 @@ export const settingsSlice = createSlice({
     builder
       .addCase(LoadSettingsFromLocal.fulfilled, (state, action) => {
         state.loaded = true
-        const { layout, dictionary } = action.payload
+        const { layout, dictionary, subtitle } = action.payload
         state.layout = layout.layout
         state.subtitleWidth = layout.layout === '2col' ? layout.subtitle2Col : layout.subtitle3Col
         state.dictionaryWidth = layout.dictionary
         state.dictionaryLeftOffset = layout.dictionaryLeftOffset
         state.dictionaryUrl = dictionary.url
+        state.subtitleAuto = subtitle.auto
       })
       .addCase(updateDictionaryLeftOffset.fulfilled, (state, action) => {
         state.dictionaryLeftOffset = action.payload

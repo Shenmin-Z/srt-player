@@ -102,8 +102,7 @@ const Title: FC<{ file: string }> = ({ file }) => {
 
 const Info: FC<{ show: boolean; onClose: () => void }> = props => {
   return (
-    <Modal {...props}>
-      <div className={styles['shortcuts']}>Shortcuts</div>
+    <Modal {...props} title="Shortcuts">
       <div className={styles['info']}>
         <div className={styles['title']}>Space</div>
         <div className={styles['body']}>Play / Pasue</div>
@@ -160,7 +159,7 @@ const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   }, [props.show, settings.layout])
 
   return (
-    <Modal {...props}>
+    <Modal {...props} title="Settings">
       <div className={styles['settings']}>
         <div className={styles['title']}>Enable dictionary</div>
         <div className={styles['body']}>

@@ -55,26 +55,22 @@ export const Subtitle: FC = () => {
   const tick = () => {
     if (!autoRef.current) return
     if (timerRef.current) {
-      console.log('clearTimeout')
       clearTimeout(timerRef.current)
       timerRef.current = null
     }
     const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
     if (!videoElement) return
     if (videoElement.currentTime >= 0 && !videoElement.paused && !videoElement.ended) {
-      const current = Math.round(videoElement.currentTime * 1000) + delayRef.current
+      const current = Math.round(videoElement.currentTime * 1000) - delayRef.current
       const node = findNode(nodes || [], current)
       if (node === null) return
-      console.log(current, node.start.timestamp, node.end.timestamp)
       if (isWithin(current, node)) {
-        console.log(node.counter + ': current is within')
         scrollToNthChild(node.counter - 1)
         timerRef.current = setTimeout(() => {
           tick()
           timerRef.current = null
         }, node.end.timestamp - current)
       } else {
-        console.log(node.counter + ': wait for next')
         timerRef.current = setTimeout(() => {
           tick()
           timerRef.current = null
