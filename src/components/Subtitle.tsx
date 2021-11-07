@@ -29,7 +29,7 @@ export const Subtitle: FC = () => {
         e.preventDefault()
         top += step
       }
-      divRef.current.scrollTop = top
+      divRef.current.scroll({ top, behavior: 'smooth' })
     }
     window.addEventListener('keydown', keyListener)
     return () => {

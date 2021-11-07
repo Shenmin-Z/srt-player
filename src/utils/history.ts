@@ -28,7 +28,7 @@ export const useRestoreSubtitle = () => {
     const subtitleTop = hs[file]?.subtitleTop ?? 0
     const subtitle = getSubtitleElm()
     if (subtitle) {
-      subtitle.scroll({ top: subtitleTop, behavior: 'auto' })
+      subtitle.scrollTop = subtitleTop
     }
   }
 }
