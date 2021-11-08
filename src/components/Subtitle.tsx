@@ -114,8 +114,8 @@ export const Subtitle: FC = () => {
             {...n}
             key={n.counter}
             highlight={highlight}
-            onClick={h => {
-              if (subtitleAuto) {
+            onClick={(h, shift) => {
+              if (subtitleAuto && shift) {
                 const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
                 if (videoElement) {
                   dispath(updateSubtitleDelay(Math.round(videoElement.currentTime * 1000 - n.start.timestamp)))
@@ -130,7 +130,7 @@ export const Subtitle: FC = () => {
   }
 }
 
-const SubtitleNode: FC<Node & { highlight: number | null; onClick: (h: number) => void }> = ({
+const SubtitleNode: FC<Node & { highlight: number | null; onClick: (h: number, shift: boolean) => void }> = ({
   counter,
   start,
   end,
@@ -141,8 +141,8 @@ const SubtitleNode: FC<Node & { highlight: number | null; onClick: (h: number) =
   return (
     <div
       className={cn(styles['node'], { [styles['highlight']]: highlight === counter })}
-      onClick={() => {
-        onClick(counter)
+      onClick={e => {
+        onClick(counter, e.shiftKey)
       }}
     >
       <span className={styles['counter']}>{counter}</span>

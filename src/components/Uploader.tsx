@@ -30,6 +30,7 @@ export const Uploader = () => {
           className={styles['video-input']}
           onClick={() => {
             showOpenFilePicker({
+              id: 'video-input',
               multiple: true,
               types: [
                 {
@@ -39,11 +40,14 @@ export const Uploader = () => {
                   },
                 },
               ],
-            }).then(handles => {
-              videoHandles.current = handles
-              setVideos(handles.map(h => h.name))
-              process()
-            })
+            } as OpenFilePickerOptions).then(
+              handles => {
+                videoHandles.current = handles
+                setVideos(handles.map(h => h.name))
+                process()
+              },
+              () => {},
+            )
           }}
         >
           <span className="material-icons">movie</span>
@@ -55,6 +59,7 @@ export const Uploader = () => {
           className={styles['subtitle-input']}
           onClick={() => {
             showOpenFilePicker({
+              id: 'subtitle-input',
               multiple: true,
               types: [
                 {
@@ -64,11 +69,14 @@ export const Uploader = () => {
                   },
                 },
               ],
-            }).then(handles => {
-              subtitleHandles.current = handles
-              setSubtitles(handles.map(h => h.name))
-              process()
-            })
+            } as OpenFilePickerOptions).then(
+              handles => {
+                subtitleHandles.current = handles
+                setSubtitles(handles.map(h => h.name))
+                process()
+              },
+              () => {},
+            )
           }}
         >
           <span className="material-icons">description</span>

@@ -14,9 +14,6 @@ const INIT_SETTING: Settings = {
   dictionary: {
     url: 'https://www.mojidict.com/',
   },
-  subtitle: {
-    auto: false,
-  },
 }
 export async function getSettings(): Promise<Settings> {
   const settings = await get<Settings>(SETTINGS_KEY)
@@ -47,9 +44,6 @@ interface Settings {
   }
   dictionary: {
     url: string
-  }
-  subtitle: {
-    auto: boolean
   }
 }
 
@@ -152,24 +146,17 @@ export const updateLayout = createAsyncThunk<[Layout, number], Layout | undefine
   },
 )
 
-export const updateSubtitleAuto = createAsyncThunk<boolean, boolean | undefined>(
-  'settings/updateSubtitleAuto',
-  async v => {
-    const settings = await getSettings()
-    if (v === undefined) {
-      settings.subtitle.auto = !settings.subtitle.auto
-    } else {
-      settings.subtitle.auto = v
-    }
-    await set(SETTINGS_KEY, settings)
-    return settings.subtitle.auto
-  },
-)
-
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
+    updateSubtitleAuto(state, action: PayloadAction<boolean | undefined>) {
+      if (action.payload === undefined) {
+        state.subtitleAuto = !state.subtitleAuto
+      } else {
+        state.subtitleAuto = action.payload
+      }
+    },
     updateSubtitleDelay(state, action: PayloadAction<number>) {
       state.subtitleDelay = action.payload
     },
@@ -178,13 +165,12 @@ export const settingsSlice = createSlice({
     builder
       .addCase(LoadSettingsFromLocal.fulfilled, (state, action) => {
         state.loaded = true
-        const { layout, dictionary, subtitle } = action.payload
+        const { layout, dictionary } = action.payload
         state.layout = layout.layout
         state.subtitleWidth = layout.layout === '2col' ? layout.subtitle2Col : layout.subtitle3Col
         state.dictionaryWidth = layout.dictionary
         state.dictionaryLeftOffset = layout.dictionaryLeftOffset
         state.dictionaryUrl = dictionary.url
-        state.subtitleAuto = subtitle.auto
       })
       .addCase(updateDictionaryLeftOffset.fulfilled, (state, action) => {
         state.dictionaryLeftOffset = action.payload
@@ -202,11 +188,8 @@ export const settingsSlice = createSlice({
         state.layout = action.payload[0]
         state.subtitleWidth = action.payload[1]
       })
-      .addCase(updateSubtitleAuto.fulfilled, (state, action) => {
-        state.subtitleAuto = action.payload
-      })
   },
 })
 
 export const settingsReducer = settingsSlice.reducer
-export const { updateSubtitleDelay } = settingsSlice.actions
+export const { updateSubtitleAuto, updateSubtitleDelay } = settingsSlice.actions

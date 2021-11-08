@@ -44,6 +44,8 @@ export const Nav = () => {
           onClick={() => {
             saveHistory().then(() => {
               dispatch(setSelected(null))
+              dispatch(updateSubtitleAuto(false))
+              dispatch(updateSubtitleDelay(0))
             })
           }}
         />

@@ -20,7 +20,9 @@ export async function getSubtitle(file: string): Promise<string> {
 export async function getVideo(file: string): Promise<File | undefined> {
   const pair = (await get(file, FilesStore)) as VideoSubPair | undefined
   if (pair) {
-    await pair.video.requestPermission({ mode: 'read' })
+    if ((await pair.video.queryPermission({ mode: 'read' })) !== 'granted') {
+      await pair.video.requestPermission({ mode: 'read' })
+    }
     return (pair.video as any).getFile()
   }
   return undefined
