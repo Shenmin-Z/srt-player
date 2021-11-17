@@ -15,11 +15,11 @@ import {
   updateDictionaryWidth,
 } from './state'
 import styles from './App.module.less'
-import { useSaveHistory } from './utils'
+import { useSaveHistory, migrate } from './utils'
 
-function App() {
-  let dispatch = useDispatch()
-  let selected = useSelector(state => state.files.selected)
+const App: FC = migrate(() => {
+  const dispatch = useDispatch()
+  const selected = useSelector(state => state.files.selected)
 
   useEffect(() => {
     dispatch(getList())
@@ -27,9 +27,9 @@ function App() {
   }, [])
 
   return selected === null ? <Home /> : <Play />
-}
+})
 
-function Home() {
+const Home: FC = () => {
   return (
     <div className={styles['home']}>
       <Uploader />
@@ -38,9 +38,9 @@ function Home() {
   )
 }
 
-function Play() {
-  let layout = useSelector(s => s.settings.layout)
-  let saveHistory = useSaveHistory()
+const Play: FC = () => {
+  const layout = useSelector(s => s.settings.layout)
+  const saveHistory = useSaveHistory()
 
   useEffect(() => {
     function listener() {
@@ -68,21 +68,21 @@ function Play() {
   )
 }
 
-let ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
-  let subtitleWidth = useSelector(s => s.settings.subtitleWidth)
-  let dictionaryWidth = useSelector(s => s.settings.dictionaryWidth)
-  let dispatch = useDispatch()
+const ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
+  const subtitleWidth = useSelector(s => s.settings.subtitleWidth)
+  const dictionaryWidth = useSelector(s => s.settings.dictionaryWidth)
+  const dispatch = useDispatch()
 
-  let onMD: MouseEventHandler<HTMLDivElement> = e => {
+  const onMD: MouseEventHandler<HTMLDivElement> = e => {
     if (type === 'dictionary') {
-      let dictionaryIFrame = document.getElementById('dictionary-iframe')
+      const dictionaryIFrame = document.getElementById('dictionary-iframe')
       if (dictionaryIFrame) {
         dictionaryIFrame.style.pointerEvents = 'none'
       }
     }
-    let prev = e.clientX
+    const prev = e.clientX
     function onMouseMove(e: MouseEvent) {
-      let delta = e.clientX - prev
+      const delta = e.clientX - prev
       if (type === 'dictionary') {
         dispatch(updateDictionaryWidth(dictionaryWidth + delta))
       } else {
@@ -92,7 +92,7 @@ let ResizeBar: FC<{ type: 'dictionary' | 'subtitle' }> = ({ type }) => {
     function onMouseUp() {
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
-      let dictionaryIFrame = document.getElementById('dictionary-iframe')
+      const dictionaryIFrame = document.getElementById('dictionary-iframe')
       if (dictionaryIFrame) {
         dictionaryIFrame.style.pointerEvents = 'auto'
       }

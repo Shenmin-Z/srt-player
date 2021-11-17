@@ -2,7 +2,7 @@ import { get, set } from 'idb-keyval'
 import { useSelector } from '../state'
 import { doVideo } from './video'
 
-const KEY_HISTORY = 'SRT-HISTORY'
+export const KEY_HISTORY = 'SRT-HISTORY'
 
 export interface WatchHistory {
   currentTime: number

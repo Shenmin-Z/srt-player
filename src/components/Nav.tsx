@@ -19,6 +19,7 @@ import { useSaveHistory } from '../utils'
 export const Nav = () => {
   const dispatch = useDispatch()
   const file = useSelector(s => s.files.selected) as string
+  const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
   const [showSettings, setShowSettings] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   const saveHistory = useSaveHistory()
@@ -32,6 +33,9 @@ export const Nav = () => {
       if (!window.enableShortcuts) return
       if (e.code === 'KeyD') {
         dispatch(updateLayout())
+      }
+      if (e.code === 'KeyA') {
+        dispatch(updateSubtitleAuto({ file }))
       }
     }
     window.addEventListener('keydown', keyListener)
@@ -53,6 +57,13 @@ export const Nav = () => {
         />
         <Title file={file} />
         <div className={styles['right']}>
+          <Icon
+            disabled={!subtitleAuto}
+            type="autorenew"
+            onClick={() => {
+              dispatch(updateSubtitleAuto({ file }))
+            }}
+          />
           <Icon
             type="info"
             onClick={() => {
@@ -107,35 +118,56 @@ const Title: FC<{ file: string }> = ({ file }) => {
 const Info: FC<{ show: boolean; onClose: () => void }> = props => {
   return (
     <Modal {...props} title="Shortcuts">
-      <div className={styles['info']}>
-        <div className={styles['title']}>Space</div>
-        <div className={styles['body']}>Play / Pasue</div>
-        <div className={styles['title']}>
-          <span className="material-icons">arrow_back</span>
+      <div className={styles['3cols']}>
+        <div className="column">
+          <div className="column-title">Settings</div>
+          <div className={styles['info']}>
+            <div className={styles['title']}>Esc</div>
+            <div className={styles['body']}>Toggle settings</div>
+            <div className={styles['title']}>D</div>
+            <div className={styles['body']}>Toggle dictionary</div>
+          </div>
         </div>
-        <div className={styles['body']}>-10s</div>
-        <div className={styles['title']}>
-          Shfit +<span className="material-icons">arrow_back</span>
+        <div className="column">
+          <div className="column-title">Video</div>
+          <div className={styles['info']}>
+            <div className={styles['title']}>Space</div>
+            <div className={styles['body']}>Play / Pasue</div>
+            <div className={styles['title']}>
+              <span className="material-icons">arrow_back</span>
+            </div>
+            <div className={styles['body']}>-10s</div>
+            <div className={styles['title']}>
+              Shfit +<span className="material-icons">arrow_back</span>
+            </div>
+            <div className={styles['body']}>-3s</div>
+            <div className={styles['title']}>
+              <span className="material-icons">arrow_forward</span>
+            </div>
+            <div className={styles['body']}>+10s</div>
+            <div className={styles['title']}>
+              Shfit +<span className="material-icons">arrow_forward</span>
+            </div>
+            <div className={styles['body']}>+3s</div>
+          </div>
         </div>
-        <div className={styles['body']}>-3s</div>
-        <div className={styles['title']}>
-          <span className="material-icons">arrow_forward</span>
+        <div className="column">
+          <div className="column-title">Subtitle</div>
+          <div className={styles['info']}>
+            <div className={styles['title']}>
+              <span className="material-icons">arrow_upward</span>
+            </div>
+            <div className={styles['body']}>Pageup</div>
+            <div className={styles['title']}>
+              <span className="material-icons">arrow_downward</span>
+            </div>
+            <div className={styles['body']}>Pagedown</div>
+            <div className={styles['title']}>A</div>
+            <div className={styles['body']}>Toggle auto</div>
+            <div className={styles['title']}>Ctrl + click</div>
+            <div className={styles['body']}>Adjust delay</div>
+          </div>
         </div>
-        <div className={styles['body']}>+10s</div>
-        <div className={styles['title']}>
-          Shfit +<span className="material-icons">arrow_forward</span>
-        </div>
-        <div className={styles['body']}>+3s</div>
-        <div className={styles['title']}>d</div>
-        <div className={styles['body']}>Toggle dictionary</div>
-        <div className={styles['title']}>
-          <span className="material-icons">arrow_upward</span>
-        </div>
-        <div className={styles['body']}>Subtitle pageup</div>
-        <div className={styles['title']}>
-          <span className="material-icons">arrow_downward</span>
-        </div>
-        <div className={styles['body']}>Subtitle pagedown</div>
       </div>
     </Modal>
   )
