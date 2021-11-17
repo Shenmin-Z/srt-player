@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react'
 import { set, get } from 'idb-keyval'
 
-const VERSION = '1.0.0'
+const VERSION = '1.0.1'
 const KEY_VERSION = 'SRT-VERSION'
 
 export const migrate =
@@ -30,7 +30,7 @@ import { KEY_HISTORY } from './history'
 async function historyM() {
   const hs = await get(KEY_HISTORY)
   for (const k of Object.keys(hs)) {
-    if (hs[k].videoTime) {
+    if (hs[k].videoTime !== undefined) {
       hs[k] = {
         currentTime: hs[k].videoTime,
         duration: 0,

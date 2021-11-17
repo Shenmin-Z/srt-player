@@ -4,8 +4,6 @@ import { useSelector, useDispatch, getSubtitle, updateSubtitleDelay, LoadSubtitl
 import styles from './Subtitle.module.less'
 import { useRestoreSubtitle, Node, isWithin, findNode, doVideo } from '../utils'
 
-let autoTmp: boolean
-
 export const Subtitle: FC = () => {
   const nodes = useNodes()
   const hasVideo = useSelector(s => s.video.hasVideo)
@@ -19,6 +17,7 @@ export const Subtitle: FC = () => {
   const delayRef = useRef<number>(subtitleDelay)
 
   useEffect(() => {
+    if (!nodes || nodes.length === 0) return
     function scroll(e: KeyboardEvent) {
       if (!divRef.current || !window.enableShortcuts) return
       const step = divRef.current.offsetHeight / 2
@@ -33,9 +32,10 @@ export const Subtitle: FC = () => {
       }
       divRef.current.scroll({ top, behavior: 'smooth' })
     }
+    let autoTmp: boolean
     function disableAuto(e: KeyboardEvent) {
       if (!window.enableShortcuts) return
-      if (e.key === 'Control') {
+      if (e.key === 'Control' && !e.repeat) {
         autoTmp = autoRef.current
         autoRef.current = false
       }
@@ -55,7 +55,7 @@ export const Subtitle: FC = () => {
       window.removeEventListener('keydown', disableAuto)
       window.removeEventListener('keyup', enableAuto)
     }
-  }, [])
+  }, [nodes])
 
   const scrollToNthChild = (n: number) => {
     if (!divRef.current) return
