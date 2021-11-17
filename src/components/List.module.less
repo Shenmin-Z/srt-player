@@ -2,6 +2,7 @@
   font-size: 16px;
 
   .item {
+    position: relative;
     display: flex;
     align-items: center;
     padding-left: 10px;
@@ -30,6 +31,16 @@
       width: 15px;
       cursor: pointer;
       color: var(--main-danger-color);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      width: var(--watch-progress);
+      background: #005282;
     }
   }
 }

@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import { doVideo } from '../utils'
 
 interface initialState {
   hasVideo: boolean
@@ -8,17 +9,16 @@ let initialState: initialState = { hasVideo: false, status: 'stopped' }
 
 export let setVideo = createAsyncThunk<boolean, boolean>('video/setVideo', (v, { dispatch }) => {
   if (!v) return false
-  let videoElement = document.getElementById('srt-player-video')
-  if (videoElement) {
+  doVideo(video => {
     function playListener() {
       dispatch(setVideoStatus('playing'))
     }
     function pauseListener() {
       dispatch(setVideoStatus('stopped'))
     }
-    videoElement.addEventListener('play', playListener)
-    videoElement.addEventListener('pause', pauseListener)
-  }
+    video.addEventListener('play', playListener)
+    video.addEventListener('pause', pauseListener)
+  })
   return true
 })
 

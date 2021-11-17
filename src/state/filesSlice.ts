@@ -1,27 +1,41 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { createStore, get, set, del, keys } from 'idb-keyval'
-import { deleteHistory } from '../utils'
+import { deleteHistory, Node, parseSRT } from '../utils'
 
 interface VideoSubPair {
   video: FileSystemHandle
-  subtitle: string
+  subtitle: string | Node[]
 }
 
 const FilesStore = createStore('files', 'keyval')
 
-export async function getSubtitle(file: string): Promise<string> {
+export async function getSubtitle(file: string): Promise<Node[]> {
   const pair = (await get(file, FilesStore)) as VideoSubPair | undefined
   if (pair) {
-    return pair.subtitle
+    const { subtitle } = pair
+    if (typeof subtitle === 'string') {
+      try {
+        const nodes = parseSRT(subtitle)
+        saveVideoSubPair({ ...pair, subtitle: nodes })
+        return nodes
+      } catch {
+        return []
+      }
+    } else {
+      return subtitle
+    }
   }
-  return ''
+  return []
 }
 
 export async function getVideo(file: string): Promise<File | undefined> {
   const pair = (await get(file, FilesStore)) as VideoSubPair | undefined
   if (pair) {
     if ((await pair.video.queryPermission({ mode: 'read' })) !== 'granted') {
-      await pair.video.requestPermission({ mode: 'read' })
+      const permission = await pair.video.requestPermission({ mode: 'read' })
+      if (permission !== 'granted') {
+        return undefined
+      }
     }
     return (pair.video as any).getFile()
   }

@@ -25,6 +25,10 @@ export const Nav = () => {
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
+      if (e.code === 'Escape') {
+        setShowSettings(s => !s)
+        return
+      }
       if (!window.enableShortcuts) return
       if (e.code === 'KeyD') {
         dispatch(updateLayout())
@@ -44,8 +48,6 @@ export const Nav = () => {
           onClick={() => {
             saveHistory().then(() => {
               dispatch(setSelected(null))
-              dispatch(updateSubtitleAuto(false))
-              dispatch(updateSubtitleDelay(0))
             })
           }}
         />
@@ -141,6 +143,7 @@ const Info: FC<{ show: boolean; onClose: () => void }> = props => {
 
 const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   const settings = useSelector(s => s.settings)
+  const file = useSelector(s => s.files.selected) as string
   const { layout, subtitleAuto } = settings
   const [dw, setDW] = useState(`${settings.dictionaryWidth}`)
   const [sw, setSW] = useState(`${settings.subtitleWidth}`)
@@ -239,7 +242,7 @@ const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
             type="checkbox"
             checked={subtitleAuto}
             onChange={() => {
-              dispatch(updateSubtitleAuto())
+              dispatch(updateSubtitleAuto({ file }))
             }}
           />
         </div>
@@ -256,7 +259,7 @@ const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                 onBlur={() => {
                   const seconds = parseFloat(delay)
                   if (!isNaN(seconds)) {
-                    dispatch(updateSubtitleDelay(Math.round(seconds * 1000)))
+                    dispatch(updateSubtitleDelay({ file, delay: Math.round(seconds * 1000) }))
                   }
                 }}
               />

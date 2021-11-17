@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected } from '../state'
-import { getWatchHistory, WatchHistories } from '../utils'
+import { getWatchHistory, WatchHistories, WatchHistory } from '../utils'
 import styles from './List.module.less'
 
 export let List = () => {
@@ -19,7 +19,7 @@ export let List = () => {
     <div className={styles['list']}>
       {list.map(i => {
         return (
-          <div key={i} className={styles['item']}>
+          <div key={i} className={styles['item']} style={{ '--watch-progress': percentage(hs?.[i]) + '%' } as any}>
             <span
               className={styles['file-name']}
               onClick={() => {
@@ -47,8 +47,17 @@ export let List = () => {
 
 let Label: FC<{ history: WatchHistories; file: string }> = ({ history, file }) => {
   if (!history[file]) return null
-  let time = history[file].videoTime
+  let time = history[file].currentTime
+  if (time === 0) return null
   let str =
     time < 3600 ? new Date(time * 1000).toISOString().substr(14, 5) : new Date(time * 1000).toISOString().substr(11, 8)
   return <span className={styles['label']}>{str}</span>
+}
+
+function percentage(h: WatchHistory | undefined) {
+  if (!h) return 0
+  const { currentTime, duration } = h
+  const r = currentTime / duration
+  if (isNaN(r)) return 0
+  return Math.round(r * 100)
 }

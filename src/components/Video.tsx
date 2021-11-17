@@ -1,7 +1,7 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
 import { setVideo, getVideo, useDispatch, useSelector, deleteFile, setSelected } from '../state'
-import { useRestoreVideo } from '../utils'
+import { useRestoreVideo, doVideo, VIDEO_ID } from '../utils'
 
 export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
@@ -17,6 +17,10 @@ export const Video: FC = () => {
     if (!file) return
     getVideo(file)
       .then(f => {
+        if (f === undefined) {
+          dispatch(setSelected(null))
+          return
+        }
         const url = URL.createObjectURL(f)
         setVideoUrl(url)
         urlRef.current = url
@@ -37,22 +41,22 @@ export const Video: FC = () => {
   }, [])
 
   const forward = (t: number) => () => {
-    const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
-    if (videoElement === null) return
-    videoElement.blur()
-    videoElement.currentTime += t
+    doVideo(video => {
+      video.blur()
+      video.currentTime += t
+    })
   }
 
   function togglePlay() {
     if (!hasVideo) return
-    const videoElement = document.getElementById('srt-player-video') as HTMLVideoElement | null
-    if (videoElement === null) return
-    videoElement.blur()
-    if (status === 'playing') {
-      videoElement.pause()
-    } else {
-      videoElement.play()
-    }
+    doVideo(video => {
+      video.blur()
+      if (status === 'playing') {
+        video.pause()
+      } else {
+        video.play()
+      }
+    })
   }
 
   useEffect(() => {
@@ -88,7 +92,7 @@ export const Video: FC = () => {
   if (videoUrl) {
     return (
       <div className={styles['video-container']}>
-        <video id="srt-player-video" src={videoUrl} controls />
+        <video id={VIDEO_ID} src={videoUrl} controls />
       </div>
     )
   }

@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { get, set } from 'idb-keyval'
+import { getSubtitlePreference, saveSubtitleAuto, saveSubtitleDelay } from '../utils'
 
 const SETTINGS_KEY = 'SRT-SETTINGS'
 
@@ -85,6 +86,10 @@ export const LoadSettingsFromLocal = createAsyncThunk('settings/init', async () 
   return settings
 })
 
+export const LoadSubtitlePreference = createAsyncThunk('settings/subtitlePreference', async (file: string) => {
+  return await getSubtitlePreference(file)
+})
+
 export const updateDictionaryWidth = createAsyncThunk<number, number>('settings/updateDictionaryWidth', async v => {
   setWidth({ '--dictionary-width': v })
   const settings = await getSettings()
@@ -146,21 +151,33 @@ export const updateLayout = createAsyncThunk<[Layout, number], Layout | undefine
   },
 )
 
+export const updateSubtitleAuto = createAsyncThunk<boolean, { file: string; auto?: boolean }>(
+  'settings/updateSubtitleAuto',
+  async ({ file, auto: _auto }, { getState }) => {
+    let auto: boolean
+    if (_auto === undefined) {
+      const state = getState() as { settings: InitialState }
+      auto = !state.settings.subtitleAuto
+    } else {
+      auto = _auto
+    }
+    await saveSubtitleAuto(file, auto)
+    return auto
+  },
+)
+
+export const updateSubtitleDelay = createAsyncThunk<number, { file: string; delay: number }>(
+  'settings/updateSubtitleDelay',
+  async ({ file, delay }) => {
+    await saveSubtitleDelay(file, delay)
+    return delay
+  },
+)
+
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
-  reducers: {
-    updateSubtitleAuto(state, action: PayloadAction<boolean | undefined>) {
-      if (action.payload === undefined) {
-        state.subtitleAuto = !state.subtitleAuto
-      } else {
-        state.subtitleAuto = action.payload
-      }
-    },
-    updateSubtitleDelay(state, action: PayloadAction<number>) {
-      state.subtitleDelay = action.payload
-    },
-  },
+  reducers: {},
   extraReducers: builder => {
     builder
       .addCase(LoadSettingsFromLocal.fulfilled, (state, action) => {
@@ -171,6 +188,10 @@ export const settingsSlice = createSlice({
         state.dictionaryWidth = layout.dictionary
         state.dictionaryLeftOffset = layout.dictionaryLeftOffset
         state.dictionaryUrl = dictionary.url
+      })
+      .addCase(LoadSubtitlePreference.fulfilled, (state, action) => {
+        state.subtitleAuto = action.payload.auto
+        state.subtitleDelay = action.payload.delay
       })
       .addCase(updateDictionaryLeftOffset.fulfilled, (state, action) => {
         state.dictionaryLeftOffset = action.payload
@@ -188,8 +209,13 @@ export const settingsSlice = createSlice({
         state.layout = action.payload[0]
         state.subtitleWidth = action.payload[1]
       })
+      .addCase(updateSubtitleAuto.fulfilled, (state, action) => {
+        state.subtitleAuto = action.payload
+      })
+      .addCase(updateSubtitleDelay.fulfilled, (state, action) => {
+        state.subtitleDelay = action.payload
+      })
   },
 })
 
 export const settingsReducer = settingsSlice.reducer
-export const { updateSubtitleAuto, updateSubtitleDelay } = settingsSlice.actions
