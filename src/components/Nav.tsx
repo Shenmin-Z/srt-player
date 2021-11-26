@@ -26,15 +26,15 @@ export const Nav = () => {
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
-      if (e.code === 'Escape') {
+      if (e.code === 'Escape' && !e.repeat) {
         setShowSettings(s => !s)
         return
       }
       if (!window.enableShortcuts) return
-      if (e.code === 'KeyD') {
+      if (e.code === 'KeyD' && !e.repeat) {
         dispatch(updateLayout())
       }
-      if (e.code === 'KeyA') {
+      if (e.code === 'KeyA' && !e.repeat) {
         dispatch(updateSubtitleAuto({ file }))
       }
     }
