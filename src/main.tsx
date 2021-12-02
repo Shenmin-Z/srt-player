@@ -22,7 +22,5 @@ if (typeof window.showOpenFilePicker !== 'undefined') {
 }
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/srt-player/sw.js').then(reg => {})
-  })
+  navigator.serviceWorker.register('/srt-player/sw.js').then(reg => {})
 }
