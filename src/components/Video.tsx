@@ -2,6 +2,7 @@ import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
 import { setVideo, getVideo, useDispatch, useSelector, deleteFile, setSelected } from '../state'
 import { useRestoreVideo, doVideo, VIDEO_ID } from '../utils'
+import { loadAudio } from './WaveForm'
 
 export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
@@ -22,6 +23,9 @@ export const Video: FC = () => {
           return
         }
         const url = URL.createObjectURL(f)
+        loadAudio(f).then(() => {
+          console.log('done!')
+        })
         setVideoUrl(url)
         urlRef.current = url
         dispatch(setVideo(true))
