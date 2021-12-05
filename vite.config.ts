@@ -47,6 +47,7 @@ const SWPlugin = (): Plugin => {
       middlewares.use(async (req, res, next) => {
         if (req.originalUrl === config.base + 'sw.js') {
           const sw = await readFile(resolve(__dirname, 'dist/sw.js'))
+          res.setHeader('Content-Type', 'text/javascript')
           res.end(sw)
         } else {
           next()

@@ -10,6 +10,7 @@ export interface WatchHistory {
   subtitleTop: number // scroll position
   subtitleAuto: boolean
   subtitleDelay: number
+  waveform: boolean
 }
 
 export interface WatchHistories {
@@ -50,6 +51,11 @@ export const getSubtitlePreference = async (f: string) => {
   return { auto: hs[f]?.subtitleAuto ?? false, delay: hs[f]?.subtitleDelay || 0 }
 }
 
+export const getWaveFormPreference = async (f: string) => {
+  const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
+  return hs[f]?.waveform ?? false
+}
+
 export const saveSubtitleAuto = async (f: string, auto: boolean) => {
   return writeHelper(f, h => {
     h.subtitleAuto = auto
@@ -59,6 +65,12 @@ export const saveSubtitleAuto = async (f: string, auto: boolean) => {
 export const saveSubtitleDelay = async (f: string, delay: number) => {
   return writeHelper(f, h => {
     h.subtitleDelay = delay
+  })
+}
+
+export const saveEnableWaveForm = async (f: string, enable: boolean) => {
+  return writeHelper(f, h => {
+    h.waveform = enable
   })
 }
 
@@ -87,6 +99,7 @@ const writeHelper = async (file: string, cb: (h: WatchHistory) => void) => {
     duration: 0,
     subtitleAuto: false,
     subtitleDelay: 0,
+    waveform: false,
     ...((hs[file] as WatchHistory | undefined) || {}),
   }
   cb(h)

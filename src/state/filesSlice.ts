@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { createStore, get, set, del, keys } from 'idb-keyval'
-import { deleteHistory, Node, parseSRT } from '../utils'
+import { deleteHistory, deleteSampling, Node, parseSRT } from '../utils'
 
 interface VideoSubPair {
   video: FileSystemHandle
@@ -55,6 +55,7 @@ export let getList = createAsyncThunk('files/getList', async () => {
 export let deleteFile = createAsyncThunk<void, string>('files/deleteFile', async (file, { dispatch }) => {
   await del(file, FilesStore)
   await deleteHistory(file)
+  await deleteSampling(file)
   dispatch(getList())
 })
 

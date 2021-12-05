@@ -1,5 +1,6 @@
 .video-container {
   height: 100%;
+  background: #000;
   video {
     object-fit: contain;
     width: 100%;
@@ -7,6 +8,10 @@
     &:focus {
       outline: none;
     }
-    background: #000;
+  }
+  &.has-waveform {
+    video {
+      height: calc(100% - 80px);
+    }
   }
 }

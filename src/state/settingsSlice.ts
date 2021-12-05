@@ -1,6 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { get, set } from 'idb-keyval'
-import { getSubtitlePreference, saveSubtitleAuto, saveSubtitleDelay } from '../utils'
+import {
+  getSubtitlePreference,
+  getWaveFormPreference,
+  saveSubtitleAuto,
+  saveSubtitleDelay,
+  saveEnableWaveForm,
+} from '../utils'
 
 const SETTINGS_KEY = 'SRT-SETTINGS'
 
@@ -57,6 +63,7 @@ interface InitialState {
   dictionaryUrl: string
   subtitleAuto: boolean
   subtitleDelay: number
+  waveform: boolean
 }
 
 const initialState: InitialState = {
@@ -68,6 +75,7 @@ const initialState: InitialState = {
   dictionaryUrl: '',
   subtitleAuto: false,
   subtitleDelay: 0,
+  waveform: false,
 }
 
 function setWidth(v: { [s: string]: number }) {
@@ -88,6 +96,10 @@ export const LoadSettingsFromLocal = createAsyncThunk('settings/init', async () 
 
 export const LoadSubtitlePreference = createAsyncThunk('settings/subtitlePreference', async (file: string) => {
   return await getSubtitlePreference(file)
+})
+
+export const LoadWaveFormPreference = createAsyncThunk('settings/waveFormPreference', async (file: string) => {
+  return await getWaveFormPreference(file)
 })
 
 export const updateDictionaryWidth = createAsyncThunk<number, number>('settings/updateDictionaryWidth', async v => {
@@ -174,6 +186,21 @@ export const updateSubtitleDelay = createAsyncThunk<number, { file: string; dela
   },
 )
 
+export const updateEnableWaveForm = createAsyncThunk<boolean, { file: string; enable?: boolean }>(
+  'settings/updateEnableWaveForm',
+  async ({ file, enable }, { getState }) => {
+    let newEnable: boolean
+    if (enable === undefined) {
+      const state = getState() as { settings: InitialState }
+      newEnable = !state.settings.waveform
+    } else {
+      newEnable = enable
+    }
+    await saveEnableWaveForm(file, newEnable)
+    return newEnable
+  },
+)
+
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
@@ -192,6 +219,9 @@ export const settingsSlice = createSlice({
       .addCase(LoadSubtitlePreference.fulfilled, (state, action) => {
         state.subtitleAuto = action.payload.auto
         state.subtitleDelay = action.payload.delay
+      })
+      .addCase(LoadWaveFormPreference.fulfilled, (state, action) => {
+        state.waveform = action.payload
       })
       .addCase(updateDictionaryLeftOffset.fulfilled, (state, action) => {
         state.dictionaryLeftOffset = action.payload
@@ -214,6 +244,9 @@ export const settingsSlice = createSlice({
       })
       .addCase(updateSubtitleDelay.fulfilled, (state, action) => {
         state.subtitleDelay = action.payload
+      })
+      .addCase(updateEnableWaveForm.fulfilled, (state, action) => {
+        state.waveform = action.payload
       })
   },
 })

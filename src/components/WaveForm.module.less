@@ -1,0 +1,31 @@
+@height: 80px;
+
+.waveform {
+  position: relative;
+  overflow: hidden;
+  height: @height;
+  &::after {
+    content: ' ';
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    left: 50%;
+    top: 0;
+    background: #f92672;
+  }
+}
+
+.waveform-container {
+  position: relative;
+  height: @height;
+  display: flex;
+  margin-left: 50%;
+  pointer-events: none;
+  .replay-indicator {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    top: 0;
+    background: #e6d874;
+  }
+}

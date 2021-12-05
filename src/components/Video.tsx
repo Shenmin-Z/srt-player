@@ -1,8 +1,9 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
-import { setVideo, getVideo, useDispatch, useSelector, deleteFile, setSelected } from '../state'
+import { setVideo, getVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference } from '../state'
 import { useRestoreVideo, doVideo, VIDEO_ID } from '../utils'
-import { loadAudio } from './WaveForm'
+import { WaveForm } from './WaveForm'
+import cn from 'classnames'
 
 export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
@@ -11,30 +12,30 @@ export const Video: FC = () => {
 
   const dispatch = useDispatch()
   const hasVideo = useSelector(s => s.video.hasVideo)
+  const enableWaveForm = useSelector(s => s.settings.waveform)
   const file = useSelector(s => s.files.selected)
   const status = useSelector(s => s.video.status)
 
   useEffect(() => {
-    if (!file) return
-    getVideo(file)
-      .then(f => {
-        if (f === undefined) {
+    dispatch(LoadWaveFormPreference(file as string))
+    getVideo(file as string)
+      .then(
+        f => {
+          if (f === undefined) {
+            dispatch(setSelected(null))
+            return
+          }
+          const url = URL.createObjectURL(f)
+          setVideoUrl(url)
+          urlRef.current = url
+          dispatch(setVideo(true))
+          restoreVideo()
+        },
+        () => {
           dispatch(setSelected(null))
-          return
-        }
-        const url = URL.createObjectURL(f)
-        loadAudio(f).then(() => {
-          console.log('done!')
-        })
-        setVideoUrl(url)
-        urlRef.current = url
-        dispatch(setVideo(true))
-        restoreVideo()
-      })
-      .catch(() => {
-        dispatch(deleteFile(file))
-        dispatch(setSelected(null))
-      })
+        },
+      )
+      .catch(() => {})
     return () => {
       const url = urlRef.current
       if (url) {
@@ -95,7 +96,8 @@ export const Video: FC = () => {
 
   if (videoUrl) {
     return (
-      <div className={styles['video-container']}>
+      <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableWaveForm })}>
+        {enableWaveForm && <WaveForm />}
         <video id={VIDEO_ID} src={videoUrl} controls />
       </div>
     )

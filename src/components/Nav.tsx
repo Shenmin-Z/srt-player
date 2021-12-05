@@ -5,6 +5,7 @@ import { Modal } from './Modal'
 import {
   useDispatch,
   useSelector,
+  getVideo,
   setSelected,
   updateLayout,
   updateSubtitleWidth,
@@ -13,15 +14,19 @@ import {
   updateDictionaryUrl,
   updateSubtitleAuto,
   updateSubtitleDelay,
+  updateEnableWaveForm,
 } from '../state'
-import { useSaveHistory } from '../utils'
+import { useSaveHistory, computeAudioSampling, doVideoWithDefault, deleteSampling } from '../utils'
+import SamplingWorker from '../web-workers/sampling?worker&inline'
 
 export const Nav = () => {
   const dispatch = useDispatch()
   const file = useSelector(s => s.files.selected) as string
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
+  const enableWaveForm = useSelector(s => s.settings.waveform)
   const [showSettings, setShowSettings] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [showWaveForm, setShowWaveForm] = useState(false)
   const saveHistory = useSaveHistory()
 
   useEffect(() => {
@@ -36,6 +41,12 @@ export const Nav = () => {
       }
       if (e.code === 'KeyA' && !e.repeat) {
         dispatch(updateSubtitleAuto({ file }))
+      }
+      if (e.code === 'KeyW' && !e.repeat) {
+        setShowWaveForm(s => !s)
+      }
+      if (e.code === 'KeyI' && !e.repeat) {
+        setShowInfo(s => !s)
       }
     }
     window.addEventListener('keydown', keyListener)
@@ -58,6 +69,13 @@ export const Nav = () => {
         <Title file={file} />
         <div className={styles['right']}>
           <Icon
+            disabled={!enableWaveForm}
+            type="graphic_eq"
+            onClick={() => {
+              setShowWaveForm(true)
+            }}
+          />
+          <Icon
             disabled={!subtitleAuto}
             type="autorenew"
             onClick={() => {
@@ -78,6 +96,12 @@ export const Nav = () => {
           />
         </div>
       </nav>
+      <WaveForm
+        show={showWaveForm}
+        onClose={() => {
+          setShowWaveForm(false)
+        }}
+      />
       <Info
         show={showInfo}
         onClose={() => {
@@ -112,6 +136,148 @@ const Title: FC<{ file: string }> = ({ file }) => {
     <div className={styles['name']}>
       <div>{inner}</div>
     </div>
+  )
+}
+
+const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
+  const dispatch = useDispatch()
+  const file = useSelector(s => s.files.selected)
+  const enableWaveForm = useSelector(s => s.settings.waveform)
+  const [loading, setLoading] = useState(false)
+  const [duration, setDuration] = useState(-1)
+  const videoDuation = doVideoWithDefault(video => video.duration, 0)
+  const [checkbox, setCheckbox] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    if (!props.show) {
+      setCheckbox(undefined)
+    }
+    if (enableWaveForm) {
+      setCheckbox('a2')
+    } else {
+      setCheckbox('b1')
+    }
+  }, [props.show])
+
+  if (checkbox === undefined) return null
+  if (checkbox.startsWith('a')) {
+    return (
+      <Modal {...props} width={500} title="WaveForm">
+        <div>
+          <div>
+            <input
+              type="radio"
+              checked={checkbox === 'b1'}
+              onChange={e => {
+                if (!e.target.checked) return
+                setCheckbox('b1')
+                dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
+              }}
+            />
+            <label>Disable</label>
+          </div>
+          <div>
+            <input checked={checkbox === 'a2'} onChange={() => {}} type="radio" />
+            <label>Enable</label>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+  return (
+    <Modal {...props} width={500} title="WaveForm">
+      <div>
+        <div>
+          <input
+            checked={checkbox === 'b1'}
+            disabled={loading}
+            type="radio"
+            onChange={e => {
+              if (!e.target.checked) return
+              setDuration(-1)
+              dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
+              deleteSampling(file as string)
+              setCheckbox('b1')
+            }}
+          />
+          <label>Disable</label>
+        </div>
+        <div>
+          <input
+            disabled={loading}
+            checked={checkbox === 'b2'}
+            type="radio"
+            onChange={async e => {
+              try {
+                setCheckbox('b2')
+                if (!e.target.checked) return
+                setLoading(true)
+                const videoFile = await getVideo(file as string)
+                if (!videoFile) return
+                const worker = new SamplingWorker()
+                setDuration(await computeAudioSampling(worker, videoFile))
+                dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
+              } catch {
+                setCheckbox('b1')
+              } finally {
+                setLoading(false)
+              }
+            }}
+          />
+          <label>Enable using exsiting video file</label>
+        </div>
+        <div>
+          <input
+            disabled={loading}
+            checked={checkbox === 'b3'}
+            type="radio"
+            onChange={async e => {
+              try {
+                setCheckbox('b3')
+                setLoading(true)
+                if (!e.target.checked) return
+                const handles = await showOpenFilePicker({
+                  id: 'audio-file-for-waveform',
+                  types: [
+                    {
+                      description: 'Audio',
+                      accept: {
+                        'audio/*': ['.aac', '.mp3', '.wav'],
+                      },
+                    },
+                  ],
+                } as OpenFilePickerOptions)
+                const audioFile = await handles[0].getFile()
+                if (!audioFile) return
+                const worker = new SamplingWorker()
+                setDuration(await computeAudioSampling(worker, audioFile, file as string))
+                dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
+              } catch {
+                setCheckbox('b1')
+              } finally {
+                setLoading(false)
+              }
+            }}
+          />
+          <label>Enable using extra audio file</label>
+        </div>
+      </div>
+      {loading && <div className={styles['waveform-loading']}>Re-sampling...</div>}
+      {duration > 0 && (
+        <div className={styles['waveform-report']}>
+          <p className={styles['title']}>Re-sampling done.</p>
+          <p className={styles['subtitle']}>
+            If the following 2 results differs then the waveform would not be accurate. This is likely to occur when
+            directly using video file, try extract audio from the video file using other software and use that audio.
+          </p>
+          <p>
+            Original video duration: <span className={styles['result']}>{videoDuation.toFixed(2)}</span> seconds
+          </p>
+          <p>
+            Re-sampled audio duration: <span className={styles['result']}>{duration.toFixed(2)}</span> seconds
+          </p>
+        </div>
+      )}
+    </Modal>
   )
 }
 

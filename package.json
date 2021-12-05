@@ -15,6 +15,7 @@
     "react-redux": "^7.2.5"
   },
   "devDependencies": {
+    "@types/offscreencanvas": "^2019.6.4",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/wicg-file-system-access": "^2020.9.4",

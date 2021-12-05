@@ -26,6 +26,14 @@ const App: FC = migrate(() => {
     dispatch(LoadSettingsFromLocal())
   }, [])
 
+  useEffect(() => {
+    if (selected === null) {
+      document.body.style.overflow = 'auto'
+    } else {
+      document.body.style.overflow = 'hidden'
+    }
+  }, [selected])
+
   return selected === null ? <Home /> : <Play />
 })
 

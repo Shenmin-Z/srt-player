@@ -20,7 +20,12 @@ const cacheStatic = () => caches.open(CACHE_STATIC).then(cache => cache.addAll(S
 const cacheDynamic = () => caches.open(CACHE_DYNAMIC).then(cache => cache.addAll(DYNAMIC_URLS))
 
 self.addEventListener('install', event => {
-  event.waitUntil(Promise.all([cacheStatic(), cacheDynamic()]))
+  event.waitUntil(
+    cacheStatic().then(() => {
+      // it's ok for dynamic to fail
+      cacheDynamic()
+    }),
+  )
 })
 
 self.addEventListener('fetch', event => {
