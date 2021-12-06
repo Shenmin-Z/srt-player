@@ -12,27 +12,22 @@ const WAVEFORM_ID = 'srt-player-waveform'
 const PIXELS_PER_SECOND = 30
 const SLICE_WIDTH = 1002 // canvas cannot be too wide
 
-const getOffset = (video: HTMLVideoElement) => -Math.floor(video.currentTime * PIXELS_PER_SECOND)
-
 export const WaveForm: FC<Props> = () => {
   const file = useSelector(s => s.files.selected)
   const [offset, setOffset] = useState<number | undefined>(undefined)
-  const [replayPos, setReplayPos] = useState<number | undefined>(undefined)
+  const [replayPos, setReplayPos] = useState<number>(-1)
 
   useEffect(() => {
     let terminate = () => {}
     drawWaveForm(file as string).then(cb => {
       terminate = cb
-      doVideo(video => {
-        setOffset(getOffset(video))
-      })
+      updatePosition(setOffset, true)
     })
     return doVideoWithDefault(video => {
       let enable = true
       const move = () => {
         if (!enable) return
-        const newOffset = getOffset(video)
-        setOffset(newOffset)
+        updatePosition(setOffset)
         requestAnimationFrame(move)
       }
       const playListener = () => {
@@ -43,7 +38,7 @@ export const WaveForm: FC<Props> = () => {
         enable = false
       }
       const seekListener = () => {
-        setOffset(getOffset(video))
+        updatePosition(setOffset, true)
       }
       video.addEventListener('play', playListener)
       video.addEventListener('pause', stopListener)
@@ -62,7 +57,7 @@ export const WaveForm: FC<Props> = () => {
       if (!window.enableShortcuts) return
       if (e.code === 'KeyR' && !e.repeat) {
         doVideo(video => {
-          if (replayPos) {
+          if (replayPos > 0) {
             video.currentTime = replayPos / PIXELS_PER_SECOND
           }
         })
@@ -75,26 +70,45 @@ export const WaveForm: FC<Props> = () => {
   }, [replayPos])
 
   return (
-    <div
-      className={styles['waveform']}
-      onClick={e => {
-        const { left, width } = (e.target as HTMLDivElement).getBoundingClientRect()
-        const newPosition = e.clientX - left - width / 2 - (offset ?? 0)
-        if (newPosition >= 0) {
-          setReplayPos(newPosition)
-        }
-      }}
-    >
+    <div className={styles['waveform']}>
       <div
         id={WAVEFORM_ID}
         className={styles['waveform-container']}
-        style={{ display: offset === undefined ? 'none' : undefined, transform: `translate3d(${offset}px,0,0)` }}
+        style={{ display: offset === undefined ? 'none' : undefined }}
+        onClick={e => {
+          const { left } = (e.target as HTMLDivElement).getBoundingClientRect()
+          setReplayPos(e.clientX - left)
+        }}
       >
         <div className={styles['replay-indicator']} style={{ left: replayPos }} />
+        <div className={styles['current-time-indicator']} style={{ left: offset }} />
       </div>
     </div>
   )
 }
+
+const updatePosition = (() => {
+  let locked = false
+  return (setOffset: (x: number) => void, center = false) => {
+    doVideo(video => {
+      const offset = Math.floor(video.currentTime * PIXELS_PER_SECOND)
+      setOffset(offset)
+
+      if (locked) return
+      const canvasContainer = document.getElementById(WAVEFORM_ID) as HTMLDivElement
+      const parent = canvasContainer.parentElement as HTMLDivElement
+      const { width } = parent.getBoundingClientRect()
+      const left = parent.scrollLeft
+      if (offset - left < 0 || offset - left > width) {
+        locked = true
+        setTimeout(() => {
+          locked = false
+        }, 1000)
+        parent.scrollLeft = offset - (center ? width / 2 : 0)
+      }
+    })
+  }
+})()
 
 const drawWaveForm = async (file: string) => {
   const samplingResult = await getSampling(file)

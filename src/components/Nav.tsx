@@ -163,7 +163,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
     return (
       <Modal {...props} width={500} title="WaveForm">
         <div>
-          <div>
+          <div className={styles['waveform-option']}>
             <input
               type="radio"
               checked={checkbox === 'b1'}
@@ -175,7 +175,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
             />
             <label>Disable</label>
           </div>
-          <div>
+          <div className={styles['waveform-option']}>
             <input checked={checkbox === 'a2'} onChange={() => {}} type="radio" />
             <label>Enable</label>
           </div>
@@ -186,7 +186,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
   return (
     <Modal {...props} width={500} title="WaveForm">
       <div>
-        <div>
+        <div className={styles['waveform-option']}>
           <input
             checked={checkbox === 'b1'}
             disabled={loading}
@@ -201,7 +201,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
           />
           <label>Disable</label>
         </div>
-        <div>
+        <div className={styles['waveform-option']}>
           <input
             disabled={loading}
             checked={checkbox === 'b2'}
@@ -225,7 +225,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
           />
           <label>Enable using exsiting video file</label>
         </div>
-        <div>
+        <div className={styles['waveform-option']}>
           <input
             disabled={loading}
             checked={checkbox === 'b3'}

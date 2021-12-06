@@ -1,31 +1,55 @@
 @height: 80px;
+@scrollbar-height: 8px;
 
 .waveform {
   position: relative;
-  overflow: hidden;
-  height: @height;
-  &::after {
-    content: ' ';
-    position: absolute;
-    width: 1px;
-    height: 100%;
-    left: 50%;
-    top: 0;
-    background: #f92672;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: @height + @scrollbar-height;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    background-color: transparent;
+    height: @scrollbar-height;
+    min-width: 80px;
+  }
+
+  /* background of the scrollbar except button or resizer */
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  /* scrollbar itself */
+  &::-webkit-scrollbar-thumb {
+    background-color: #babac0;
+    border-radius: 16px;
+    border: 4px solid transparent;
+  }
+
+  /* set button(top and bottom of the scrollbar) */
+  &::-webkit-scrollbar-button {
+    display: none;
   }
 }
 
 .waveform-container {
   position: relative;
   height: @height;
-  display: flex;
-  margin-left: 50%;
-  pointer-events: none;
-  .replay-indicator {
+  display: inline-flex;
+  canvas {
+    pointer-events: none;
+  }
+  .replay-indicator,
+  .current-time-indicator {
     position: absolute;
     width: 1px;
     height: 100%;
     top: 0;
+  }
+  .replay-indicator {
     background: #e6d874;
+  }
+  .current-time-indicator {
+    background: #f92672;
   }
 }
