@@ -147,6 +147,8 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
   const [duration, setDuration] = useState(-1)
   const videoDuation = doVideoWithDefault(video => video.duration, 0)
   const [checkbox, setCheckbox] = useState<string | undefined>(undefined)
+  const [errorMsg, setErrorMsg] = useState('')
+
   useEffect(() => {
     if (!props.show) {
       setCheckbox(undefined)
@@ -169,6 +171,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
               checked={checkbox === 'b1'}
               onChange={e => {
                 if (!e.target.checked) return
+                deleteSampling(file as string)
                 setCheckbox('b1')
                 dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
               }}
@@ -193,10 +196,11 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
             type="radio"
             onChange={e => {
               if (!e.target.checked) return
+              setErrorMsg('')
               setDuration(-1)
-              dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
               deleteSampling(file as string)
               setCheckbox('b1')
+              dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
             }}
           />
           <label>Disable</label>
@@ -210,13 +214,15 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
               try {
                 setCheckbox('b2')
                 if (!e.target.checked) return
+                setErrorMsg('')
                 setLoading(true)
                 const videoFile = await getVideo(file as string)
                 if (!videoFile) return
                 const worker = new SamplingWorker()
                 setDuration(await computeAudioSampling(worker, videoFile))
                 dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
-              } catch {
+              } catch (e) {
+                setErrorMsg(e + '')
                 setCheckbox('b1')
               } finally {
                 setLoading(false)
@@ -235,6 +241,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
                 setCheckbox('b3')
                 setLoading(true)
                 if (!e.target.checked) return
+                setErrorMsg('')
                 const handles = await showOpenFilePicker({
                   id: 'audio-file-for-waveform',
                   types: [
@@ -251,7 +258,8 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
                 const worker = new SamplingWorker()
                 setDuration(await computeAudioSampling(worker, audioFile, file as string))
                 dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
-              } catch {
+              } catch (e) {
+                setErrorMsg(e + '')
                 setCheckbox('b1')
               } finally {
                 setLoading(false)
@@ -261,7 +269,13 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
           <label>Enable using extra audio file</label>
         </div>
       </div>
-      {loading && <div className={styles['waveform-loading']}>Re-sampling...</div>}
+      {loading && (
+        <div className={styles['waveform-loading']}>
+          <span className="material-icons">sync</span>
+          Re-sampling, this could take a while...
+        </div>
+      )}
+      {errorMsg && <div className={styles['waveform-error-message']}>{errorMsg}</div>}
       {duration > 0 && (
         <div className={styles['waveform-report']}>
           <p className={styles['title']}>Re-sampling done.</p>

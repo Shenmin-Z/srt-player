@@ -1,6 +1,6 @@
-import { get, del, createStore } from 'idb-keyval'
+import { set, get, del, createStore } from 'idb-keyval'
 
-export const AudioSamplingStore = createStore('audio-sampling', 'keyval')
+const AudioSamplingStore = createStore('audio-sampling', 'keyval')
 
 export interface Payload {
   file: string
@@ -15,10 +15,18 @@ export interface SamplingResult {
   buffer: Uint8Array
 }
 
-export const SAMPLING_PER_SECOND = 10
+export interface RenderTask extends SamplingResult {
+  file: string
+}
 
-export const getSampling = (file: string) => get<SamplingResult>(file, AudioSamplingStore)
+export const WAVEFORM_HEIGHT = 80
+export const SAMPLING_PER_SECOND = 10
+export const PIXELS_PER_SECOND = 30
+export const SLICE_WIDTH = 10002 // canvas cannot be too wide
+
+export const getSampling = (file: string) => get<Blob[]>(file, AudioSamplingStore)
 export const deleteSampling = (file: string) => del(file, AudioSamplingStore)
+export const saveSampling = (file: string, blobs: Blob[]) => set(file, blobs, AudioSamplingStore)
 
 export const computeAudioSampling = async (worker: Worker, file: File, fileName?: string) => {
   const audioContext = new AudioContext()

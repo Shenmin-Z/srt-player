@@ -1,16 +1,25 @@
-import { set } from 'idb-keyval'
-import { Payload, SamplingResult, SAMPLING_PER_SECOND, AudioSamplingStore } from '../utils/audioSampling'
+import {
+  Payload,
+  SamplingResult,
+  RenderTask,
+  SAMPLING_PER_SECOND,
+  PIXELS_PER_SECOND,
+  SLICE_WIDTH,
+  WAVEFORM_HEIGHT,
+  saveSampling,
+} from '../utils/audioSampling'
 
 self.addEventListener('message', async e => {
-  const { data } = e
+  const data: Payload = e.data
   if (typeof data.file === 'string' && typeof data.sampleRate === 'number') {
-    await sampling(data)
+    const result = await sampling(data)
+    await drawWaveForm({ ...result, file: data.file })
     self.postMessage('done')
   }
 })
 
-async function sampling(payload: Payload) {
-  const { buffer: _buffer, sampleRate, length, file } = payload
+async function sampling(payload: Payload): Promise<SamplingResult> {
+  const { buffer: _buffer, sampleRate, length } = payload
   const buffer = new Float32Array(..._buffer)
   const stepSize = sampleRate / SAMPLING_PER_SECOND
   const samples = []
@@ -32,8 +41,43 @@ async function sampling(payload: Payload) {
       result[i] = Math.floor((samples[i] / max) * 256)
     }
   }
-  const samplingResult: SamplingResult = { sampleRate: SAMPLING_PER_SECOND, buffer: result }
-  await set(file, samplingResult, AudioSamplingStore)
+  return { sampleRate: SAMPLING_PER_SECOND, buffer: result }
+}
+
+const drawWaveForm = async (task: RenderTask) => {
+  const { sampleRate, buffer, file } = task
+  const pixelPerSample = PIXELS_PER_SECOND / sampleRate
+  const width = Math.ceil(buffer.length * pixelPerSample)
+  const height = WAVEFORM_HEIGHT
+
+  const conversions: Promise<Blob>[] = []
+
+  const numofSlices = Math.ceil(width / SLICE_WIDTH)
+  for (let i = 0; i < numofSlices; i++) {
+    const canvas = new OffscreenCanvas(
+      i === numofSlices - 1 ? width - (numofSlices - 1) * SLICE_WIDTH : SLICE_WIDTH,
+      height,
+    )
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error()
+
+    // draw line
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 2
+    const samplePerSlice = Math.floor(SLICE_WIDTH / pixelPerSample)
+    const start = i * samplePerSlice
+    const end = start + Math.floor(canvas.width / pixelPerSample)
+    for (let idx = start; idx < end; idx++) {
+      const x = ctx.lineWidth / 2 + (idx - start) * pixelPerSample
+      const h = (buffer[idx] / 256) * height
+      ctx.moveTo(x, (height - h) / 2)
+      ctx.lineTo(x, (height + h) / 2)
+      ctx.stroke()
+    }
+    conversions.push(canvas.convertToBlob({ type: 'image/webp' }))
+  }
+  const blobs = await Promise.all(conversions)
+  await saveSampling(file, blobs)
 }
 
 export {}
