@@ -62,9 +62,9 @@
   margin-bottom: 20px;
 }
 
-.3cols {
+.4cols {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto auto auto auto;
   gap: 10px;
 
   :global(.column) {
@@ -83,7 +83,7 @@
 }
 
 .info {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(80px, auto) auto;
   .title {
     display: flex;
     align-items: center;

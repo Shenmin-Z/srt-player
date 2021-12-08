@@ -298,7 +298,7 @@ const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
 const Info: FC<{ show: boolean; onClose: () => void }> = props => {
   return (
     <Modal {...props} title="Shortcuts">
-      <div className={styles['3cols']}>
+      <div className={styles['4cols']}>
         <div className="column">
           <div className="column-title">Settings</div>
           <div className={styles['info']}>
@@ -306,6 +306,8 @@ const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             <div className={styles['body']}>Toggle settings</div>
             <div className={styles['title']}>D</div>
             <div className={styles['body']}>Toggle dictionary</div>
+            <div className={styles['title']}>I</div>
+            <div className={styles['body']}>Toggle shortcuts information</div>
           </div>
         </div>
         <div className="column">
@@ -346,6 +348,23 @@ const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             <div className={styles['body']}>Toggle auto</div>
             <div className={styles['title']}>Ctrl + click</div>
             <div className={styles['body']}>Adjust delay</div>
+          </div>
+        </div>
+        <div className="column">
+          <div className="column-title">Wave Form</div>
+          <div className={styles['info']}>
+            <div className={styles['title']}>R</div>
+            <div className={styles['body']}>Replay</div>
+            <div className={styles['title']}>,</div>
+            <div className={styles['body']}>Replay position left (slow)</div>
+            <div className={styles['title']}>{'<'}</div>
+            <div className={styles['body']}>Replay position left (quick)</div>
+            <div className={styles['title']}>.</div>
+            <div className={styles['body']}>Replay position right (slow)</div>
+            <div className={styles['title']}>{'>'}</div>
+            <div className={styles['body']}>Replay position right (quick)</div>
+            <div className={styles['title']}>/</div>
+            <div className={styles['body']}>Replay position at current time</div>
           </div>
         </div>
       </div>

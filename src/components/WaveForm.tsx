@@ -73,7 +73,18 @@ export const WaveForm: FC<Props> = () => {
         doVideo(video => {
           if (replayPos > 0) {
             video.currentTime = replayPos / PIXELS_PER_SECOND
+            video.play()
           }
+        })
+      } else if (e.code == 'Comma') {
+        const step = e.shiftKey ? 3 : 1
+        setReplayPos(p => p - step)
+      } else if (e.code == 'Period') {
+        const step = e.shiftKey ? 3 : 1
+        setReplayPos(p => p + step)
+      } else if (e.code == 'Slash' && !e.repeat) {
+        doVideo(video => {
+          setReplayPos(video.currentTime * PIXELS_PER_SECOND)
         })
       }
     }
@@ -97,8 +108,14 @@ export const WaveForm: FC<Props> = () => {
         {images.map(url => (
           <img key={url} src={url} />
         ))}
-        <div className={styles['replay-indicator']} style={{ left: replayPos }} />
-        <div className={styles['current-time-indicator']} style={{ left: offset }} />
+        <div
+          className={styles['replay-indicator']}
+          style={{ transform: `translate3d(${Math.floor(replayPos)}px,0,0)` }}
+        />
+        <div
+          className={styles['current-time-indicator']}
+          style={{ transform: `translate3d(${Math.floor(offset || -1)}px,0,0)` }}
+        />
       </div>
     </div>
   )
