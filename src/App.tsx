@@ -2,10 +2,12 @@ import { FC, useEffect, MouseEventHandler } from 'react'
 import cn from 'classnames'
 import { Uploader } from './components/Uploader'
 import { List } from './components/List'
+import { Footer } from './components/Footer'
 import { Nav } from './components/Nav'
 import { Subtitle } from './components/Subtitle'
 import { Video } from './components/Video'
 import { Dictionary } from './components/Dictionary'
+import { Message, Confirm } from './components/Modal'
 import {
   useDispatch,
   useSelector,
@@ -42,6 +44,9 @@ const Home: FC = () => {
     <div className={styles['home']}>
       <Uploader />
       <List />
+      <Footer />
+      <Message />
+      <Confirm />
     </div>
   )
 }
@@ -72,6 +77,8 @@ const Play: FC = () => {
           <Subtitle />
         </div>
       </div>
+      <Message />
+      <Confirm />
     </div>
   )
 }

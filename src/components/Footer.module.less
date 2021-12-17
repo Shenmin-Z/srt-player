@@ -1,0 +1,30 @@
+.footer {
+  margin-top: 20px;
+  margin-bottom: 10px;
+
+  .version {
+    display: flex;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--text-gray);
+
+    .text {
+      margin: 0 5px 0 5px;
+    }
+    .update {
+      cursor: pointer;
+      color: var(--text-blue);
+    }
+  }
+
+  .copy-right {
+    display: flex;
+    justify-content: center;
+    :global(.material-icons) {
+      font-size: 15px;
+      text-decoration: none;
+      margin: 0 5px 0 5px;
+      color: var(--text-blue);
+    }
+  }
+}

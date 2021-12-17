@@ -12,7 +12,10 @@ body {
   --main-border-color: #8f8f9d;
   --main-background-color: #f4f4f4;
   --main-danger-color: #c82829;
+  --main-ok-color: #1869da;
   --main-icon-color: #5f6368;
+  --text-gray: #57606a;
+  --text-blue: #0969da;
 }
 
 @font-face {

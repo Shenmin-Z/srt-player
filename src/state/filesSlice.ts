@@ -46,25 +46,29 @@ export async function saveVideoSubPair(pair: VideoSubPair) {
   await set(pair.video.name, pair, FilesStore)
 }
 
-export let getList = createAsyncThunk('files/getList', async () => {
-  let fileNames = (await keys(FilesStore)) as string[]
+export async function getFileList() {
+  return (await keys(FilesStore)) as string[]
+}
+
+export const getList = createAsyncThunk('files/getList', async () => {
+  const fileNames = await getFileList()
   fileNames.sort((a, b) => a.localeCompare(b))
   return fileNames
 })
 
-export let deleteFile = createAsyncThunk<void, string>('files/deleteFile', async (file, { dispatch }) => {
+export const deleteFile = createAsyncThunk<void, string>('files/deleteFile', async (file, { dispatch }) => {
   await del(file, FilesStore)
   await deleteHistory(file)
   await deleteSampling(file)
   dispatch(getList())
 })
 
-let initialState: {
+const initialState: {
   list: string[]
   selected: null | string
 } = { list: [], selected: null }
 
-export let filesSlice = createSlice({
+export const filesSlice = createSlice({
   name: 'files',
   initialState,
   reducers: {
@@ -79,5 +83,5 @@ export let filesSlice = createSlice({
   },
 })
 
-export let filesReducer = filesSlice.reducer
+export const filesReducer = filesSlice.reducer
 export const { setSelected } = filesSlice.actions

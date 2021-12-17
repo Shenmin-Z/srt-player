@@ -22,9 +22,10 @@
     border-radius: 10px;
     min-width: 300px;
     max-width: 100vw;
-    min-height: 200px;
+    min-height: 50px;
     max-height: 100vh;
     box-shadow: 0 8px 10px 0 rgb(15 41 77 / 8%);
+    overflow: auto;
 
     .header {
       display: flex;
@@ -43,8 +44,32 @@
     }
 
     .body {
-      overflow: auto;
       padding: 15px;
+    }
+  }
+}
+
+.message,
+.confirm {
+  .text {
+  }
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+    .ok,
+    .cancel {
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .ok {
+      border: 1px solid var(--main-ok-color);
+      background: var(--main-ok-color);
+      color: #fff;
+      margin-right: 10px;
+    }
+    .cancel {
+      border: 1px solid var(--main-border-color);
     }
   }
 }
