@@ -14,24 +14,25 @@ const Version: FC = () => {
         setVersion(v)
       }
     })
-    let timeout = 0
-    const check = (c: number) => {
-      if (c > 3) return
-      timeout = setTimeout(async () => {
-        const current = await getCurrentVersion()
-        const latest = await getLatestVersion()
-        if (current === latest) {
-          check(c + 1)
-        } else {
-          console.log(current, latest)
-          setHasUpdate(true)
+    setTimeout(async () => {
+      const current = await getCurrentVersion()
+      const latest = await getLatestVersion(true)
+      if (current !== latest) {
+        const sw = navigator.serviceWorker.controller
+        if (sw) {
+          const channel = new MessageChannel()
+          sw.postMessage(
+            {
+              type: 'UPDATE',
+            },
+            [channel.port2],
+          )
+          channel.port1.onmessage = () => {
+            setHasUpdate(true)
+          }
         }
-      }, 5000 * c)
-    }
-    check(1)
-    return () => {
-      clearTimeout(timeout)
-    }
+      }
+    }, 2500)
   }, [])
 
   if (!version) return null

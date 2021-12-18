@@ -1,9 +1,6 @@
-import { get, set } from 'idb-keyval'
-
 declare var self: ServiceWorkerGlobalScope
 
 const PATH = '/srt-player/' // should be the same as base in vite config
-const VERSION_KEY = 'SRT-VERSION'
 const CACHE_STATIC = 'static-cache'
 const CACHE_DYNAMIC = 'dynamic-cache'
 const STATIC_URLS = [
@@ -16,8 +13,15 @@ const DYNAMIC_URLS = ['', 'index.js', 'index.css', 'version.txt']
   .map(i => PATH + i)
   .concat(PATH.substring(0, PATH.length - 1))
 
-const cacheStatic = () => caches.open(CACHE_STATIC).then(cache => cache.addAll(STATIC_URLS))
-const cacheDynamic = () => caches.open(CACHE_DYNAMIC).then(cache => cache.addAll(DYNAMIC_URLS))
+const cacheStatic = async () => {
+  const cache = await caches.open(CACHE_STATIC)
+  await cache.addAll(STATIC_URLS)
+}
+const cacheDynamic = async () => {
+  const cache = await caches.open(CACHE_DYNAMIC)
+  const requests = DYNAMIC_URLS.map(url => new Request(url, { cache: 'reload' }))
+  await cache.addAll(requests)
+}
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -30,30 +34,24 @@ self.addEventListener('install', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
+    (async () => {
+      const response = await caches.match(event.request)
       const url = event.request.url
-      if (url.endsWith(PATH + 'version.txt')) {
-        checkUpdate()
-      }
-      if (response) {
+      const bypassCache = new URL(url).search.includes('bypassCache')
+      if (response && !bypassCache) {
         return response
-      }
-      return fetch(event.request).then(response => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response
-        }
+      } else {
+        const response = await fetch(event.request, { cache: 'reload' })
 
-        const responseToCache = response.clone()
-
-        if (url.startsWith('http')) {
-          caches.open(CACHE_DYNAMIC).then(cache => {
-            cache.put(event.request, responseToCache)
-          })
+        if (!bypassCache && response.status === 200 && url.startsWith('http')) {
+          const responseToCache = response.clone()
+          const cache = await caches.open(CACHE_DYNAMIC)
+          cache.put(event.request, responseToCache)
         }
 
         return response
-      })
-    }),
+      }
+    })(),
   )
 })
 
@@ -62,25 +60,17 @@ self.addEventListener('activate', event => {
   event.waitUntil(Promise.resolve())
 })
 
-async function checkUpdate() {
-  const currentVersion = await get(VERSION_KEY)
-  try {
-    let version = await fetch('/srt-player/version.txt', { cache: 'no-store' }).then(response => response.text())
-    version = version.trim()
-    if (version !== currentVersion && currentVersion !== undefined) {
-      console.log(`Current: ${currentVersion}, latest: ${version}\nUpdating cache in 5 seconds.`)
-      setTimeout(clearAndUpate, 5000)
-    } else {
-      console.log(`Already latest. (${version})`)
-    }
-    await set(VERSION_KEY, version)
-  } catch {}
-}
+self.addEventListener('message', async event => {
+  if (event.data.type === 'UPDATE') {
+    const port = event.ports[0]
+    await clearAndUpate()
+    port.postMessage('updated')
+  }
+})
 
 async function clearAndUpate() {
   await caches.delete(CACHE_DYNAMIC)
   await cacheDynamic()
-  console.log('Cache updated.')
 }
 
 export {}

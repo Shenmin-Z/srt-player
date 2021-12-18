@@ -20,8 +20,10 @@ export const migrate =
 
 export const getCurrentVersion = async () => await get(KEY_VERSION)
 
-export async function getLatestVersion() {
-  return (await (await fetch(`${BASE}version.txt`)).text()).trim()
+export async function getLatestVersion(bypassCache = false) {
+  let url = `${BASE}version.txt`
+  if (bypassCache) url += '?bypassCache=true'
+  return (await (await fetch(url)).text()).trim()
 }
 
 async function checkAndMigrate() {
