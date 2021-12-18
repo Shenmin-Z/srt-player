@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import {
   useSelector,
   useDispatch,
@@ -11,14 +11,13 @@ import {
   updateSubtitleDelay,
 } from '../../state'
 import { Modal } from '../Modal'
-import { NumberInput } from './form'
+import { NumberInput, TextInput } from './form'
 import styles from './Nav.module.less'
 
 export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   const settings = useSelector(s => s.settings)
   const file = useSelector(s => s.files.selected) as string
   const { layout, subtitleAuto } = settings
-  const [url, setURL] = useState(settings.dictionaryUrl)
 
   const dispatch = useDispatch()
 
@@ -56,12 +55,9 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
             </div>
             <div className={styles['title']}>Dictionary URL</div>
             <div className={styles['body']}>
-              <input
-                value={url || ''}
-                onChange={e => {
-                  setURL(e.target.value)
-                }}
-                onBlur={() => {
+              <TextInput
+                value={settings.dictionaryUrl}
+                onChange={url => {
                   dispatch(updateDictionaryUrl(url))
                 }}
               />
@@ -77,6 +73,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
             </div>
           </>
         )}
+        <div className={styles['br']} />
         <div className={styles['title']}>Subtitle width</div>
         <div className={styles['body']}>
           <NumberInput
@@ -86,6 +83,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
             }}
           />
         </div>
+        <div className={styles['br']} />
         <div className={styles['title']}>Auto subtitle</div>
         <div className={styles['body']}>
           <input

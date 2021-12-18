@@ -1,32 +1,60 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState } from 'react'
 
-interface InputProps {
+interface NumberInputProps {
   isFloat?: boolean
   value: number
   onChange: (v: number) => void
 }
 
-export let NumberInput: FC<InputProps> = ({ isFloat, value: _value, onChange }) => {
-  const [value, setValue] = useState(_value + '')
-  useEffect(() => {
-  if(isFloat){
-    setValue(_value.toFixed(3))
-  }else{
-    setValue(_value + '')
-  }
-  }, [_value])
+export let NumberInput: FC<NumberInputProps> = ({ isFloat, value, onChange }) => {
+  const [buf, setBuf] = useState('')
+  const [editting, setEditting] = useState(false)
 
   return (
     <input
-      value={value}
+      type="text"
+      value={editting ? buf : value}
+      onFocus={() => {
+        setBuf(value + '')
+        setEditting(true)
+      }}
       onChange={e => {
-        setValue(e.target.value)
+        setBuf(e.target.value)
       }}
       onBlur={() => {
-        const width = isFloat ? parseFloat(value) : parseInt(value, 10)
-        if (!isNaN(width)) {
-          onChange(width)
+        const v = isFloat ? parseFloat(buf) : parseInt(buf, 10)
+        if (!isNaN(v)) {
+          onChange(v)
         }
+        setEditting(false)
+      }}
+    />
+  )
+}
+
+interface TextInputProps {
+  value: string
+  onChange: (v: string) => void
+}
+
+export let TextInput: FC<TextInputProps> = ({ value, onChange }) => {
+  const [buf, setBuf] = useState('')
+  const [editting, setEditting] = useState(false)
+
+  return (
+    <input
+      type="text"
+      value={editting ? buf : value}
+      onFocus={() => {
+        setBuf(value + '')
+        setEditting(true)
+      }}
+      onChange={e => {
+        setBuf(e.target.value)
+      }}
+      onBlur={() => {
+        onChange(buf)
+        setEditting(false)
       }}
     />
   )

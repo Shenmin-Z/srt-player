@@ -12,14 +12,14 @@ const SETTINGS_KEY = 'SRT-SETTINGS'
 
 const INIT_SETTING: Settings = {
   layout: {
-    layout: '3col',
-    subtitle2Col: 600,
-    subtitle3Col: 400,
-    dictionary: 600,
+    layout: '2col',
+    subtitle2Col: 400,
+    subtitle3Col: 300,
+    dictionary: 400,
     dictionaryLeftOffset: 0,
   },
   dictionary: {
-    url: 'https://www.mojidict.com/',
+    url: 'https://www.example.com/',
   },
 }
 export async function getSettings(): Promise<Settings> {

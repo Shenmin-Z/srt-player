@@ -43,7 +43,7 @@ export const Uploader = () => {
 
   return (
     <div className={styles['container']}>
-      <div>
+      <div className={styles['button-container']}>
         <div
           className={styles['video-input']}
           onClick={() => {
@@ -54,7 +54,7 @@ export const Uploader = () => {
                 {
                   description: 'Videos',
                   accept: {
-                    'video/*': ['.mp4', '.mov', '.avi', '.mkv'],
+                    'video/*': ['.mp4', '.mov', '.avi', '.mkv', '.flv'],
                   },
                 },
               ],
@@ -68,11 +68,11 @@ export const Uploader = () => {
             )
           }}
         >
-          <span className="material-icons">movie</span>
-          Import Videos
+          <span className="material-icons">live_tv</span>
+          Videos
         </div>
       </div>
-      <div>
+      <div className={styles['button-container']}>
         <div
           className={styles['subtitle-input']}
           onClick={() => {
@@ -97,8 +97,8 @@ export const Uploader = () => {
             )
           }}
         >
-          <span className="material-icons">description</span>
-          Import Subtitles
+          <span className="material-icons">closed_caption_off</span>
+          Subtitles
         </div>
       </div>
       <div>
@@ -108,6 +108,15 @@ export const Uploader = () => {
               {name}
             </div>
           ))}
+          <span
+            className="material-icons"
+            onClick={() => {
+              videoHandles.current = []
+              setVideos([])
+            }}
+          >
+            cancel
+          </span>
         </div>
       </div>
       <div>
@@ -117,6 +126,15 @@ export const Uploader = () => {
               {name}
             </div>
           ))}
+          <span
+            className="material-icons"
+            onClick={() => {
+              subtitleHandles.current = []
+              setSubtitles([])
+            }}
+          >
+            cancel
+          </span>
         </div>
       </div>
     </div>

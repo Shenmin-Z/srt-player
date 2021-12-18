@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { createStore, get, set, del, keys } from 'idb-keyval'
 import { deleteHistory, deleteSampling, Node, parseSRT } from '../utils'
+import { message } from '../components/Modal'
 
 interface VideoSubPair {
   video: FileSystemHandle
@@ -16,9 +17,14 @@ export async function getSubtitle(file: string): Promise<Node[]> {
     if (typeof subtitle === 'string') {
       try {
         const nodes = parseSRT(subtitle)
-        saveVideoSubPair({ ...pair, subtitle: nodes })
+        if (nodes.length === 0) {
+          message('Failed to parse srt file.')
+        } else {
+          saveVideoSubPair({ ...pair, subtitle: nodes })
+        }
         return nodes
-      } catch {
+      } catch (e) {
+        message('Error: ' + e)
         return []
       }
     } else {

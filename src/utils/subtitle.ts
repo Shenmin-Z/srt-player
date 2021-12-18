@@ -6,7 +6,7 @@ export interface Node {
 }
 
 export function parseSRT(content: string): Node[] {
-  const lines = content.split('\r').map(i => i.trim())
+  const lines = content.split('\n').map(i => i.trim())
   let group: string[][] = []
   let p = 0
   for (let i = 0; i < lines.length; i++) {

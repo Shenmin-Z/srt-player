@@ -65,21 +65,21 @@ export const Nav = () => {
           />
           <Icon
             disabled={!subtitleAuto}
-            type="autorenew"
+            type="closed_caption_off"
             onClick={() => {
               dispatch(updateSubtitleAuto({ file }))
-            }}
-          />
-          <Icon
-            type="info"
-            onClick={() => {
-              setShowInfo(true)
             }}
           />
           <Icon
             type="settings"
             onClick={() => {
               setShowSettings(true)
+            }}
+          />
+          <Icon
+            type="info"
+            onClick={() => {
+              setShowInfo(true)
             }}
           />
         </div>
@@ -109,20 +109,9 @@ export const Nav = () => {
 window.enableShortcuts = true
 
 const Title: FC<{ file: string }> = ({ file }) => {
-  if (/\.srt$/i.test(file)) file = file.substring(0, file.length - 4)
-  let inner: string | ReactElement = file
-  const match = file.split('.')[0].match(/^(.*?)(\d+)$/)
-  if (match) {
-    inner = (
-      <>
-        {match[1]}
-        <span className={styles['episode']}>{match[2]}</span>
-      </>
-    )
-  }
   return (
     <div className={styles['name']}>
-      <div>{inner}</div>
+      <div>{file}</div>
     </div>
   )
 }
