@@ -1,5 +1,6 @@
 import { FC, useEffect, MouseEventHandler } from 'react'
 import cn from 'classnames'
+import { Language } from './components/Language'
 import { Uploader } from './components/Uploader'
 import { List } from './components/List'
 import { Footer } from './components/Footer'
@@ -22,6 +23,7 @@ import { useSaveHistory, migrate } from './utils'
 const App: FC = migrate(() => {
   const dispatch = useDispatch()
   const selected = useSelector(state => state.files.selected)
+  const language = useSelector(state => state.settings.language)
 
   useEffect(() => {
     dispatch(getList())
@@ -36,12 +38,14 @@ const App: FC = migrate(() => {
     }
   }, [selected])
 
+  if (language === '') return null
   return selected === null ? <Home /> : <Play />
 })
 
 const Home: FC = () => {
   return (
     <div className={styles['home']}>
+      <Language />
       <Uploader />
       <List />
       <Footer />

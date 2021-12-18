@@ -1,0 +1,70 @@
+{
+  "import_video_and_subtitle": {
+    "video_button": "视频",
+    "subtitle_button": "字幕"
+  },
+  "footer": {
+    "current_version": "当前版本",
+    "update": "升级"
+  },
+  "nav": {
+    "info": {
+      "name": "快捷键",
+      "settings": {
+        "name": "设置",
+        "toggle_settings": "开关设置窗口",
+        "toggle_dictionary": "开关字典",
+        "toggle_shortcuts_dialog": "开关快捷键窗口"
+      },
+      "video": {
+        "name": "视频",
+        "play_pause": "播放 / 暂停",
+        "back_10_seconds": "-10 秒",
+        "back_3_seconds": "-3 秒",
+        "forward_10_seconds": "+10 秒",
+        "forward_3_seconds": "+3 秒"
+      },
+      "subtitle": {
+        "name": "字幕",
+        "page_up": "上翻",
+        "page_down": "下翻",
+        "toggle_auto": "开关自动模式",
+        "adjust_delay": "调整延迟"
+      },
+      "waveform": {
+        "name": "波形图",
+        "replay": "重放",
+        "replay_position_left": "重复位置左移",
+        "replay_position_left_quicker": "重复位置左移（快）",
+        "replay_position_right": "重复位置右移",
+        "replay_position_right_quicker": "重复位置右移（快）",
+        "replay_position_at_current_time": "设置当前时间为重播位置"
+      }
+    },
+    "settings": {
+      "name": "设置",
+      "enable_dictionary": "字典",
+      "dictionary_width": "字段宽度",
+      "dictionary_url": "字典地址",
+      "dictionary_left_offset": "字典左偏移",
+      "subtitle_width": "字幕宽度",
+      "auto_subtitle": "字幕自动模式",
+      "subtitle_delay": "字幕延迟"
+    },
+    "waveform": {
+      "name": "波形图",
+      "disable": "关闭",
+      "enable": "启用",
+      "enable_with_video": "启用（从现有视频提取）",
+      "enable_with_audio": "启用（单独上传音频文件）"
+    }
+  },
+  "confirm": {
+    "reload_update": "要升级吗？",
+    "cannot_find_file": "找不到文件{0}，从列表里移除吗？",
+    "overwrite_existing_file": "{0}已经存在，要覆盖吗？"
+  },
+  "message": {
+    "file_number_not_match": "数量不匹配：{0}个视频，{1}个字幕"
+  }
+}

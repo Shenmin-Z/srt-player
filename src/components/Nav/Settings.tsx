@@ -12,14 +12,15 @@ import {
 } from '../../state'
 import { Modal } from '../Modal'
 import { NumberInput, TextInput } from './form'
+import { useI18n } from '../../utils'
 import styles from './Nav.module.less'
 
 export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   const settings = useSelector(s => s.settings)
   const file = useSelector(s => s.files.selected) as string
   const { layout, subtitleAuto } = settings
-
   const dispatch = useDispatch()
+  const i18n = useI18n()
 
   useEffect(() => {
     if (props.show) {
@@ -30,9 +31,9 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
   }, [props.show, settings.layout])
 
   return (
-    <Modal {...props} title="Settings">
+    <Modal {...props} title={i18n('nav.settings.name')}>
       <div className={styles['settings']}>
-        <div className={styles['title']}>Enable dictionary</div>
+        <div className={styles['title']}>{i18n('nav.settings.enable_dictionary')}</div>
         <div className={styles['body']}>
           <input
             type="checkbox"
@@ -44,7 +45,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
         </div>
         {layout === '3col' && (
           <>
-            <div className={styles['title']}>Dictionary width</div>
+            <div className={styles['title']}>{i18n('nav.settings.dictionary_width')}</div>
             <div className={styles['body']}>
               <NumberInput
                 value={settings.dictionaryWidth}
@@ -53,7 +54,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                 }}
               />
             </div>
-            <div className={styles['title']}>Dictionary URL</div>
+            <div className={styles['title']}>{i18n('nav.settings.dictionary_url')}</div>
             <div className={styles['body']}>
               <TextInput
                 value={settings.dictionaryUrl}
@@ -62,7 +63,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
                 }}
               />
             </div>
-            <div className={styles['title']}>Dictionary Left Offset</div>
+            <div className={styles['title']}>{i18n('nav.settings.dictionary_left_offset')}</div>
             <div className={styles['body']}>
               <NumberInput
                 value={settings.dictionaryLeftOffset}
@@ -74,7 +75,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
           </>
         )}
         <div className={styles['br']} />
-        <div className={styles['title']}>Subtitle width</div>
+        <div className={styles['title']}>{i18n('nav.settings.subtitle_width')}</div>
         <div className={styles['body']}>
           <NumberInput
             value={settings.subtitleWidth}
@@ -84,7 +85,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
           />
         </div>
         <div className={styles['br']} />
-        <div className={styles['title']}>Auto subtitle</div>
+        <div className={styles['title']}>{i18n('nav.settings.auto_subtitle')}</div>
         <div className={styles['body']}>
           <input
             type="checkbox"
@@ -96,7 +97,7 @@ export const Settings: FC<{ show: boolean; onClose: () => void }> = props => {
         </div>
         {subtitleAuto && (
           <>
-            <div className={styles['title']}>Subtitle delay</div>
+            <div className={styles['title']}>{i18n('nav.settings.subtitle_delay')}</div>
             <div className={styles['body']}>
               <NumberInput
                 value={settings.subtitleDelay / 1000}

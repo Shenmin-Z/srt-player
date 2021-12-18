@@ -2,10 +2,12 @@ import { useState, useRef } from 'react'
 import styles from './Uploader.module.less'
 import { saveVideoSubPair, useDispatch, getList, getFileList } from '../state'
 import { confirm, message } from './Modal'
+import { useI18n } from '../utils'
 import cn from 'classnames'
 
 export const Uploader = () => {
   const dispatch = useDispatch()
+  const i18n = useI18n()
 
   const subtitleHandles = useRef<FileSystemHandle[]>([])
   const [subtitles, setSubtitles] = useState<string[]>([])
@@ -23,14 +25,14 @@ export const Uploader = () => {
     }
     if (vs.length === 0 || vs.length != ss.length) {
       if (vs.length > 0 && ss.length > 0) {
-        await message(`Number of video files(${vs.length}) does not match subtitles(${ss.length}).`)
+        await message(i18n('message.file_number_not_match', vs.length + '', ss.length + ''))
         reset()
       }
       return
     }
     const exist = await checkExist(vs)
     if (exist.length > 0) {
-      const overwrite = await confirm(`${exist.join(', ')} already exist(s), overwrite?`)
+      const overwrite = await confirm(i18n('confirm.overwrite_existing_file', exist.join(', ')))
       if (!overwrite) {
         reset()
         return
@@ -69,7 +71,7 @@ export const Uploader = () => {
           }}
         >
           <span className="material-icons">live_tv</span>
-          Videos
+          {i18n('import_video_and_subtitle.video_button')}
         </div>
       </div>
       <div className={styles['button-container']}>
@@ -98,7 +100,7 @@ export const Uploader = () => {
           }}
         >
           <span className="material-icons">closed_caption_off</span>
-          Subtitles
+          {i18n('import_video_and_subtitle.subtitle_button')}
         </div>
       </div>
       <div>

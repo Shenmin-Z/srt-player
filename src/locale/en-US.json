@@ -1,0 +1,70 @@
+{
+  "import_video_and_subtitle": {
+    "video_button": "Videos",
+    "subtitle_button": "Subtitles"
+  },
+  "footer": {
+    "current_version": "Current version",
+    "update": "Update"
+  },
+  "nav": {
+    "info": {
+      "name": "Shortcuts",
+      "settings": {
+        "name": "Settings",
+        "toggle_settings": "Toggle  settings",
+        "toggle_dictionary": "Toggle dictionary",
+        "toggle_shortcuts_dialog": "Toggle shortcuts dialog"
+      },
+      "video": {
+        "name": "Video",
+        "play_pause": "Play / pause",
+        "back_10_seconds": "-10 s",
+        "back_3_seconds": "-3 s",
+        "forward_10_seconds": "+10 s",
+        "forward_3_seconds": "+3 s"
+      },
+      "subtitle": {
+        "name": "Subtitle",
+        "page_up": "Page up",
+        "page_down": "Page down",
+        "toggle_auto": "Toggle auto",
+        "adjust_delay": "Adjust delay"
+      },
+      "waveform": {
+        "name": "Waveform",
+        "replay": "Replay",
+        "replay_position_left": "Replay position left",
+        "replay_position_left_quicker": "Replay position left (quicker)",
+        "replay_position_right": "Replay position right",
+        "replay_position_right_quicker": "Replay position right (quicker)",
+        "replay_position_at_current_time": "Replay position at current time"
+      }
+    },
+    "settings": {
+      "name": "Settings",
+      "enable_dictionary": "Enable dictionary",
+      "dictionary_width": "Dictionary width",
+      "dictionary_url": "Dictionary url",
+      "dictionary_left_offset": "Dictionary left offset",
+      "subtitle_width": "Subtitle width",
+      "auto_subtitle": "Auto subtitle",
+      "subtitle_delay": "Subtitle delay"
+    },
+    "waveform": {
+      "name": "Waveform",
+      "disable": "Disable",
+      "enable": "Enable",
+      "enable_with_video": "Enable using existing video file",
+      "enable_with_audio": "Enable using extra audio file"
+    }
+  },
+  "confirm": {
+    "reload_update": "Reload to update?",
+    "cannot_find_file": "Cannot find {0}, remove it from list?",
+    "overwrite_existing_file": "{0} already exsit(s), overwrite?"
+  },
+  "message": {
+    "file_number_not_match": "Number of video files({0}) does not match subtitles({1})."
+  }
+}

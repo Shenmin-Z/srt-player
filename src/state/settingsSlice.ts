@@ -21,8 +21,11 @@ const INIT_SETTING: Settings = {
   dictionary: {
     url: 'https://www.example.com/',
   },
+  locacle: {
+    language: 'en-US',
+  },
 }
-export async function getSettings(): Promise<Settings> {
+async function getSettings(): Promise<Settings> {
   const settings = await get<Settings>(SETTINGS_KEY)
   let ns: Settings
   if (!settings) {
@@ -52,6 +55,9 @@ interface Settings {
   dictionary: {
     url: string
   }
+  locacle: {
+    language: string
+  }
 }
 
 interface InitialState {
@@ -64,6 +70,7 @@ interface InitialState {
   subtitleAuto: boolean
   subtitleDelay: number
   waveform: boolean
+  language: string
 }
 
 const initialState: InitialState = {
@@ -76,6 +83,7 @@ const initialState: InitialState = {
   subtitleAuto: false,
   subtitleDelay: 0,
   waveform: false,
+  language: '',
 }
 
 function setWidth(v: { [s: string]: number }) {
@@ -201,6 +209,13 @@ export const updateEnableWaveForm = createAsyncThunk<boolean, { file: string; en
   },
 )
 
+export const updateLanguage = createAsyncThunk<string, string>('settings/updateLanguage', async v => {
+  const settings = await getSettings()
+  settings.locacle.language = v
+  await set(SETTINGS_KEY, settings)
+  return v
+})
+
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
@@ -209,12 +224,13 @@ export const settingsSlice = createSlice({
     builder
       .addCase(LoadSettingsFromLocal.fulfilled, (state, action) => {
         state.loaded = true
-        const { layout, dictionary } = action.payload
+        const { layout, dictionary, locacle } = action.payload
         state.layout = layout.layout
         state.subtitleWidth = layout.layout === '2col' ? layout.subtitle2Col : layout.subtitle3Col
         state.dictionaryWidth = layout.dictionary
         state.dictionaryLeftOffset = layout.dictionaryLeftOffset
         state.dictionaryUrl = dictionary.url
+        state.language = locacle.language
       })
       .addCase(LoadSubtitlePreference.fulfilled, (state, action) => {
         state.subtitleAuto = action.payload.auto
@@ -247,6 +263,9 @@ export const settingsSlice = createSlice({
       })
       .addCase(updateEnableWaveForm.fulfilled, (state, action) => {
         state.waveform = action.payload
+      })
+      .addCase(updateLanguage.fulfilled, (state, action) => {
+        state.language = action.payload
       })
   },
 })

@@ -1,12 +1,13 @@
 import { FC, useEffect, useState } from 'react'
 import { useSelector, useDispatch, getVideo, updateEnableWaveForm } from '../../state'
-import { computeAudioSampling, doVideoWithDefault, deleteSampling } from '../../utils'
+import { computeAudioSampling, doVideoWithDefault, deleteSampling, useI18n } from '../../utils'
 import { Modal } from '../Modal'
 import styles from './Nav.module.less'
 import SamplingWorker from '../../web-workers/sampling?worker&inline'
 
 export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
   const dispatch = useDispatch()
+  const i18n = useI18n()
   const file = useSelector(s => s.files.selected)
   const enableWaveForm = useSelector(s => s.settings.waveform)
   const [loading, setLoading] = useState(false)
@@ -29,7 +30,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
   if (checkbox === undefined) return null
   if (checkbox.startsWith('a')) {
     return (
-      <Modal {...props} width={500} title="WaveForm">
+      <Modal {...props} width={500} title={i18n('nav.waveform.name')}>
         <div>
           <div className={styles['waveform-option']}>
             <input
@@ -42,18 +43,18 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
                 dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
               }}
             />
-            <label>Disable</label>
+            <label>{i18n('nav.waveform.disable')}</label>
           </div>
           <div className={styles['waveform-option']}>
             <input checked={checkbox === 'a2'} onChange={() => {}} type="radio" />
-            <label>Enable</label>
+            <label>{i18n('nav.waveform.enable')}</label>
           </div>
         </div>
       </Modal>
     )
   }
   return (
-    <Modal {...props} width={500} title="WaveForm">
+    <Modal {...props} width={500} title={i18n('nav.waveform.name')}>
       <div>
         <div className={styles['waveform-option']}>
           <input
@@ -69,7 +70,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
               dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
             }}
           />
-          <label>Disable</label>
+          <label>{i18n('nav.waveform.disable')}</label>
         </div>
         <div className={styles['waveform-option']}>
           <input
@@ -95,7 +96,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
               }
             }}
           />
-          <label>Enable using exsiting video file</label>
+          <label>{i18n('nav.waveform.enable_with_video')}</label>
         </div>
         <div className={styles['waveform-option']}>
           <input
@@ -132,7 +133,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
               }
             }}
           />
-          <label>Enable using extra audio file</label>
+          <label>{i18n('nav.waveform.enable_with_audio')}</label>
         </div>
       </div>
       {loading && (

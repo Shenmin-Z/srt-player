@@ -1,7 +1,7 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
 import { setVideo, getVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
-import { useRestoreVideo, doVideo, VIDEO_ID } from '../utils'
+import { useRestoreVideo, doVideo, VIDEO_ID, useI18n } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm } from './Modal'
 import cn from 'classnames'
@@ -10,7 +10,7 @@ export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
   const urlRef = useRef<string>('')
   const restoreVideo = useRestoreVideo()
-
+  const i18n = useI18n()
   const dispatch = useDispatch()
   const hasVideo = useSelector(s => s.video.hasVideo)
   const enableWaveForm = useSelector(s => s.settings.waveform)
@@ -35,7 +35,7 @@ export const Video: FC = () => {
         e => {
           if (e instanceof DOMException && e.name === 'NotFoundError') {
             setTimeout(() => {
-              confirm(`Cannot find ${file}, remove it from list?`).then(remove => {
+              confirm(i18n('confirm.cannot_find_file', file as string)).then(remove => {
                 if (remove) {
                   dispatch(deleteFile(file as string))
                 }
