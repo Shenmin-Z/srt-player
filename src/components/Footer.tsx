@@ -26,7 +26,7 @@ const Version: FC = () => {
           console.log(current, latest)
           setHasUpdate(true)
         }
-      }, 1500 * c)
+      }, 5000 * c)
     }
     check(1)
     return () => {
@@ -62,7 +62,7 @@ export const Footer: FC = () => {
     <div className={styles['footer']}>
       <Version />
       <div className={styles['copy-right']}>
-        <a className="material-icons" href="https://github.com/Shenmin-Z/srt-player">
+        <a className="material-icons" href="https://github.com/Shenmin-Z/srt-player" target="_blank">
           code
         </a>
       </div>

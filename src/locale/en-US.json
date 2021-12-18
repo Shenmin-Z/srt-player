@@ -60,11 +60,14 @@
     }
   },
   "confirm": {
+    "ok": "OK",
+    "cancel": "Cancel",
     "reload_update": "Reload to update?",
     "cannot_find_file": "Cannot find {0}, remove it from list?",
     "overwrite_existing_file": "{0} already exsit(s), overwrite?"
   },
   "message": {
+    "ok": "OK",
     "file_number_not_match": "Number of video files({0}) does not match subtitles({1})."
   }
 }

@@ -65,7 +65,7 @@ self.addEventListener('activate', event => {
 async function checkUpdate() {
   const currentVersion = await get(VERSION_KEY)
   try {
-    let version = await fetch('/srt-player/version.txt').then(response => response.text())
+    let version = await fetch('/srt-player/version.txt', { cache: 'no-store' }).then(response => response.text())
     version = version.trim()
     if (version !== currentVersion && currentVersion !== undefined) {
       console.log(`Current: ${currentVersion}, latest: ${version}\nUpdating cache in 5 seconds.`)

@@ -60,11 +60,14 @@
     }
   },
   "confirm": {
+    "ok": "确定",
+    "cancel": "取消",
     "reload_update": "要升级吗？",
     "cannot_find_file": "找不到文件{0}，从列表里移除吗？",
     "overwrite_existing_file": "{0}已经存在，要覆盖吗？"
   },
   "message": {
+    "ok": "确定",
     "file_number_not_match": "数量不匹配：{0}个视频，{1}个字幕"
   }
 }

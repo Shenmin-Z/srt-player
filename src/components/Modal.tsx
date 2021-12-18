@@ -1,5 +1,5 @@
 import { FC, useState, useEffect, useRef } from 'react'
-import { Subject } from '../utils'
+import { Subject, useI18n } from '../utils'
 import styles from './Modal.module.less'
 import cn from 'classnames'
 
@@ -43,6 +43,7 @@ export const message = (m: string) => {
 }
 
 export const Message: FC = () => {
+  const i18n = useI18n()
   const [show, setShow] = useState(false)
   const [text, setText] = useState('')
   const cbRef = useRef<() => void>(() => {})
@@ -70,7 +71,7 @@ export const Message: FC = () => {
         <div className={styles['text']}>{text}</div>
         <div className={styles['buttons']}>
           <button className={styles['ok']} onClick={onClose}>
-            OK
+            {i18n('message.ok')}
           </button>
         </div>
       </div>
@@ -90,6 +91,7 @@ export const confirm = (c: string) => {
 }
 
 export const Confirm: FC = () => {
+  const i18n = useI18n()
   const [show, setShow] = useState(false)
   const [text, setText] = useState('')
   const cbRef = useRef<(ok: boolean) => void>(() => {})
@@ -117,10 +119,10 @@ export const Confirm: FC = () => {
         <div className={styles['text']}>{text}</div>
         <div className={styles['buttons']}>
           <button className={styles['ok']} onClick={onClick(true)}>
-            OK
+            {i18n('confirm.ok')}
           </button>
           <button className={styles['cancel']} onClick={onClick(false)}>
-            Cancel
+            {i18n('confirm.cancel')}
           </button>
         </div>
       </div>
