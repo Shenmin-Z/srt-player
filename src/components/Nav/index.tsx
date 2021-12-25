@@ -54,7 +54,7 @@ export const Nav = () => {
             })
           }}
         />
-        <Title file={file} />
+        <div className={styles['name']}>{file}</div>
         <div className={styles['right']}>
           <Icon
             disabled={!enableWaveForm}
@@ -108,17 +108,9 @@ export const Nav = () => {
 
 window.enableShortcuts = true
 
-const Title: FC<{ file: string }> = ({ file }) => {
-  return (
-    <div className={styles['name']}>
-      <div>{file}</div>
-    </div>
-  )
-}
-
 const Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled }) => {
   return (
-    <span className={cn(styles['icon'], 'material-icons', { [styles['disabled']]: disabled })} onClick={onClick}>
+    <span className={cn(styles['icon'], 'material-icons', { disabled: disabled })} onClick={onClick}>
       {type}
     </span>
   )

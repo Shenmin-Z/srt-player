@@ -1,12 +1,12 @@
 .footer {
   margin-top: 20px;
   margin-bottom: 10px;
+  color: var(--text-footer);
+  font-size: 14px;
 
   .version {
     display: flex;
     justify-content: center;
-    font-size: 13px;
-    color: var(--text-gray);
 
     .text {
       margin: 0 5px 0 5px;
@@ -18,13 +18,20 @@
   }
 
   .copy-right {
+    margin-top: 5px;
     display: flex;
     justify-content: center;
-    :global(.material-icons) {
-      font-size: 15px;
+    align-items: center;
+    &:link,
+    &:visited,
+    &:focus,
+    &:active {
       text-decoration: none;
-      margin: 0 5px 0 5px;
-      color: var(--text-blue);
+      color: var(--text-footer);
+    }
+    img {
+      width: 16px;
+      margin-right: 5px;
     }
   }
 }

@@ -1,58 +1,90 @@
 .container {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
-  display: grid;
-  margin-bottom: 10px;
-  .button-container {
+  margin: 20px 0;
+  user-select: none;
+
+  .upload-area {
+    max-width: 600px;
+    height: 120px;
+    margin: 0 auto;
+    background: var(--main-background-color);
+    border-radius: 10px;
+    cursor: pointer;
+    &:hover,
+    &:global(.drag-over) {
+      background: var(--background-blue-color);
+      box-shadow: var(--main-box-shadow);
+    }
+
     display: flex;
     align-items: center;
-    overflow: hidden;
-  }
-}
+    justify-content: center;
+    color: var(--text-gray);
+    font-size: 22px;
 
-.video-input,
-.subtitle-input {
-  margin: 20px auto 5px auto;
-  border: 1px solid var(--main-border-color);
-  border-radius: 10px;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  font-size: 20px;
-  padding: 15px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  :global(.material-icons) {
-    margin-right: 10px;
-    font-size: 28px;
-    color: var(--main-border-color);
+    :global(.material-icons) {
+      font-size: 40px;
+      margin-right: 10px;
+    }
   }
-}
 
-.files {
-  margin: 0 auto;
-  background: var(--main-background-color);
-  border: 1px solid var(--main-border-color);
-  border-radius: 8px;
-  padding: 5px;
-  position: relative;
-  &.hide {
-    visibility: hidden;
+  .buffer {
+    margin: 20px 0 10px 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+
+    .videos,
+    .subtitles {
+      background: var(--main-background-color);
+      padding: 5px 5px 0 5px;
+
+      & > :global(.material-icons) {
+        text-align: center;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .file {
+        position: relative;
+        background: #fff;
+        padding: 5px;
+        padding-right: 20px;
+        margin-bottom: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        &:global(.error) {
+          color: var(--main-danger-color);
+          opacity: 0.6;
+        }
+        & > :global(.material-icons) {
+          position: absolute;
+          right: 2px;
+          top: 7px;
+          font-size: 15px;
+          cursor: pointer;
+        }
+      }
+    }
   }
-  .file {
-    font-size: 14px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    height: 20px;
-    line-height: 20px;
-  }
-  :global(.material-icons) {
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--main-border-color);
-    position: absolute;
-    top: 3px;
-    right: 3px;
+
+  .ok {
+    display: flex;
+    justify-content: center;
+    button {
+      border: 1px solid var(--main-ok-color);
+      border-radius: 5px;
+      background: var(--main-ok-color);
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      &:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+    }
   }
 }

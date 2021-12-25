@@ -62,11 +62,10 @@ export const Footer: FC = () => {
   return (
     <div className={styles['footer']}>
       <Version />
-      <div className={styles['copy-right']}>
-        <a className="material-icons" href="https://github.com/Shenmin-Z/srt-player" target="_blank">
-          code
-        </a>
-      </div>
+      <a className={styles['copy-right']} href="https://github.com/Shenmin-Z/srt-player" target="_blank">
+        <img src="./github.png" />
+        Github
+      </a>
     </div>
   )
 }

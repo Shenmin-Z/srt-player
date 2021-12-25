@@ -1,13 +1,25 @@
+@X: 36px;
+@X-half: 18px;
+
 .language {
   z-index: 1;
   position: absolute;
   top: 10px;
   right: 10px;
   cursor: pointer;
+  background: #fff;
+  width: @X;
+  text-align: center;
+  height: @X;
+  border-radius: @X-half;
+  &:hover {
+    box-shadow: var(--main-box-shadow);
+  }
 
-  :global(.material-icons) {
+  & > :global(.material-icons) {
     font-size: 24px;
     color: var(--text-gray);
+    line-height: @X;
   }
 
   .mask {
@@ -21,11 +33,9 @@
   .tooltip {
     position: absolute;
     right: 0;
-    top: 28px;
+    top: 42px;
     border-radius: 6px;
-    border: 1px solid var(--main-border-color);
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+    box-shadow: var(--main-box-shadow);
     background: #fff;
     div {
       display: flex;
@@ -45,6 +55,15 @@
           visibility: visible;
         }
       }
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: 14px;
+      border-width: 4px;
+      border-style: solid;
+      border-color: transparent transparent #fff transparent;
     }
   }
 }

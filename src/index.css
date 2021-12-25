@@ -16,11 +16,17 @@ body {
 :root {
   --main-border-color: #8f8f9d;
   --main-background-color: #f4f4f4;
+  --background-green-color: #f1fdf9;
+  --background-blue-color: #ecf4f9;
   --main-danger-color: #c82829;
   --main-ok-color: #1869da;
   --main-icon-color: #5f6368;
   --text-gray: #5f6368;
   --text-blue: #0969da;
+  --text-footer: #606770;
+  --main-box-shadow: 0 10px 15px -3px rgb(0 0 0/0.1), 0 4px 6px -4px rgb(0 0 0/0.1);
+  --scrollbar-thumb-color: #babac0;
+  --scrollbar-track-color: rgba(255, 255, 255, 0.1);
 }
 
 @font-face {

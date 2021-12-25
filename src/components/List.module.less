@@ -3,7 +3,9 @@
 
   .item {
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, auto);
+    gap: 8px;
     align-items: center;
     padding-left: 10px;
     padding-right: 10px;
@@ -15,13 +17,12 @@
 
     .file-name {
       cursor: pointer;
-      & + span {
-        flex-grow: 1;
-      }
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .label {
-      margin-right: 10px;
       font-family: 'Roboto Mono', monospace;
       font-size: 14px;
     }

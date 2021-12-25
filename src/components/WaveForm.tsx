@@ -53,6 +53,10 @@ export const WaveForm: FC<Props> = () => {
         const seekListener = () => {
           updatePosition(setOffset, true)
         }
+        setTimeout(() => {
+          if (!video.paused && !video.ended) playListener()
+          // a little more than 2 seconds
+        }, 2300)
         video.addEventListener('play', playListener)
         video.addEventListener('pause', stopListener)
         video.addEventListener('seeked', seekListener)

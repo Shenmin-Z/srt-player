@@ -28,7 +28,6 @@ export let List = () => {
             >
               {i}
             </span>
-            <span />
             <Label history={hs} file={i} />
             <span
               className={cn('material-icons', styles['icon'])}
@@ -46,9 +45,9 @@ export let List = () => {
 }
 
 let Label: FC<{ history: WatchHistories; file: string }> = ({ history, file }) => {
-  if (!history[file]) return null
+  if (!history[file]) return <span />
   let time = history[file].currentTime
-  if (time === 0) return null
+  if (time === 0) return <span />
   let str =
     time < 3600 ? new Date(time * 1000).toISOString().substr(14, 5) : new Date(time * 1000).toISOString().substr(11, 8)
   return <span className={styles['label']}>{str}</span>

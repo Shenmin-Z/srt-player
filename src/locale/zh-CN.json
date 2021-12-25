@@ -1,7 +1,7 @@
 {
   "import_video_and_subtitle": {
-    "video_button": "视频",
-    "subtitle_button": "字幕"
+    "click_drop": "点击或拖拽文件",
+    "save": "保存"
   },
   "footer": {
     "current_version": "当前版本",
@@ -67,7 +67,6 @@
     "overwrite_existing_file": "{0}已经存在，要覆盖吗？"
   },
   "message": {
-    "ok": "确定",
-    "file_number_not_match": "数量不匹配：{0}个视频，{1}个字幕"
+    "ok": "确定"
   }
 }
