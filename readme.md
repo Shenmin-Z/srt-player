@@ -2,6 +2,10 @@
 
 ![screenshot](./docs/screenshot.png)
 
+Video demo(youtube):
+
+[![Video demo](https://img.youtube.com/vi/UpgwD5ejwMo/0.jpg)](https://youtu.be/UpgwD5ejwMo)
+
 Learn foreign languages by watching movies!
 
 ### What's wrong with normal video player?
