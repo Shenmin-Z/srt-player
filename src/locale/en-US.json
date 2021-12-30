@@ -43,10 +43,6 @@
     },
     "settings": {
       "name": "Settings",
-      "enable_dictionary": "Enable dictionary",
-      "dictionary_width": "Dictionary width",
-      "dictionary_url": "Dictionary url",
-      "dictionary_left_offset": "Dictionary left offset",
       "subtitle_width": "Subtitle width",
       "auto_subtitle": "Auto subtitle",
       "subtitle_delay": "Subtitle delay"

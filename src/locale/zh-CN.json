@@ -43,10 +43,6 @@
     },
     "settings": {
       "name": "设置",
-      "enable_dictionary": "字典",
-      "dictionary_width": "字段宽度",
-      "dictionary_url": "字典地址",
-      "dictionary_left_offset": "字典左偏移",
       "subtitle_width": "字幕宽度",
       "auto_subtitle": "字幕自动模式",
       "subtitle_delay": "字幕延迟"

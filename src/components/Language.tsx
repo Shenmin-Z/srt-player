@@ -9,7 +9,7 @@ const LANGUAGES = [
 
 export const Language: FC = () => {
   const [show, setShow] = useState(false)
-  const language = useSelector(s => s.settings.language)
+  const language = useSelector(s => s.settings.locale)
   const dispath = useDispatch()
 
   return (

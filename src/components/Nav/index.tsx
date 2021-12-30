@@ -1,7 +1,7 @@
-import { FC, ReactElement, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
-import { useDispatch, useSelector, setSelected, updateLayout, updateSubtitleAuto } from '../../state'
+import { useDispatch, useSelector, setSelected, updateSubtitleAuto } from '../../state'
 import { useSaveHistory } from '../../utils'
 import { Settings } from './Settings'
 import { Info } from './Info'
@@ -24,9 +24,6 @@ export const Nav = () => {
         return
       }
       if (!window.enableShortcuts) return
-      if (e.code === 'KeyD' && !e.repeat) {
-        dispatch(updateLayout())
-      }
       if (e.code === 'KeyA' && !e.repeat) {
         dispatch(updateSubtitleAuto({ file }))
       }

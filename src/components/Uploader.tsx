@@ -180,7 +180,9 @@ async function pickFiles() {
         {
           description: 'Videos & Subtitles',
           accept: {
-            '*/*': ['.mp4', '.mov', '.avi', '.mkv', '.flv', '.mpg', '.srt'],
+            'audio/*': [],
+            'video/*': [],
+            'text/plain': ['.srt'],
           },
         },
       ],
@@ -192,8 +194,7 @@ async function pickFiles() {
 }
 
 async function filterFileHandles(handles: FileSystemFileHandle[]) {
-  const files = await Promise.all(handles.map(i => i.getFile()))
-  const videos = handles.filter((_, i) => files[i].type.match(/(video|audio)/))
+  const videos = handles.filter(h => !h.name.toLowerCase().endsWith('.srt'))
   const subtitles = handles.filter(h => h.name.toLowerCase().endsWith('.srt'))
   return { videos, subtitles }
 }

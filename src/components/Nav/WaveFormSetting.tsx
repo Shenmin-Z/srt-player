@@ -11,7 +11,6 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
   const file = useSelector(s => s.files.selected)
   const enableWaveForm = useSelector(s => s.settings.waveform)
   const [loading, setLoading] = useState(false)
-  const [duration, setDuration] = useState(-1)
   const videoDuation = doVideoWithDefault(video => video.duration, 0)
   const [checkbox, setCheckbox] = useState<string | undefined>(undefined)
   const [errorMsg, setErrorMsg] = useState('')
@@ -64,7 +63,6 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
             onChange={e => {
               if (!e.target.checked) return
               setErrorMsg('')
-              setDuration(-1)
               deleteSampling(file as string)
               setCheckbox('b1')
               dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
@@ -86,7 +84,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
                 const videoFile = await getVideo(file as string)
                 if (!videoFile) return
                 const worker = new SamplingWorker()
-                setDuration(await computeAudioSampling(worker, videoFile))
+                await computeAudioSampling(worker, videoFile)
                 dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
               } catch (e) {
                 setErrorMsg(e + '')
@@ -123,7 +121,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
                 const audioFile = await handles[0].getFile()
                 if (!audioFile) return
                 const worker = new SamplingWorker()
-                setDuration(await computeAudioSampling(worker, audioFile, file as string))
+                await computeAudioSampling(worker, audioFile, file as string)
                 dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
               } catch (e) {
                 setErrorMsg(e + '')
@@ -143,21 +141,6 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
         </div>
       )}
       {errorMsg && <div className={styles['waveform-error-message']}>{errorMsg}</div>}
-      {duration > 0 && (
-        <div className={styles['waveform-report']}>
-          <p className={styles['title']}>Re-sampling done.</p>
-          <p className={styles['subtitle']}>
-            If the following 2 results differs then the waveform would not be accurate. This is likely to occur when
-            directly using video file, try extract audio from the video file using other software and use that audio.
-          </p>
-          <p>
-            Original video duration: <span className={styles['result']}>{videoDuation.toFixed(2)}</span> seconds
-          </p>
-          <p>
-            Re-sampled audio duration: <span className={styles['result']}>{duration.toFixed(2)}</span> seconds
-          </p>
-        </div>
-      )}
     </Modal>
   )
 }

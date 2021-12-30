@@ -2,7 +2,7 @@ import { useSelector } from '../state/hooks'
 import { locacle } from '../locale'
 
 export const useI18n = (): ((path: string, ...args: string[]) => string) => {
-  const language = useSelector(s => s.settings.language)
+  const language = useSelector(s => s.settings.locale)
   const text = locacle[language]
   if (!text) return () => ''
 

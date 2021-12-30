@@ -9,10 +9,16 @@
     background: var(--main-background-color);
     border-radius: 10px;
     cursor: pointer;
+    box-shadow: var(--bs-sm);
     &:hover,
     &:global(.drag-over) {
+      box-shadow: var(--bs-md);
+    }
+    &:hover {
       background: var(--background-blue-color);
-      box-shadow: var(--main-box-shadow);
+    }
+    &:global(.drag-over) {
+      background: var(--background-green-color);
     }
 
     display: flex;
