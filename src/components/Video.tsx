@@ -108,7 +108,9 @@ export const Video: FC = () => {
     return (
       <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableWaveForm })}>
         {enableWaveForm && <WaveForm />}
-        <video id={VIDEO_ID} src={videoUrl} controls />
+        <div>
+          <video id={VIDEO_ID} src={videoUrl} controls />
+        </div>
       </div>
     )
   }

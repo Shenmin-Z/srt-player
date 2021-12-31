@@ -8,24 +8,7 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
 
   return (
     <Modal {...props} title={i18n('nav.info.name')}>
-      <div className={styles['4cols']}>
-        <div className="column">
-          <div className="column-title">{i18n('nav.info.settings.name')}</div>
-          <div className={styles['info']}>
-            <div className={styles['title']}>
-              <span className={styles['key']}>Esc</span>
-            </div>
-            <div className={styles['body']}>{i18n('nav.info.settings.toggle_settings')}</div>
-            <div className={styles['title']}>
-              <span className={styles['key']}>D</span>
-            </div>
-            <div className={styles['body']}>{i18n('nav.info.settings.toggle_dictionary')}</div>
-            <div className={styles['title']}>
-              <span className={styles['key']}>I</span>
-            </div>
-            <div className={styles['body']}>{i18n('nav.info.settings.toggle_shortcuts_dialog')}</div>
-          </div>
-        </div>
+      <div className={styles['3cols']}>
         <div className="column">
           <div className="column-title">{i18n('nav.info.video.name')}</div>
           <div className={styles['info']}>
@@ -76,15 +59,27 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
               </span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.page_down')}</div>
+
+            <div className={styles['title']}>
+              <span className={styles['key']}>+</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.subtitle.font_up')}</div>
+            <div className={styles['title']}>
+              <span className={styles['key']}>-</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.subtitle.font_down')}</div>
+
             <div className={styles['title']}>
               <span className={styles['key']}>A</span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_auto')}</div>
             <div className={styles['title']}>
-              <span className={styles['key']}>Ctrl</span>
-              <span className={styles['key']}>
-                <span className="material-icons">mouse</span>
-              </span>
+              <span className={styles['key']}>S</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_settings')}</div>
+
+            <div className={styles['title']}>
+              <span className={styles['right-click']}>{i18n('nav.info.subtitle.right_click')}</span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.adjust_delay')}</div>
           </div>
@@ -92,6 +87,10 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
         <div className="column">
           <div className="column-title">{i18n('nav.info.waveform.name')}</div>
           <div className={styles['info']}>
+            <div className={styles['title']}>
+              <span className={styles['key']}>W</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.waveform.toggle_settings')}</div>
             <div className={styles['title']}>
               <span className={styles['key']}>R</span>
             </div>

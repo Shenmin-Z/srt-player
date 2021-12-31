@@ -26,7 +26,9 @@ export let NumberInput: FC<NumberInputProps> = ({ isFloat, value, onChange }) =>
         if (!isNaN(v)) {
           onChange(v)
         }
-        setEditting(false)
+        setTimeout(() => {
+          setEditting(false)
+        }, 250)
       }}
     />
   )

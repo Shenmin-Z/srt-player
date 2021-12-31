@@ -1,4 +1,5 @@
 .nav {
+  grid-column: 1 / 4;
   border-bottom: 1px solid;
   border-color: var(--main-border-color);
   width: 100vw;
@@ -12,8 +13,10 @@
   cursor: pointer;
   color: var(--main-icon-color);
   height: 100%;
-  line-height: var(--nav-height);
-  padding: 0 4px;
+  :global(.material-icons) {
+    line-height: var(--nav-height);
+  }
+  padding: 0 6px;
   &:global(.disabled) {
     color: #ebebeb;
   }
@@ -34,8 +37,20 @@
 
 .right {
   .icon {
+    position: relative;
+    display: inline-block;
     &:last-child {
       margin-right: 0;
+    }
+    .delay {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 2px;
+      color: var(--main-danger-color);
+      font-size: 9px;
+      text-align: center;
+      font-family: 'Roboto Mono', monospace;
     }
   }
 }
@@ -46,27 +61,40 @@
   grid-template-columns: minmax(50px, auto) 1fr;
   gap: 10px;
   align-items: center;
-  .br {
-    grid-column: 1 / 3;
-    height: 5px;
-  }
 }
 
 .settings {
+  gap: 24px 32px;
+
   .title {
+    font-weight: 600;
   }
 
   .body {
+    position: relative;
     input[type='text'] {
       border: 1px solid var(--main-border-color);
       border-width: 0 0 1px 0;
       padding-bottom: 1px;
+      width: 100px;
       &:focus {
         outline: none;
         border-color: var(--text-blue);
         border-width: 0 0 2px 0;
         padding-bottom: 0;
       }
+    }
+    input[type='checkbox'] {
+      margin: 0;
+      height: 14px;
+      width: 14px;
+    }
+    :global(.material-icons):global(.clear) {
+      cursor: pointer;
+      position: absolute;
+      right: 0;
+      bottom: 2px;
+      font-size: 17px;
     }
   }
 }
@@ -77,9 +105,9 @@
   margin-bottom: 20px;
 }
 
-.4cols {
+.3cols {
   display: grid;
-  grid-template-columns: auto auto auto auto;
+  grid-template-columns: auto auto auto;
   gap: 10px;
 
   :global(.column) {
@@ -102,18 +130,24 @@
   grid-template-columns: minmax(0, auto) auto;
   .title {
     display: flex;
+    color: rgb(150, 159, 175);
     .key {
       display: flex;
       min-width: 12px;
       align-items: center;
       justify-content: center;
-      color: rgb(150, 159, 175);
       background-image: linear-gradient(-225deg, rgb(213, 219, 228), rgb(248, 248, 248));
       box-shadow: rgb(205, 205, 230) 0px -2px 0px 0px inset, rgb(255, 255, 255) 0px 0px 1px 1px inset,
         rgba(30, 35, 90, 0.4) 0px 1px 2px 1px;
       border-radius: 3px;
       padding: 5px;
       margin-right: 10px;
+    }
+
+    .right-click {
+      border-radius: 3px;
+      padding: 5px;
+      background: var(--main-background-color);
     }
 
     span[class='material-icons'] {

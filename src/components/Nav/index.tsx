@@ -3,7 +3,7 @@ import cn from 'classnames'
 import styles from './Nav.module.less'
 import { useDispatch, useSelector, setSelected, updateSubtitleAuto } from '../../state'
 import { useSaveHistory } from '../../utils'
-import { Settings } from './Settings'
+import { SubtitleSetting } from './SubtitleSetting'
 import { Info } from './Info'
 import { WaveForm } from './WaveFormSetting'
 
@@ -11,19 +11,20 @@ export const Nav = () => {
   const dispatch = useDispatch()
   const file = useSelector(s => s.files.selected) as string
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
+  const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
+  const delayText = subtitleDelay ? (subtitleDelay / 1000).toFixed(1) : ''
   const enableWaveForm = useSelector(s => s.settings.waveform)
-  const [showSettings, setShowSettings] = useState(false)
+  const [showSubtitle, setShowSubtitle] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   const [showWaveForm, setShowWaveForm] = useState(false)
   const saveHistory = useSaveHistory()
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
-      if (e.code === 'Escape' && !e.repeat) {
-        setShowSettings(s => !s)
-        return
-      }
       if (!window.enableShortcuts) return
+      if (e.code === 'KeyS' && !e.repeat) {
+        setShowSubtitle(s => !s)
+      }
       if (e.code === 'KeyA' && !e.repeat) {
         dispatch(updateSubtitleAuto({ file }))
       }
@@ -64,15 +65,11 @@ export const Nav = () => {
             disabled={!subtitleAuto}
             type="closed_caption_off"
             onClick={() => {
-              dispatch(updateSubtitleAuto({ file }))
+              setShowSubtitle(true)
             }}
-          />
-          <Icon
-            type="settings"
-            onClick={() => {
-              setShowSettings(true)
-            }}
-          />
+          >
+            {delayText}
+          </Icon>
           <Icon
             type="info"
             onClick={() => {
@@ -93,10 +90,10 @@ export const Nav = () => {
           setShowInfo(false)
         }}
       />
-      <Settings
-        show={showSettings}
+      <SubtitleSetting
+        show={showSubtitle}
         onClose={() => {
-          setShowSettings(false)
+          setShowSubtitle(false)
         }}
       />
     </>
@@ -105,10 +102,11 @@ export const Nav = () => {
 
 window.enableShortcuts = true
 
-const Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled }) => {
+const Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled, children }) => {
   return (
-    <span className={cn(styles['icon'], 'material-icons', { disabled: disabled })} onClick={onClick}>
-      {type}
-    </span>
+    <div className={cn(styles['icon'], { disabled: disabled })} onClick={onClick}>
+      <span className="material-icons">{type}</span>
+      {children && <span className={styles['delay']}>{children}</span>}
+    </div>
   )
 }

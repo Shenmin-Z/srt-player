@@ -12,6 +12,7 @@ const SETTINGS_KEY = 'SRT-SETTINGS'
 
 const INIT_SETTING: Settings = {
   subtitleWidth: 400,
+  subtitleFontSize: 16,
   locale: 'en-US',
 }
 
@@ -32,6 +33,7 @@ async function getSettings(): Promise<Settings> {
 
 interface Settings {
   subtitleWidth: number
+  subtitleFontSize: number
   locale: string
 }
 
@@ -40,6 +42,7 @@ interface InitialState {
   subtitleWidth: number
   subtitleAuto: boolean
   subtitleDelay: number
+  subtitleFontSize: number
   waveform: boolean
   locale: string
 }
@@ -49,6 +52,7 @@ const initialState: InitialState = {
   subtitleWidth: 0,
   subtitleAuto: false,
   subtitleDelay: 0,
+  subtitleFontSize: 16,
   waveform: false,
   locale: '',
 }
@@ -82,6 +86,22 @@ export const updateSubtitleWidth = createAsyncThunk<number, number>('settings/up
   await set(SETTINGS_KEY, settings)
   return v
 })
+
+export const updateSubtitleFontSize = createAsyncThunk<number, number | boolean>(
+  'settings/updateSubtitleFontSize',
+  async v => {
+    const settings = await getSettings()
+    let size: number
+    if (typeof v === 'number') {
+      size = v
+    } else {
+      size = settings.subtitleFontSize + (v ? 1 : -1)
+    }
+    settings.subtitleFontSize = size
+    await set(SETTINGS_KEY, settings)
+    return size
+  },
+)
 
 export const updateSubtitleAuto = createAsyncThunk<boolean, { file: string; auto?: boolean }>(
   'settings/updateSubtitleAuto',
@@ -136,8 +156,9 @@ export const settingsSlice = createSlice({
     builder
       .addCase(LoadSettingsFromLocal.fulfilled, (state, action) => {
         state.loaded = true
-        const { subtitleWidth, locale } = action.payload
+        const { subtitleWidth, subtitleFontSize, locale } = action.payload
         state.subtitleWidth = subtitleWidth
+        state.subtitleFontSize = subtitleFontSize
         state.locale = locale
       })
       .addCase(LoadSubtitlePreference.fulfilled, (state, action) => {
@@ -149,6 +170,9 @@ export const settingsSlice = createSlice({
       })
       .addCase(updateSubtitleWidth.fulfilled, (state, action) => {
         state.subtitleWidth = action.payload
+      })
+      .addCase(updateSubtitleFontSize.fulfilled, (state, action) => {
+        state.subtitleFontSize = action.payload
       })
       .addCase(updateSubtitleAuto.fulfilled, (state, action) => {
         state.subtitleAuto = action.payload

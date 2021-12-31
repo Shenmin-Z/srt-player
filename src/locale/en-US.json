@@ -10,12 +10,6 @@
   "nav": {
     "info": {
       "name": "Shortcuts",
-      "settings": {
-        "name": "Settings",
-        "toggle_settings": "Toggle  settings",
-        "toggle_dictionary": "Toggle dictionary",
-        "toggle_shortcuts_dialog": "Toggle shortcuts dialog"
-      },
       "video": {
         "name": "Video",
         "play_pause": "Play / pause",
@@ -29,10 +23,15 @@
         "page_up": "Page up",
         "page_down": "Page down",
         "toggle_auto": "Toggle auto",
-        "adjust_delay": "Adjust delay"
+        "toggle_settings": "Toggle settings",
+        "adjust_delay": "Adjust delay",
+        "right_click": "Right click",
+        "font_up": "Increase font size",
+        "font_down": "Decrease font size"
       },
       "waveform": {
         "name": "Waveform",
+        "toggle_settings": "Toggle settings",
         "replay": "Replay",
         "replay_position_left": "Replay position left",
         "replay_position_left_quicker": "Replay position left (quicker)",
@@ -41,11 +40,12 @@
         "replay_position_at_current_time": "Replay position at current time"
       }
     },
-    "settings": {
-      "name": "Settings",
-      "subtitle_width": "Subtitle width",
-      "auto_subtitle": "Auto subtitle",
-      "subtitle_delay": "Subtitle delay"
+    "subtitle": {
+      "name": "Subtitle",
+      "width": "Width",
+      "auto": "Auto mode",
+      "delay": "Delay (seconds)",
+      "font_size": "Font size"
     },
     "waveform": {
       "name": "Waveform",

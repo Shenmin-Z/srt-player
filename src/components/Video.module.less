@@ -1,17 +1,19 @@
+@import './WaveForm.module.less';
+
 .video-container {
-  height: 100%;
   background: #000;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   video {
-    object-fit: contain;
     width: 100%;
     height: 100%;
+    object-fit: contain;
     &:focus {
       outline: none;
     }
   }
   &.has-waveform {
-    video {
-      height: calc(100% - 80px);
-    }
+    grid-template-rows: @height + @scrollbar-height minmax(0, 1fr);
   }
 }

@@ -1,6 +1,13 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
-import { useSelector, useDispatch, getSubtitle, updateSubtitleDelay, LoadSubtitlePreference } from '../state'
+import {
+  useSelector,
+  useDispatch,
+  getSubtitle,
+  updateSubtitleDelay,
+  updateSubtitleFontSize,
+  LoadSubtitlePreference,
+} from '../state'
 import styles from './Subtitle.module.less'
 import { useRestoreSubtitle, Node, isWithin, findNode, doVideo } from '../utils'
 
@@ -9,6 +16,7 @@ export const Subtitle: FC = () => {
   const hasVideo = useSelector(s => s.video.hasVideo)
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
+  const subtitleFontSize = useSelector(s => s.settings.subtitleFontSize)
   const dispath = useDispatch()
   const [highlight, setHighlight] = useState<number | null>(null)
   const divRef = useRef<HTMLDivElement>(null)
@@ -32,6 +40,17 @@ export const Subtitle: FC = () => {
       }
       divRef.current.scroll({ top, behavior: 'smooth' })
     }
+    function fontSize(e: KeyboardEvent) {
+      if (!divRef.current || !window.enableShortcuts) return
+      if (e.code === 'Minus') {
+        e.preventDefault()
+        dispath(updateSubtitleFontSize(false))
+      }
+      if (e.code === 'Equal') {
+        e.preventDefault()
+        dispath(updateSubtitleFontSize(true))
+      }
+    }
     let autoTmp: boolean
     function disableAuto(e: KeyboardEvent) {
       if (!window.enableShortcuts) return
@@ -48,10 +67,12 @@ export const Subtitle: FC = () => {
       }
     }
     window.addEventListener('keydown', scroll)
+    window.addEventListener('keydown', fontSize)
     window.addEventListener('keydown', disableAuto)
     window.addEventListener('keyup', enableAuto)
     return () => {
       window.removeEventListener('keydown', scroll)
+      window.removeEventListener('keydown', fontSize)
       window.removeEventListener('keydown', disableAuto)
       window.removeEventListener('keyup', enableAuto)
     }
@@ -130,8 +151,13 @@ export const Subtitle: FC = () => {
   if (nodes === null) {
     return null
   } else {
+    const fontSizes = {
+      '--subtitle-text': `${subtitleFontSize}px`,
+      '--subtitle-counter': `${subtitleFontSize + 2}px`,
+      '--subtitle-time': `${subtitleFontSize - 4}px`,
+    } as any
     return (
-      <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']}>
+      <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']} style={fontSizes}>
         {nodes.map(n => (
           <SubtitleNode
             {...n}
