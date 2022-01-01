@@ -50,9 +50,9 @@
     "waveform": {
       "name": "波形图",
       "disable": "关闭",
-      "enable": "启用",
       "enable_with_video": "启用（从现有视频提取）",
-      "enable_with_audio": "启用（单独上传音频文件）"
+      "enable_with_audio": "启用（单独上传音频文件）",
+      "stages": "解码中...,采样中...,生成图片中...,完成"
     }
   },
   "confirm": {

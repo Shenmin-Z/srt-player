@@ -1,3 +1,5 @@
+@height: 32px;
+
 .list {
   font-size: 16px;
 
@@ -6,10 +8,10 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, auto);
     gap: 8px;
-    align-items: center;
     padding-left: 10px;
     padding-right: 10px;
-    height: 32px;
+    height: @height;
+    line-height: @height;
 
     &:nth-child(odd) {
       background: var(--main-background-color);
@@ -31,6 +33,7 @@
       width: 15px;
       cursor: pointer;
       color: var(--main-danger-color);
+      line-height: @height;
     }
 
     &::after {

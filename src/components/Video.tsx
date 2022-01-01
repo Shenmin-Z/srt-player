@@ -1,7 +1,16 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import styles from './Video.module.less'
-import { setVideo, getVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
-import { useRestoreVideo, doVideo, VIDEO_ID, useI18n } from '../utils'
+import {
+  setVideo,
+  getVideo,
+  videoFileCache,
+  useDispatch,
+  useSelector,
+  setSelected,
+  LoadWaveFormPreference,
+  deleteFile,
+} from '../state'
+import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm } from './Modal'
 import cn from 'classnames'
@@ -13,7 +22,7 @@ export const Video: FC = () => {
   const i18n = useI18n()
   const dispatch = useDispatch()
   const hasVideo = useSelector(s => s.video.hasVideo)
-  const enableWaveForm = useSelector(s => s.settings.waveform)
+  const enableStatus = useSelector(s => s.settings.waveform)
   const file = useSelector(s => s.files.selected)
   const status = useSelector(s => s.video.status)
 
@@ -26,7 +35,7 @@ export const Video: FC = () => {
             dispatch(setSelected(null))
             return
           }
-          const url = URL.createObjectURL(f)
+          const url = videoFileCache.add(f)
           setVideoUrl(url)
           urlRef.current = url
           dispatch(setVideo(true))
@@ -47,10 +56,7 @@ export const Video: FC = () => {
       )
       .catch(() => {})
     return () => {
-      const url = urlRef.current
-      if (url) {
-        URL.revokeObjectURL(url)
-      }
+      videoFileCache.remove(urlRef.current)
       dispatch(setVideo(false))
     }
   }, [])
@@ -106,8 +112,8 @@ export const Video: FC = () => {
 
   if (videoUrl) {
     return (
-      <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableWaveForm })}>
-        {enableWaveForm && <WaveForm />}
+      <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableStatus })}>
+        {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
         <div>
           <video id={VIDEO_ID} src={videoUrl} controls />
         </div>

@@ -22,29 +22,54 @@ export interface RenderTask extends SamplingResult {
 export const WAVEFORM_HEIGHT = 80
 export const SAMPLING_PER_SECOND = 10
 export const PIXELS_PER_SECOND = 30
-export const SLICE_WIDTH = 10002 // canvas cannot be too wide
+export const SLICE_WIDTH = 4002 // canvas cannot be too wide
 
 export const getSampling = (file: string) => get<Blob[]>(file, AudioSamplingStore)
 export const deleteSampling = (file: string) => del(file, AudioSamplingStore)
 export const saveSampling = (file: string, blobs: Blob[]) => set(file, blobs, AudioSamplingStore)
 
-export const computeAudioSampling = async (worker: Worker, file: File, fileName?: string) => {
+export enum StageEnum {
+  stopped,
+  decoding,
+  resampling,
+  imageGeneration,
+  done,
+}
+
+interface ComputeAudioSampling {
+  worker: Worker
+  arrayBuffer: ArrayBuffer
+  fileName: string
+  videoDuration: number
+  onProgress: (s: StageEnum) => void
+}
+
+export const computeAudioSampling = async (task: ComputeAudioSampling) => {
+  const { worker, arrayBuffer, fileName, videoDuration, onProgress } = task
   const audioContext = new AudioContext()
-  const audioBuffer = await audioContext.decodeAudioData(await file.arrayBuffer())
+  onProgress(StageEnum.decoding)
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+  const { sampleRate, duration, length } = audioBuffer
+  if (Math.abs(videoDuration - duration) > 0.5) {
+    throw JSON.stringify({ expected: videoDuration, actual: duration })
+  }
   const float32Array = audioBuffer.getChannelData(0)
   const payload: Payload = {
-    file: fileName ?? file.name,
-    sampleRate: audioBuffer.sampleRate,
-    duration: audioBuffer.duration,
-    length: audioBuffer.length,
+    file: fileName,
+    sampleRate,
+    duration,
+    length,
     buffer: [float32Array.buffer, float32Array.byteOffset, float32Array.byteLength / Float32Array.BYTES_PER_ELEMENT],
   }
   worker.postMessage(payload, [payload.buffer[0]])
-  return await new Promise<number>(resolve => {
+  return await new Promise<void>(resolve => {
     worker.onmessage = e => {
-      if (e.data === 'done') {
+      const stage = e.data?.stage as StageEnum
+      if (typeof stage !== 'number') return
+      onProgress(stage)
+      if (stage === StageEnum.done) {
         worker.terminate()
-        resolve(audioBuffer.duration)
+        resolve()
       }
     }
   })

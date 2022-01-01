@@ -1,146 +1,172 @@
-import { FC, useEffect, useState } from 'react'
-import { useSelector, useDispatch, getVideo, updateEnableWaveForm } from '../../state'
-import { computeAudioSampling, doVideoWithDefault, deleteSampling, useI18n } from '../../utils'
-import { Modal } from '../Modal'
+import { FC, useState, useEffect } from 'react'
+import { useSelector, useDispatch, updateEnableWaveForm, videoFileCache } from '../../state'
+import { computeAudioSampling, doVideoWithDefault, useI18n, doVideo, EnableWaveForm, StageEnum } from '../../utils'
+import { Modal, message } from '../Modal'
 import styles from './Nav.module.less'
 import SamplingWorker from '../../web-workers/sampling?worker&inline'
+import cn from 'classnames'
 
-export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
+interface WaveFormOptionProps {
+  type: EnableWaveForm
+  disabled: boolean
+  setDisabled: (d: boolean) => void
+}
+
+const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }) => {
   const dispatch = useDispatch()
   const i18n = useI18n()
-  const file = useSelector(s => s.files.selected)
-  const enableWaveForm = useSelector(s => s.settings.waveform)
-  const [loading, setLoading] = useState(false)
-  const videoDuation = doVideoWithDefault(video => video.duration, 0)
-  const [checkbox, setCheckbox] = useState<string | undefined>(undefined)
-  const [errorMsg, setErrorMsg] = useState('')
+  const enableStatus = useSelector(s => s.settings.waveform)
+  const file = useSelector(s => s.files.selected) as string
+  const videoDuration = doVideoWithDefault(video => video.duration, 0)
+  const [stage, setStage] = useState(StageEnum.stopped)
 
   useEffect(() => {
-    if (!props.show) {
-      setCheckbox(undefined)
+    if (type !== enableStatus) {
+      setStage(StageEnum.stopped)
     }
-    if (enableWaveForm) {
-      setCheckbox('a2')
-    } else {
-      setCheckbox('b1')
-    }
-  }, [props.show])
+  }, [type, enableStatus])
 
-  if (checkbox === undefined) return null
-  if (checkbox.startsWith('a')) {
-    return (
-      <Modal {...props} width={500} title={i18n('nav.waveform.name')}>
-        <div>
-          <div className={styles['waveform-option']}>
-            <input
-              type="radio"
-              checked={checkbox === 'b1'}
-              onChange={e => {
-                if (!e.target.checked) return
-                deleteSampling(file as string)
-                setCheckbox('b1')
-                dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
-              }}
-            />
-            <label>{i18n('nav.waveform.disable')}</label>
-          </div>
-          <div className={styles['waveform-option']}>
-            <input checked={checkbox === 'a2'} onChange={() => {}} type="radio" />
-            <label>{i18n('nav.waveform.enable')}</label>
-          </div>
-        </div>
-      </Modal>
-    )
+  let icon = ''
+  let text = ''
+  let cb = async () => {}
+  const createSampling = async (ab: ArrayBuffer) => {
+    if (!ab) return
+    const worker = new SamplingWorker()
+    await computeAudioSampling({
+      worker,
+      arrayBuffer: ab,
+      fileName: file,
+      videoDuration,
+      onProgress: s => setStage(s),
+    })
   }
+  switch (type) {
+    case EnableWaveForm.disable: {
+      icon = 'hide_source'
+      text = i18n('nav.waveform.disable')
+      break
+    }
+    case EnableWaveForm.video: {
+      icon = 'video_file'
+      text = i18n('nav.waveform.enable_with_video')
+
+      cb = async () => {
+        const videoUrl = doVideo(video => video.src) as string
+        const videoArrayBuffer = await videoFileCache.get(videoUrl).arrayBuffer()
+        await createSampling(videoArrayBuffer)
+      }
+      break
+    }
+    case EnableWaveForm.audio: {
+      icon = 'audio_file'
+      text = i18n('nav.waveform.enable_with_audio')
+
+      cb = async () => {
+        const handles = await showOpenFilePicker({
+          id: 'audio-file-for-waveform',
+          types: [
+            {
+              description: 'Audio',
+              accept: {
+                'audio/*': [],
+              },
+            },
+          ],
+        } as OpenFilePickerOptions)
+        const audioArrayBuffer = await (await handles[0].getFile()).arrayBuffer()
+        await createSampling(audioArrayBuffer)
+      }
+      break
+    }
+  }
+
+  const setStatus = (s: EnableWaveForm) => {
+    dispatch(updateEnableWaveForm({ file: file, enable: s }))
+  }
+
   return (
-    <Modal {...props} width={500} title={i18n('nav.waveform.name')}>
-      <div>
-        <div className={styles['waveform-option']}>
-          <input
-            checked={checkbox === 'b1'}
-            disabled={loading}
-            type="radio"
-            onChange={e => {
-              if (!e.target.checked) return
-              setErrorMsg('')
-              deleteSampling(file as string)
-              setCheckbox('b1')
-              dispatch(updateEnableWaveForm({ file: file as string, enable: false }))
-            }}
-          />
-          <label>{i18n('nav.waveform.disable')}</label>
-        </div>
-        <div className={styles['waveform-option']}>
-          <input
-            disabled={loading}
-            checked={checkbox === 'b2'}
-            type="radio"
-            onChange={async e => {
-              try {
-                setCheckbox('b2')
-                if (!e.target.checked) return
-                setErrorMsg('')
-                setLoading(true)
-                const videoFile = await getVideo(file as string)
-                if (!videoFile) return
-                const worker = new SamplingWorker()
-                await computeAudioSampling(worker, videoFile)
-                dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
-              } catch (e) {
-                setErrorMsg(e + '')
-                setCheckbox('b1')
-              } finally {
-                setLoading(false)
-              }
-            }}
-          />
-          <label>{i18n('nav.waveform.enable_with_video')}</label>
-        </div>
-        <div className={styles['waveform-option']}>
-          <input
-            disabled={loading}
-            checked={checkbox === 'b3'}
-            type="radio"
-            onChange={async e => {
-              try {
-                setCheckbox('b3')
-                setLoading(true)
-                if (!e.target.checked) return
-                setErrorMsg('')
-                const handles = await showOpenFilePicker({
-                  id: 'audio-file-for-waveform',
-                  types: [
-                    {
-                      description: 'Audio',
-                      accept: {
-                        'audio/*': ['.aac', '.mp3', '.wav'],
-                      },
-                    },
-                  ],
-                } as OpenFilePickerOptions)
-                const audioFile = await handles[0].getFile()
-                if (!audioFile) return
-                const worker = new SamplingWorker()
-                await computeAudioSampling(worker, audioFile, file as string)
-                dispatch(updateEnableWaveForm({ file: file as string, enable: true }))
-              } catch (e) {
-                setErrorMsg(e + '')
-                setCheckbox('b1')
-              } finally {
-                setLoading(false)
-              }
-            }}
-          />
-          <label>{i18n('nav.waveform.enable_with_audio')}</label>
-        </div>
+    <div
+      className={cn(styles['waveform-option'], { active: enableStatus === type })}
+      onClick={async () => {
+        if (enableStatus === type) return
+        if (disabled) return
+        setDisabled(true)
+        try {
+          await cb()
+          setStatus(type)
+        } catch (e) {
+          const msg = typeof (e as any)?.toString === 'function' ? (e as any).toString() : 'Unexpected error'
+          message(msg)
+          setStage(StageEnum.stopped)
+        } finally {
+          setDisabled(false)
+        }
+      }}
+    >
+      <span className="material-icons-outlined">{icon}</span>
+      <span>{text}</span>
+      <Progress stage={stage} />
+    </div>
+  )
+}
+
+export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
+  const i18n = useI18n()
+  const [disabled, setDisabled] = useState(false)
+
+  return (
+    <Modal {...props} title={i18n('nav.waveform.name')}>
+      <div className={styles['waveform']}>
+        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.disable} />
+        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.video} />
+        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.audio} />
       </div>
-      {loading && (
-        <div className={styles['waveform-loading']}>
-          <span className="material-icons">sync</span>
-          Re-sampling, this could take a while...
-        </div>
-      )}
-      {errorMsg && <div className={styles['waveform-error-message']}>{errorMsg}</div>}
     </Modal>
+  )
+}
+
+const DISTANCE = 14
+
+const Progress: FC<{ stage?: StageEnum }> = ({ stage = StageEnum.stopped }) => {
+  const text = useI18n()('nav.waveform.stages').split(',')?.[stage - 1] || '-'
+  return (
+    <div className={styles['progress']} style={{ visibility: stage === StageEnum.stopped ? 'hidden' : undefined }}>
+      <svg viewBox={`0 0 ${10 * (2 * DISTANCE + 2)} 20`} xmlns="http://www.w3.org/2000/svg">
+        <line
+          x1="10"
+          y1="10"
+          x2={(1 + DISTANCE) * 10}
+          y2="10"
+          className={cn({ done: stage > StageEnum.resampling, current: stage === StageEnum.resampling })}
+        />
+        <line
+          x1={(1 + DISTANCE) * 10}
+          y1="10"
+          x2={(1 + DISTANCE * 2) * 10}
+          y2="10"
+          className={cn({ done: stage > StageEnum.imageGeneration, current: stage === StageEnum.imageGeneration })}
+        />
+
+        <circle
+          cx="10"
+          cy="10"
+          r="10"
+          className={cn({ done: stage > StageEnum.decoding, current: stage === StageEnum.decoding })}
+        />
+        <circle
+          cx={(1 + DISTANCE) * 10}
+          cy="10"
+          r="10"
+          className={cn({ done: stage > StageEnum.resampling, current: stage === StageEnum.resampling })}
+        />
+        <circle
+          cx={(1 + DISTANCE * 2) * 10}
+          cy="10"
+          r="10"
+          className={cn({ done: stage > StageEnum.imageGeneration, current: stage === StageEnum.imageGeneration })}
+        />
+      </svg>
+      <div>{text}</div>
+    </div>
   )
 }

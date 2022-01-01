@@ -4,13 +4,19 @@ import { doVideo } from './video'
 
 export const KEY_HISTORY = 'SRT-HISTORY'
 
+export enum EnableWaveForm {
+  disable,
+  video,
+  audio,
+}
+
 export interface WatchHistory {
   currentTime: number
   duration: number
   subtitleTop: number // scroll position
   subtitleAuto: boolean
   subtitleDelay: number
-  waveform: boolean
+  waveform: EnableWaveForm
 }
 
 export interface WatchHistories {
@@ -48,12 +54,12 @@ export const useRestoreVideo = () => {
 
 export const getSubtitlePreference = async (f: string) => {
   const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-  return { auto: hs[f]?.subtitleAuto ?? false, delay: hs[f]?.subtitleDelay || 0 }
+  return { auto: hs[f]?.subtitleAuto ?? true, delay: hs[f]?.subtitleDelay || 0 }
 }
 
 export const getWaveFormPreference = async (f: string) => {
   const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-  return hs[f]?.waveform ?? false
+  return hs[f]?.waveform ?? EnableWaveForm.disable
 }
 
 export const saveSubtitleAuto = async (f: string, auto: boolean) => {
@@ -68,7 +74,7 @@ export const saveSubtitleDelay = async (f: string, delay: number) => {
   })
 }
 
-export const saveEnableWaveForm = async (f: string, enable: boolean) => {
+export const saveEnableWaveForm = async (f: string, enable: EnableWaveForm) => {
   return writeHelper(f, h => {
     h.waveform = enable
   })
@@ -97,9 +103,9 @@ const writeHelper = async (file: string, cb: (h: WatchHistory) => void) => {
     subtitleTop: 0,
     currentTime: 0,
     duration: 0,
-    subtitleAuto: false,
+    subtitleAuto: true,
     subtitleDelay: 0,
-    waveform: false,
+    waveform: EnableWaveForm.disable,
     ...((hs[file] as WatchHistory | undefined) || {}),
   }
   cb(h)

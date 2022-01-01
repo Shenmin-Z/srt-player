@@ -48,6 +48,29 @@ export async function getVideo(file: string): Promise<File | undefined> {
   return undefined
 }
 
+class VideoFileCache {
+  cache: { [s: string]: File }
+  constructor() {
+    this.cache = {}
+  }
+  add(f: File) {
+    const url = URL.createObjectURL(f)
+    this.cache[url] = f
+    return url
+  }
+  get(url: string) {
+    return this.cache[url]
+  }
+  remove(url: string) {
+    if (url) {
+      delete this.cache[url]
+      URL.revokeObjectURL(url)
+    }
+  }
+}
+
+export const videoFileCache = new VideoFileCache()
+
 export async function saveVideoSubPair(pair: VideoSubPair) {
   await set(pair.video.name, pair, FilesStore)
 }

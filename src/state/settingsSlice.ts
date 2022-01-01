@@ -6,6 +6,8 @@ import {
   saveSubtitleAuto,
   saveSubtitleDelay,
   saveEnableWaveForm,
+  EnableWaveForm,
+  deleteSampling,
 } from '../utils'
 
 const SETTINGS_KEY = 'SRT-SETTINGS'
@@ -20,7 +22,7 @@ async function getSettings(): Promise<Settings> {
   const settings = (await get(SETTINGS_KEY)) as Settings
   Object.keys(settings || {}).forEach(k => {
     const key = k as keyof Settings
-    if (INIT_SETTING[key] === undefined) {
+    if (INIT_SETTING[key] === undefined || typeof INIT_SETTING[key] !== typeof settings[key]) {
       delete settings[key]
     }
   })
@@ -43,17 +45,17 @@ interface InitialState {
   subtitleAuto: boolean
   subtitleDelay: number
   subtitleFontSize: number
-  waveform: boolean
+  waveform: EnableWaveForm
   locale: string
 }
 
 const initialState: InitialState = {
   loaded: false,
   subtitleWidth: 0,
-  subtitleAuto: false,
+  subtitleAuto: true,
   subtitleDelay: 0,
   subtitleFontSize: 16,
-  waveform: false,
+  waveform: EnableWaveForm.disable,
   locale: '',
 }
 
@@ -126,18 +128,14 @@ export const updateSubtitleDelay = createAsyncThunk<number, { file: string; dela
   },
 )
 
-export const updateEnableWaveForm = createAsyncThunk<boolean, { file: string; enable?: boolean }>(
+export const updateEnableWaveForm = createAsyncThunk<EnableWaveForm, { file: string; enable: EnableWaveForm }>(
   'settings/updateEnableWaveForm',
-  async ({ file, enable }, { getState }) => {
-    let newEnable: boolean
-    if (enable === undefined) {
-      const state = getState() as { settings: InitialState }
-      newEnable = !state.settings.waveform
-    } else {
-      newEnable = enable
+  async ({ file, enable }) => {
+    if (enable === EnableWaveForm.disable) {
+      deleteSampling(file)
     }
-    await saveEnableWaveForm(file, newEnable)
-    return newEnable
+    await saveEnableWaveForm(file, enable)
+    return enable
   },
 )
 

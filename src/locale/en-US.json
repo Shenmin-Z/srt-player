@@ -50,9 +50,9 @@
     "waveform": {
       "name": "Waveform",
       "disable": "Disable",
-      "enable": "Enable",
       "enable_with_video": "Enable using existing video file",
-      "enable_with_audio": "Enable using extra audio file"
+      "enable_with_audio": "Enable using extra audio file",
+      "stages": "Decoding...,Re-sampling...,Generating images...,Done"
     }
   },
   "confirm": {

@@ -7,14 +7,17 @@ import {
   SLICE_WIDTH,
   WAVEFORM_HEIGHT,
   saveSampling,
+  StageEnum,
 } from '../utils/audioSampling'
 
 self.addEventListener('message', async e => {
   const data: Payload = e.data
   if (typeof data.file === 'string' && typeof data.sampleRate === 'number') {
+    self.postMessage({ stage: StageEnum.resampling })
     const result = await sampling(data)
+    self.postMessage({ stage: StageEnum.imageGeneration })
     await drawWaveForm({ ...result, file: data.file })
-    self.postMessage('done')
+    self.postMessage({ stage: StageEnum.done })
   }
 })
 
@@ -44,6 +47,9 @@ async function sampling(payload: Payload): Promise<SamplingResult> {
   return { sampleRate: SAMPLING_PER_SECOND, buffer: result }
 }
 
+const LINE_WIDTH = 2
+const GAP_WIDTH = 1
+
 const drawWaveForm = async (task: RenderTask) => {
   const { sampleRate, buffer, file } = task
   const pixelPerSample = PIXELS_PER_SECOND / sampleRate
@@ -63,12 +69,12 @@ const drawWaveForm = async (task: RenderTask) => {
 
     // draw line
     ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 2
+    ctx.lineWidth = LINE_WIDTH
     const samplePerSlice = Math.floor(SLICE_WIDTH / pixelPerSample)
     const start = i * samplePerSlice
     const end = start + Math.floor(canvas.width / pixelPerSample)
     for (let idx = start; idx < end; idx++) {
-      const x = ctx.lineWidth / 2 + (idx - start) * pixelPerSample
+      const x = GAP_WIDTH + (idx - start) * pixelPerSample
       const h = (buffer[idx] / 256) * height
       ctx.moveTo(x, (height - h) / 2)
       ctx.lineTo(x, (height + h) / 2)
