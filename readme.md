@@ -4,7 +4,7 @@
 
 ![screenshot](./docs/screenshot.png)
 
-Video demo: [youtube](https://youtu.be/UpgwD5ejwMo)
+Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [B站](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
 
 ### What's wrong with normal video player?
 
