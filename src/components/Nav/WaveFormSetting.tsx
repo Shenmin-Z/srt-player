@@ -1,6 +1,14 @@
 import { FC, useState, useEffect } from 'react'
 import { useSelector, useDispatch, updateEnableWaveForm, videoFileCache } from '../../state'
-import { computeAudioSampling, doVideoWithDefault, useI18n, doVideo, EnableWaveForm, StageEnum } from '../../utils'
+import {
+  computeAudioSampling,
+  doVideoWithDefault,
+  useI18n,
+  doVideo,
+  EnableWaveForm,
+  StageEnum,
+  DurationError,
+} from '../../utils'
 import { Modal, message } from '../Modal'
 import styles from './Nav.module.less'
 import SamplingWorker from '../../web-workers/sampling?worker&inline'
@@ -51,6 +59,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
       text = i18n('nav.waveform.enable_with_video')
 
       cb = async () => {
+        setStage(StageEnum.decoding)
         const videoUrl = doVideo(video => video.src) as string
         const videoArrayBuffer = await videoFileCache.get(videoUrl).arrayBuffer()
         await createSampling(videoArrayBuffer)
@@ -73,6 +82,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
             },
           ],
         } as OpenFilePickerOptions)
+        setStage(StageEnum.decoding)
         const audioArrayBuffer = await (await handles[0].getFile()).arrayBuffer()
         await createSampling(audioArrayBuffer)
       }
@@ -95,7 +105,14 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
           await cb()
           setStatus(type)
         } catch (e) {
-          const msg = typeof (e as any)?.toString === 'function' ? (e as any).toString() : 'Unexpected error'
+          let msg = typeof (e as any)?.toString === 'function' ? (e as any).toString() : 'Unexpected error'
+          if (e instanceof DurationError) {
+            msg = i18n(
+              'nav.waveform.duration_error',
+              i18n('nav.waveform.enable_with_video'),
+              i18n('nav.waveform.enable_with_audio'),
+            )
+          }
           message(msg)
           setStage(StageEnum.stopped)
         } finally {

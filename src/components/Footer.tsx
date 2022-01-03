@@ -38,6 +38,7 @@ const Version: FC = () => {
   if (!version) return null
   return (
     <div className={styles['version']}>
+      <img className={styles['icon']} src="./srt-player.svg" />
       <span className={styles['text']}>
         {i18n('footer.current_version')}: {version}
       </span>

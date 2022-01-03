@@ -52,7 +52,8 @@
       "disable": "Disable",
       "enable_with_video": "Enable using existing video file",
       "enable_with_audio": "Enable using extra audio file",
-      "stages": "Decoding...,Re-sampling...,Generating images...,Done"
+      "stages": "Decoding...,Re-sampling...,Generating images...,Done",
+      "duration_error": "Decoding error. If you are using \"{0}\" option, try \"{1}\" option. "
     }
   },
   "confirm": {

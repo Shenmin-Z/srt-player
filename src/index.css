@@ -13,6 +13,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+*[lang='jp'] {
+  font-family: 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Osaka, 'メイリオ', Meiryo, 'ＭＳ Ｐゴシック',
+    'MS PGothic', sans-serif;
+}
+
+*[lang='zh'] {
+  font-family: Microsoft Jhenghei, PingFang HK, STHeitiTC-Light, tahoma, arial, sans-serif;
+}
+
 :root {
   --main-border-color: #8f8f9d;
   --main-background-color: #f4f4f4;

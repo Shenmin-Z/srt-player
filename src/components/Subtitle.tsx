@@ -18,6 +18,7 @@ export const Subtitle: FC = () => {
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
   const subtitleFontSize = useSelector(s => s.settings.subtitleFontSize)
   const dispath = useDispatch()
+  const [lang, setLang] = useState('')
   const [highlight, setHighlight] = useState<number | null>(null)
   const divRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<number | null>(null)
@@ -140,6 +141,15 @@ export const Subtitle: FC = () => {
   useEffect(() => {
     if (nodes !== null) {
       restoreSubtitle()
+      // detect language
+      for (let i = 0; i < Math.min(20, nodes.length); i++) {
+        const text = nodes[i].text.join('')
+        const jpCharacters = (text.match(/[ぁ-ゔ]+|[ァ-ヴー]+|[a-zA-Z0-9]+|[ａ-ｚＡ-Ｚ０-９]+/gu) || []).join('')
+        if (jpCharacters.length >= 5) {
+          setLang('jp')
+          return
+        }
+      }
     }
   }, [nodes])
 
@@ -152,12 +162,12 @@ export const Subtitle: FC = () => {
     return null
   } else {
     const fontSizes = {
-      '--subtitle-text': `${subtitleFontSize}px`,
-      '--subtitle-counter': `${subtitleFontSize + 2}px`,
-      '--subtitle-time': `${subtitleFontSize - 4}px`,
+      '--subtitle-text': `${Math.max(subtitleFontSize, 5)}px`,
+      '--subtitle-counter': `${Math.max(subtitleFontSize - 2, 5)}px`,
+      '--subtitle-time': `${Math.max(subtitleFontSize - 7, 5)}px`,
     } as any
     return (
-      <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']} style={fontSizes}>
+      <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']} lang={lang} style={fontSizes}>
         {nodes.map(n => (
           <SubtitleNode
             {...n}

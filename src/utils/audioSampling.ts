@@ -44,14 +44,17 @@ interface ComputeAudioSampling {
   onProgress: (s: StageEnum) => void
 }
 
+export class DurationError {
+  constructor(public expected: number, public actual: number) {}
+}
+
 export const computeAudioSampling = async (task: ComputeAudioSampling) => {
   const { worker, arrayBuffer, fileName, videoDuration, onProgress } = task
   const audioContext = new AudioContext()
-  onProgress(StageEnum.decoding)
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   const { sampleRate, duration, length } = audioBuffer
   if (Math.abs(videoDuration - duration) > 0.5) {
-    throw JSON.stringify({ expected: videoDuration, actual: duration })
+    throw new DurationError(videoDuration, duration)
   }
   const float32Array = audioBuffer.getChannelData(0)
   const payload: Payload = {
