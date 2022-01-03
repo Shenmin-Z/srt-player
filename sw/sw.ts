@@ -7,7 +7,7 @@ const CACHE_URLS = [
   'index.js',
   'index.css',
   'version.txt',
-  'favicon.ico',
+  'srt-player.svg',
   'fonts/MaterialIcons-Regular.ttf',
   'fonts/MaterialIconsOutlined-Regular.otf',
   'fonts/RobotoMono-Regular.ttf',
