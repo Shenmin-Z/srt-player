@@ -6,7 +6,14 @@
   overflow-x: scroll;
   overflow-y: hidden;
   height: @height + @scrollbar-height;
-  scroll-behavior: smooth;
+  &.ready {
+    scroll-behavior: smooth;
+  }
+  &:not(.ready) {
+    .waveform-container {
+      visibility: hidden;
+    }
+  }
 
   &::-webkit-scrollbar {
     background-color: transparent;
