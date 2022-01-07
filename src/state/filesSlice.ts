@@ -4,7 +4,7 @@ import { deleteHistory, deleteSampling, Node, parseSRT } from '../utils'
 import { message } from '../components/Modal'
 
 interface VideoSubPair {
-  video: FileSystemHandle
+  video: FileSystemFileHandle
   subtitle: string | Node[]
 }
 
@@ -71,8 +71,11 @@ class VideoFileCache {
 
 export const videoFileCache = new VideoFileCache()
 
-export async function saveVideoSubPair(pair: VideoSubPair) {
-  await set(pair.video.name, pair, FilesStore)
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+export async function saveVideoSubPair(pair: PartialBy<VideoSubPair, 'video'>) {
+  if (!pair.video) return
+  await set(pair.video.name, { video: pair.video, subtitle: pair.subtitle }, FilesStore)
 }
 
 export async function getFileList() {

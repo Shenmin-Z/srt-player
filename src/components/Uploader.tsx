@@ -1,5 +1,6 @@
 import { useReducer, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
 import { saveVideoSubPair, useDispatch, getList, getFileList } from '../state'
 import { confirm } from './Modal'
@@ -10,8 +11,8 @@ export const Uploader = () => {
   const dispatch = useDispatch()
   const i18n = useI18n()
 
-  const subtitleHandles = useRef<FileSystemHandle[]>([])
-  const videoHandles = useRef<FileSystemHandle[]>([])
+  const subtitleHandles = useRef<FileWithHandle[]>([])
+  const videoHandles = useRef<FileWithHandle[]>([])
   const [, forceUpdate] = useReducer(s => !s, true)
   const [dragOver, setDragOver] = useState(false)
 
@@ -32,7 +33,7 @@ export const Uploader = () => {
     dispatch(getList())
   }
 
-  const addToBuf = (vhs: FileSystemHandle[], shs: FileSystemHandle[]) => {
+  const addToBuf = (vhs: FileWithHandle[], shs: FileWithHandle[]) => {
     videoHandles.current = videoHandles.current
       .concat(vhs)
       .filter((v, i, a) => a.findIndex(t => t.name === v.name) === i)
@@ -64,8 +65,16 @@ export const Uploader = () => {
           setDragOver(false)
           event.preventDefault()
           const items = Array.from(event.dataTransfer.items).filter(i => i.kind === 'file')
-          const handles = await Promise.all(items.map(i => i.getAsFileSystemHandle()))
-          const { videos, subtitles } = await filterFileHandles(handles as FileSystemFileHandle[])
+          const files: FileWithHandle[] = await Promise.all(
+            items.map(async i => {
+              const f = i.getAsFile() as File
+              const handle = supported
+                ? (((await i.getAsFileSystemHandle()) || undefined) as FileSystemFileHandle)
+                : undefined
+              return { ...f, handle }
+            }),
+          )
+          const { videos, subtitles } = await filterFileHandles(files)
           addToBuf(videos, subtitles)
         }}
       >
@@ -173,42 +182,36 @@ export const Uploader = () => {
 
 async function pickFiles() {
   try {
-    const handles = await showOpenFilePicker({
-      id: 'video-and-subtitle',
-      multiple: true,
-      types: [
-        {
-          description: 'Videos & Subtitles',
-          accept: {
-            'audio/*': [],
-            'video/*': [],
-            'text/plain': ['.srt'],
-          },
-        },
-      ],
-    } as OpenFilePickerOptions)
-    return filterFileHandles(handles)
+    const files = await fileOpen([
+      {
+        description: 'Videos & Subtitles',
+        mimeTypes: ['audio/*', 'video/*', 'text/plain'],
+        extensions: ['.srt'],
+        multiple: true,
+        id: 'video-and-subtitle',
+      },
+    ])
+    return filterFileHandles(files)
   } catch {
     return { videos: [], subtitles: [] }
   }
 }
 
-async function filterFileHandles(handles: FileSystemFileHandle[]) {
-  const videos = handles.filter(h => !h.name.toLowerCase().endsWith('.srt'))
-  const subtitles = handles.filter(h => h.name.toLowerCase().endsWith('.srt'))
+async function filterFileHandles(files: FileWithHandle[]) {
+  const videos = files.filter(h => !h.name.toLowerCase().endsWith('.srt'))
+  const subtitles = files.filter(h => h.name.toLowerCase().endsWith('.srt'))
   return { videos, subtitles }
 }
 
-type FilePair = [FileSystemHandle, FileSystemHandle]
+type FilePair = [FileWithHandle, FileWithHandle]
 
 async function processPair(pair: FilePair) {
   const [video, subtitle] = pair
-  const subtitleFile: File = await (subtitle as any).getFile()
-  const subtitleText = await subtitleFile.text()
-  await saveVideoSubPair({ video: video, subtitle: subtitleText })
+  const subtitleText = await subtitle.text()
+  await saveVideoSubPair({ video: video.handle, subtitle: subtitleText })
 }
 
-async function checkExist(vs: FileSystemHandle[]): Promise<string[]> {
+async function checkExist(vs: FileWithHandle[]): Promise<string[]> {
   const fs = vs.map(i => i.name)
   const fileNames = new Set(await getFileList())
   return fs.filter(i => fileNames.has(i))

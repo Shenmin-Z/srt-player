@@ -376,6 +376,11 @@ ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
+browser-fs-access@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/browser-fs-access/-/browser-fs-access-0.24.0.tgz#aa735d97a20aa86aa555e151528cd7002496fb60"
+  integrity sha512-dW4kAA/sCy1ewJrHiz39j4TJmPuMcaY3VtyFBkKDftvYAPV21eYb/3BMeRrtmg7upApj1JLWHBqWc7jBy4xHPQ==
+
 browserslist@^4.17.5:
   version "4.18.1"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.18.1.tgz#60d3920f25b6860eb917c6c7b185576f4d8b017f"
