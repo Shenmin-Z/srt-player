@@ -65,8 +65,12 @@ export const computeAudioSampling = async (task: ComputeAudioSampling) => {
     buffer: [float32Array.buffer, float32Array.byteOffset, float32Array.byteLength / Float32Array.BYTES_PER_ELEMENT],
   }
   worker.postMessage(payload, [payload.buffer[0]])
-  return await new Promise<void>(resolve => {
+  return await new Promise<void>((resolve, reject) => {
     worker.onmessage = e => {
+      if (e.data?.type === 'error') {
+        reject(e.data?.error)
+        return
+      }
       const stage = e.data?.stage as StageEnum
       if (typeof stage !== 'number') return
       onProgress(stage)

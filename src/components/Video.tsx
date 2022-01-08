@@ -1,23 +1,13 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect } from 'react'
 import styles from './Video.module.less'
-import {
-  setVideo,
-  getVideo,
-  videoFileCache,
-  useDispatch,
-  useSelector,
-  setSelected,
-  LoadWaveFormPreference,
-  deleteFile,
-} from '../state'
-import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm } from '../utils'
+import { setVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
+import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm } from './Modal'
 import cn from 'classnames'
 
 export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
-  const urlRef = useRef<string>('')
   const restoreVideo = useRestoreVideo()
   const i18n = useI18n()
   const dispatch = useDispatch()
@@ -30,14 +20,12 @@ export const Video: FC = () => {
     dispatch(LoadWaveFormPreference(file as string))
     getVideo(file as string)
       .then(
-        f => {
-          if (f === undefined) {
+        v => {
+          if (v === undefined) {
             dispatch(setSelected(null))
             return
           }
-          const url = videoFileCache.add(f)
-          setVideoUrl(url)
-          urlRef.current = url
+          setVideoUrl(v.url)
           dispatch(setVideo(true))
           restoreVideo()
         },
@@ -56,7 +44,6 @@ export const Video: FC = () => {
       )
       .catch(() => {})
     return () => {
-      videoFileCache.remove(urlRef.current)
       dispatch(setVideo(false))
     }
   }, [])
@@ -114,7 +101,7 @@ export const Video: FC = () => {
     return (
       <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableStatus })}>
         {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
-        <div>
+        <div className={styles['inner']}>
           <video id={VIDEO_ID} src={videoUrl} controls />
         </div>
       </div>

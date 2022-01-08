@@ -1,15 +1,9 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
-import {
-  useSelector,
-  useDispatch,
-  getSubtitle,
-  updateSubtitleDelay,
-  updateSubtitleFontSize,
-  LoadSubtitlePreference,
-} from '../state'
+import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
+import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo } from '../utils'
+import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle } from '../utils'
 
 export const Subtitle: FC = () => {
   const nodes = useNodes()
@@ -18,77 +12,10 @@ export const Subtitle: FC = () => {
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
   const subtitleFontSize = useSelector(s => s.settings.subtitleFontSize)
   const dispath = useDispatch()
-  const [lang, setLang] = useState('')
+  const [lang, setLang] = useState<string>('')
+  const [ready, setReady] = useState(false)
   const [highlight, setHighlight] = useState<number | null>(null)
-  const divRef = useRef<HTMLDivElement>(null)
-  const timerRef = useRef<number | null>(null)
-  const autoRef = useRef<boolean>(subtitleAuto)
-  const delayRef = useRef<number>(subtitleDelay)
-
-  useEffect(() => {
-    if (!nodes || nodes.length === 0) return
-    function scroll(e: KeyboardEvent) {
-      if (!divRef.current || !window.enableShortcuts) return
-      const step = divRef.current.offsetHeight / 2
-      let top = divRef.current.scrollTop
-      if (e.code === 'ArrowUp') {
-        e.preventDefault()
-        top -= step
-      }
-      if (e.code === 'ArrowDown') {
-        e.preventDefault()
-        top += step
-      }
-      divRef.current.scroll({ top, behavior: 'smooth' })
-    }
-    function fontSize(e: KeyboardEvent) {
-      if (!divRef.current || !window.enableShortcuts) return
-      if (e.code === 'Minus') {
-        e.preventDefault()
-        dispath(updateSubtitleFontSize(false))
-      }
-      if (e.code === 'Equal') {
-        e.preventDefault()
-        dispath(updateSubtitleFontSize(true))
-      }
-    }
-    let autoTmp: boolean
-    function disableAuto(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
-      if (e.key === 'Control' && !e.repeat) {
-        autoTmp = autoRef.current
-        autoRef.current = false
-      }
-    }
-    function enableAuto(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
-      if (e.key === 'Control') {
-        autoRef.current = autoTmp
-        tick()
-      }
-    }
-    window.addEventListener('keydown', scroll)
-    window.addEventListener('keydown', fontSize)
-    window.addEventListener('keydown', disableAuto)
-    window.addEventListener('keyup', enableAuto)
-    return () => {
-      window.removeEventListener('keydown', scroll)
-      window.removeEventListener('keydown', fontSize)
-      window.removeEventListener('keydown', disableAuto)
-      window.removeEventListener('keyup', enableAuto)
-    }
-  }, [nodes])
-
-  const scrollToNthChild = (n: number) => {
-    if (!divRef.current) return
-    const child = divRef.current.children[n] as HTMLDivElement | undefined
-    if (!child) return
-    const offset = child.offsetTop - divRef.current.offsetTop
-    const halfHeight = divRef.current.offsetHeight / 2
-    const selfHeight = child.clientHeight
-    divRef.current.scroll({ top: offset - halfHeight + selfHeight / 2, behavior: 'smooth' })
-    setHighlight(n + 1)
-  }
+  const { divRef, autoRef, timerRef, delayRef } = useShortcuts(nodes, subtitleAuto, subtitleDelay, tick)
 
   useEffect(() => {
     autoRef.current = subtitleAuto
@@ -96,35 +23,31 @@ export const Subtitle: FC = () => {
     tick()
   }, [subtitleAuto, subtitleDelay])
 
-  const tick = () => {
+  function tick() {
     if (!autoRef.current) return
     if (timerRef.current) {
       clearTimeout(timerRef.current)
-      timerRef.current = null
     }
     doVideo(video => {
-      if (video.currentTime >= 0 && !video.paused && !video.ended) {
-        const current = Math.round(video.currentTime * 1000) - delayRef.current
-        const node = findNode(nodes || [], current)
-        if (node === null) return
-        if (isWithin(current, node)) {
-          scrollToNthChild(node.counter - 1)
-          timerRef.current = setTimeout(() => {
-            tick()
-            timerRef.current = null
-          }, node.end.timestamp - current)
-        } else {
-          timerRef.current = setTimeout(() => {
-            tick()
-            timerRef.current = null
-          }, node.start.timestamp - current)
-        }
+      const playing = video.currentTime >= 0 && !video.paused && !video.ended
+      const current = Math.round(video.currentTime * 1000) - delayRef.current
+      const node = findNode(nodes || [], current)
+      if (node === null) return
+      let waitTime: number
+      if (isWithin(current, node)) {
+        scrollToNthChild(node.counter - 1, divRef.current, n => setHighlight(n))
+        waitTime = node.end.timestamp - current
+      } else {
+        waitTime = node.start.timestamp - current
+      }
+      if (playing) {
+        timerRef.current = setTimeout(tick, waitTime)
       }
     })
   }
 
   useEffect(() => {
-    if (!hasVideo) return
+    if (!hasVideo || nodes === null) return
     return doVideo(video => {
       tick()
       video.addEventListener('play', tick)
@@ -134,9 +57,9 @@ export const Subtitle: FC = () => {
         video.removeEventListener('seeked', tick)
       }
     })
-  }, [hasVideo, subtitleAuto])
+  }, [hasVideo, subtitleAuto, nodes])
 
-  const restoreSubtitle = useRestoreSubtitle()
+  const restoreSubtitle = useRestoreSubtitle(() => setReady(true))
 
   useEffect(() => {
     if (nodes !== null) {
@@ -144,10 +67,10 @@ export const Subtitle: FC = () => {
       // detect language
       for (let i = 0; i < Math.min(20, nodes.length); i++) {
         const text = nodes[i].text.join('')
-        const jpCharacters = (text.match(/[ぁ-ゔ]+|[ァ-ヴー]+|[a-zA-Z0-9]+|[ａ-ｚＡ-Ｚ０-９]+/gu) || []).join('')
+        const jpCharacters = (text.match(/[ぁ-ゔ]+|[ァ-ヴー]+/gu) || []).join('')
         if (jpCharacters.length >= 5) {
           setLang('jp')
-          return
+          break
         }
       }
     }
@@ -167,7 +90,13 @@ export const Subtitle: FC = () => {
       '--subtitle-time': `${Math.max(subtitleFontSize - 7, 5)}px`,
     } as any
     return (
-      <div id="srt-player-subtitle" ref={divRef} className={styles['subtitle']} lang={lang} style={fontSizes}>
+      <div
+        id="srt-player-subtitle"
+        ref={divRef}
+        className={cn(styles['subtitle'], { [styles['ready']]: ready })}
+        lang={lang}
+        style={{ ...fontSizes }}
+      >
         {nodes.map(n => (
           <SubtitleNode
             {...n}
@@ -229,6 +158,68 @@ const SubtitleNode: FC<Node & { highlight: number | null; onClick: (h: number, a
   )
 }
 
+const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay: number, tick: { (): void }) => {
+  const dispath = useDispatch()
+  const divRef = useRef<HTMLDivElement>(null)
+  const autoRef = useRef<boolean>(subtitleAuto)
+  const timerRef = useRef<number | null>(null)
+  const delayRef = useRef<number>(subtitleDelay)
+  useEffect(() => {
+    if (!nodes || nodes.length === 0) return
+    function scroll(e: KeyboardEvent) {
+      if (!divRef.current || !window.enableShortcuts) return
+      const step = divRef.current.offsetHeight / 2
+      let top = divRef.current.scrollTop
+      if (e.code === 'ArrowUp') {
+        e.preventDefault()
+        top -= step
+      }
+      if (e.code === 'ArrowDown') {
+        e.preventDefault()
+        top += step
+      }
+      divRef.current.scroll({ top, behavior: 'smooth' })
+    }
+    function fontSize(e: KeyboardEvent) {
+      if (!divRef.current || !window.enableShortcuts) return
+      if (e.code === 'Minus') {
+        e.preventDefault()
+        dispath(updateSubtitleFontSize(false))
+      }
+      if (e.code === 'Equal') {
+        e.preventDefault()
+        dispath(updateSubtitleFontSize(true))
+      }
+    }
+    let autoTmp: boolean
+    function disableAuto(e: KeyboardEvent) {
+      if (!window.enableShortcuts) return
+      if (e.key === 'Control' && !e.repeat) {
+        autoTmp = autoRef.current
+        autoRef.current = false
+      }
+    }
+    function enableAuto(e: KeyboardEvent) {
+      if (!window.enableShortcuts) return
+      if (e.key === 'Control') {
+        autoRef.current = autoTmp
+        tick()
+      }
+    }
+    window.addEventListener('keydown', scroll)
+    window.addEventListener('keydown', fontSize)
+    window.addEventListener('keydown', disableAuto)
+    window.addEventListener('keyup', enableAuto)
+    return () => {
+      window.removeEventListener('keydown', scroll)
+      window.removeEventListener('keydown', fontSize)
+      window.removeEventListener('keydown', disableAuto)
+      window.removeEventListener('keyup', enableAuto)
+    }
+  }, [nodes])
+  return { divRef, autoRef, timerRef, delayRef }
+}
+
 const useNodes = () => {
   const fileName = useSelector(state => state.files.selected)
   const [nodes, setNodes] = useState<null | Node[]>(null)
@@ -239,9 +230,25 @@ const useNodes = () => {
           setNodes(nodes)
         })
         .catch(e => {
-          console.error(e)
+          message(e)
         })
     }
   }, [fileName])
   return nodes
 }
+
+const scrollToNthChild = (() => {
+  let prevN: number
+  return (n: number, div: HTMLDivElement | null, setHighlight: { (s: number): void }) => {
+    if (!div || n === prevN) return
+    prevN = n
+    const child = div.children[n] as HTMLDivElement | undefined
+    if (!child) return
+    const offset = child.offsetTop - div.offsetTop
+    const halfHeight = div.offsetHeight / 2
+    const selfHeight = child.clientHeight
+    const top = offset - halfHeight + selfHeight / 2
+    div.scroll({ top, behavior: 'smooth' })
+    setHighlight(n + 1)
+  }
+})()

@@ -1,13 +1,13 @@
 import { FC, useState, useEffect } from 'react'
-import { useSelector, useDispatch, updateEnableWaveForm, videoFileCache } from '../../state'
+import { useSelector, useDispatch, updateEnableWaveForm } from '../../state'
 import {
   computeAudioSampling,
   doVideoWithDefault,
   useI18n,
-  doVideo,
   EnableWaveForm,
   StageEnum,
   DurationError,
+  getVideo,
 } from '../../utils'
 import { Modal, message } from '../Modal'
 import styles from './Nav.module.less'
@@ -60,9 +60,8 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
 
       cb = async () => {
         setStage(StageEnum.decoding)
-        const videoUrl = doVideo(video => video.src) as string
-        const videoArrayBuffer = await videoFileCache.get(videoUrl).arrayBuffer()
-        await createSampling(videoArrayBuffer)
+        const videoArrayBuffer = await (await getVideo(file))?.file.arrayBuffer()
+        await createSampling(videoArrayBuffer as ArrayBuffer)
       }
       break
     }

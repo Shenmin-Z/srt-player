@@ -2,9 +2,9 @@ import { useReducer, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
-import { saveVideoSubPair, useDispatch, getList, getFileList } from '../state'
+import { useDispatch, getList } from '../state'
 import { confirm } from './Modal'
-import { useI18n } from '../utils'
+import { useI18n, saveVideoSubPair, getFileList } from '../utils'
 import cn from 'classnames'
 
 export const Uploader = () => {
@@ -26,7 +26,7 @@ export const Uploader = () => {
         return
       }
     }
-    await Promise.all(vs.map((v, idx) => processPair([v, ss[idx]])))
+    await Promise.all(vs.map((v, idx) => saveVideoSubPair([v, ss[idx]])))
     videoHandles.current = []
     subtitleHandles.current = []
     forceUpdate()
@@ -182,15 +182,20 @@ export const Uploader = () => {
 
 async function pickFiles() {
   try {
-    const files = await fileOpen([
-      {
-        description: 'Videos & Subtitles',
-        mimeTypes: ['audio/*', 'video/*', 'text/plain'],
-        extensions: ['.srt'],
-        multiple: true,
-        id: 'video-and-subtitle',
-      },
-    ])
+    const option = supported
+      ? {
+          mimeTypes: ['audio/*', 'video/*', 'text/plain'],
+          extensions: ['.srt'],
+        }
+      : {
+          extensions: ['.srt', '.mp4', '.avi', '.mp3', '.aac'],
+        }
+    const files = await fileOpen({
+      description: 'Videos & Subtitles',
+      multiple: true,
+      id: 'video-and-subtitle',
+      ...option,
+    })
     return filterFileHandles(files)
   } catch {
     return { videos: [], subtitles: [] }
@@ -201,14 +206,6 @@ async function filterFileHandles(files: FileWithHandle[]) {
   const videos = files.filter(h => !h.name.toLowerCase().endsWith('.srt'))
   const subtitles = files.filter(h => h.name.toLowerCase().endsWith('.srt'))
   return { videos, subtitles }
-}
-
-type FilePair = [FileWithHandle, FileWithHandle]
-
-async function processPair(pair: FilePair) {
-  const [video, subtitle] = pair
-  const subtitleText = await subtitle.text()
-  await saveVideoSubPair({ video: video.handle, subtitle: subtitleText })
 }
 
 async function checkExist(vs: FileWithHandle[]): Promise<string[]> {
