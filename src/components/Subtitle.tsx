@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect, useRef, memo } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
@@ -25,8 +25,9 @@ export const Subtitle: FC = () => {
 
   function tick() {
     if (!autoRef.current) return
-    if (timerRef.current) {
+    if (timerRef.current !== null) {
       clearTimeout(timerRef.current)
+      timerRef.current = null
     }
     doVideo(video => {
       const playing = video.currentTime >= 0 && !video.paused && !video.ended
@@ -59,11 +60,14 @@ export const Subtitle: FC = () => {
     })
   }, [hasVideo, subtitleAuto, nodes])
 
-  const restoreSubtitle = useRestoreSubtitle(() => setReady(true))
+  const restoreSubtitle = useRestoreSubtitle()
 
   useEffect(() => {
     if (nodes !== null) {
-      restoreSubtitle()
+      restoreSubtitle().then(() => {
+        setReady(true)
+      })
+
       // detect language
       for (let i = 0; i < Math.min(20, nodes.length); i++) {
         const text = nodes[i].text.join('')
@@ -82,7 +86,7 @@ export const Subtitle: FC = () => {
   }, [])
 
   if (nodes === null) {
-    return null
+    return <div className={styles['subtitle']} />
   } else {
     const fontSizes = {
       '--subtitle-text': `${Math.max(subtitleFontSize, 5)}px`,
@@ -101,19 +105,19 @@ export const Subtitle: FC = () => {
           <SubtitleNode
             {...n}
             key={n.counter}
-            highlight={highlight}
-            onClick={(h, adjustDelay) => {
-              if (subtitleAuto && adjustDelay) {
+            highlight={highlight === n.counter}
+            setHighlight={setHighlight}
+            setDelay={start => {
+              if (autoRef.current) {
                 doVideo(video => {
                   dispath(
                     updateSubtitleDelay({
                       file,
-                      delay: Math.round(video.currentTime * 1000 - n.start.timestamp),
+                      delay: Math.round(video.currentTime * 1000 - start),
                     }),
                   )
                 })
               }
-              setHighlight(h)
             }}
           />
         ))}
@@ -122,41 +126,44 @@ export const Subtitle: FC = () => {
   }
 }
 
-const SubtitleNode: FC<Node & { highlight: number | null; onClick: (h: number, adjustDelay?: boolean) => void }> = ({
-  counter,
-  start,
-  end,
-  text,
-  highlight,
-  onClick,
-}) => {
-  return (
-    <div
-      className={cn(styles['node'], { [styles['highlight']]: highlight === counter })}
-      onClick={e => {
-        onClick(counter, e.ctrlKey)
-      }}
-      onContextMenu={e => {
-        e.preventDefault()
-        onClick(counter, true)
-      }}
-    >
-      <span className={styles['counter']}>{counter}</span>
-      <div>
-        <div className={styles['line']}>
-          <span className={styles['start']}>{start.raw}</span>
-          <span className={styles['hyphen']}> - </span>
-          <span className={styles['end']}>{end.raw}</span>
-        </div>
-        {text.map((i, idx) => (
-          <p key={idx} className={styles['text']}>
-            {i}
-          </p>
-        ))}
-      </div>
-    </div>
-  )
+interface SubtitleNodeProps extends Node {
+  highlight: boolean
+  setHighlight: (h: number) => void
+  setDelay: (start: number) => void
 }
+
+const SubtitleNode: FC<SubtitleNodeProps> = memo(
+  props => {
+    const { counter, start, end, text, highlight, setHighlight, setDelay } = props
+    return (
+      <div
+        className={cn(styles['node'], { [styles['highlight']]: highlight })}
+        onClick={() => {
+          setHighlight(counter)
+        }}
+        onContextMenu={e => {
+          e.preventDefault()
+          setDelay(start.timestamp)
+        }}
+      >
+        <span className={styles['counter']}>{counter}</span>
+        <div>
+          <div className={styles['line']}>
+            <span className={styles['start']}>{start.raw}</span>
+            <span className={styles['hyphen']}> - </span>
+            <span className={styles['end']}>{end.raw}</span>
+          </div>
+          {text.map((i, idx) => (
+            <p key={idx} className={styles['text']}>
+              {i}
+            </p>
+          ))}
+        </div>
+      </div>
+    )
+  },
+  (prevProps, nextProps) => prevProps.highlight === nextProps.highlight,
+)
 
 const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay: number, tick: { (): void }) => {
   const dispath = useDispatch()
@@ -230,7 +237,7 @@ const useNodes = () => {
           setNodes(nodes)
         })
         .catch(e => {
-          message(e)
+          message(e + '')
         })
     }
   }, [fileName])

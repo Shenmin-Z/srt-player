@@ -27,7 +27,7 @@ function getSubtitleElm() {
   return document.getElementById('srt-player-subtitle') as HTMLDivElement | undefined
 }
 
-export const useRestoreSubtitle = (cb: { (): void }) => {
+export const useRestoreSubtitle = () => {
   const file = useSelector(s => s.files.selected)
   return async () => {
     if (!file) return
@@ -36,7 +36,6 @@ export const useRestoreSubtitle = (cb: { (): void }) => {
     const subtitle = getSubtitleElm()
     if (subtitle) {
       subtitle.scrollTop = subtitleTop
-      setTimeout(cb)
     }
   }
 }

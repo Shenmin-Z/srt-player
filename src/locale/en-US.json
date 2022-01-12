@@ -1,7 +1,8 @@
 {
   "import_video_and_subtitle": {
     "click_drop": "Click or drop files here",
-    "save": "Save"
+    "save": "Save",
+    "save_cache": "Copy file(s) to cache"
   },
   "footer": {
     "current_version": "Current version",

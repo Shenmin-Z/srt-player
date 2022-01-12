@@ -1,7 +1,8 @@
 {
   "import_video_and_subtitle": {
     "click_drop": "点击或拖拽文件",
-    "save": "保存"
+    "save": "保存",
+    "save_cache": "复制文件到缓存"
   },
   "footer": {
     "current_version": "当前版本",

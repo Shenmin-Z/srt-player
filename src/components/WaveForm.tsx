@@ -10,6 +10,7 @@ const WAVEFORM_ID = 'srt-player-waveform'
 
 export const WaveForm: FC<Props> = () => {
   const file = useSelector(s => s.files.selected) as string
+  const waveformDivRef = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
   const [offset, setOffset] = useState<number | undefined>(undefined)
   const [replayPos, setReplayPos] = useState<number>(-1)
@@ -53,9 +54,11 @@ export const WaveForm: FC<Props> = () => {
     <div className={cn(styles['waveform'], { [styles['ready']]: ready })}>
       <div
         id={WAVEFORM_ID}
+        ref={waveformDivRef}
         className={styles['waveform-container']}
         onClick={e => {
-          const { left } = (e.target as HTMLDivElement).getBoundingClientRect()
+          if (!waveformDivRef.current) return
+          const { left } = waveformDivRef.current.getBoundingClientRect()
           setReplayPos(e.clientX - left)
         }}
       >

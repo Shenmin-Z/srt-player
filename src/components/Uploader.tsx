@@ -15,6 +15,7 @@ export const Uploader = () => {
   const videoHandles = useRef<FileWithHandle[]>([])
   const [, forceUpdate] = useReducer(s => !s, true)
   const [dragOver, setDragOver] = useState(false)
+  const [saveCache, setSaveCache] = useState(false)
 
   const process = async () => {
     const vs = videoHandles.current
@@ -26,9 +27,10 @@ export const Uploader = () => {
         return
       }
     }
-    await Promise.all(vs.map((v, idx) => saveVideoSubPair([v, ss[idx]])))
+    await Promise.all(vs.map((v, idx) => saveVideoSubPair([v, ss[idx]], saveCache)))
     videoHandles.current = []
     subtitleHandles.current = []
+    setSaveCache(false)
     forceUpdate()
     dispatch(getList())
   }
@@ -44,6 +46,7 @@ export const Uploader = () => {
   }
 
   const hasBuffer = videoHandles.current.length > 0 || subtitleHandles.current.length > 0
+  const uploadStyle = { display: hasBuffer ? undefined : 'none' }
   const disabled = videoHandles.current.length !== subtitleHandles.current.length
 
   return (
@@ -81,7 +84,7 @@ export const Uploader = () => {
         <span className="material-icons">upload_file</span>
         {i18n('import_video_and_subtitle.click_drop')}
       </div>
-      <div className={styles['buffer']} style={{ display: hasBuffer ? undefined : 'none' }}>
+      <div className={styles['buffer']} style={uploadStyle}>
         <DragDropContext
           onDragEnd={result => {
             if (!result.destination) {
@@ -171,7 +174,18 @@ export const Uploader = () => {
           </Droppable>
         </DragDropContext>
       </div>
-      <div className={styles['ok']} style={{ display: hasBuffer ? undefined : 'none' }}>
+      <div className={styles['save-cache']} style={uploadStyle}>
+        <input
+          id="upload-save-cache"
+          type="checkbox"
+          checked={saveCache}
+          onChange={e => {
+            setSaveCache(e.target.checked)
+          }}
+        />
+        <label htmlFor="upload-save-cache">{i18n('import_video_and_subtitle.save_cache')}</label>
+      </div>
+      <div className={styles['ok']} style={uploadStyle}>
         <button onClick={process} disabled={disabled}>
           {i18n('import_video_and_subtitle.save')}
         </button>

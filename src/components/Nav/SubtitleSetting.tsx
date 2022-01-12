@@ -48,17 +48,12 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
             }}
           />
         </div>
-        <div
-          className={styles['title']}
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            dispatch(updateSubtitleAuto({ file }))
-          }}
-        >
+        <label htmlFor="subtitle-settings-auto" className={styles['title']} style={{ cursor: 'pointer' }}>
           {i18n('nav.subtitle.auto')}
-        </div>
+        </label>
         <div className={styles['body']}>
           <input
+            id="subtitle-settings-auto"
             type="checkbox"
             checked={subtitleAuto}
             onChange={() => {

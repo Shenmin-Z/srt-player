@@ -13,36 +13,31 @@ export const Video: FC = () => {
   const dispatch = useDispatch()
   const hasVideo = useSelector(s => s.video.hasVideo)
   const enableStatus = useSelector(s => s.settings.waveform)
-  const file = useSelector(s => s.files.selected)
+  const file = useSelector(s => s.files.selected) as string
   const status = useSelector(s => s.video.status)
 
   useEffect(() => {
-    dispatch(LoadWaveFormPreference(file as string))
-    getVideo(file as string)
-      .then(
-        v => {
-          if (v === undefined) {
-            dispatch(setSelected(null))
-            return
-          }
-          setVideoUrl(v.url)
-          dispatch(setVideo(true))
-          restoreVideo()
-        },
-        e => {
-          if (e instanceof DOMException && e.name === 'NotFoundError') {
-            setTimeout(() => {
-              confirm(i18n('confirm.cannot_find_file', file as string)).then(remove => {
-                if (remove) {
-                  dispatch(deleteFile(file as string))
-                }
-              })
-            })
-          }
+    dispatch(LoadWaveFormPreference(file))
+    ;(async () => {
+      try {
+        const v = await getVideo(file)
+        if (v === undefined) {
           dispatch(setSelected(null))
-        },
-      )
-      .catch(() => {})
+          return
+        }
+        setVideoUrl(v.url)
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'NotFoundError') {
+          setTimeout(async () => {
+            const remove = await confirm(i18n('confirm.cannot_find_file', file))
+            if (remove) {
+              dispatch(deleteFile(file))
+            }
+          })
+        }
+        dispatch(setSelected(null))
+      }
+    })()
     return () => {
       dispatch(setVideo(false))
     }
@@ -102,7 +97,15 @@ export const Video: FC = () => {
       <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableStatus })}>
         {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
         <div className={styles['inner']}>
-          <video id={VIDEO_ID} src={videoUrl} controls />
+          <video
+            id={VIDEO_ID}
+            src={videoUrl}
+            controls
+            onLoadedData={async () => {
+              await restoreVideo()
+              dispatch(setVideo(true))
+            }}
+          />
         </div>
       </div>
     )

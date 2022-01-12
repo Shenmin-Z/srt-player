@@ -3,7 +3,7 @@ import { createStore, get, set, del, keys } from 'idb-keyval'
 import { parseSRT, Node } from './subtitle'
 
 interface VideoSubPair {
-  video: FileSystemFileHandle
+  video: FileSystemFileHandle | File
   subtitle: string | Node[]
 }
 
@@ -14,8 +14,8 @@ async function getPair(file: string) {
   return pair
 }
 
-async function setPair(file: string, pair: VideoSubPair) {
-  if (supported) {
+async function setPair(file: string, pair: VideoSubPair, saveCache = false) {
+  if (supported || saveCache) {
     await set(file, pair, FilesStore)
   }
 }
@@ -26,10 +26,10 @@ export async function deletePair(file: string) {
 }
 
 export async function getSubtitle(file: string): Promise<Node[]> {
-  if (!supported) {
+  const pair = await getPair(file)
+  if (!supported && !pair) {
     return subtitleFileCache.get(file)
   }
-  const pair = await getPair(file)
   if (!pair) return []
   const { subtitle, video } = pair
   if (typeof subtitle === 'string') {
@@ -46,14 +46,19 @@ export async function getVideo(file: string): Promise<Video | undefined> {
     return videoFileCache.get(file)
   }
   const pair = await getPair(file)
+  let videoFile: File
   if (!pair) return undefined
-  if ((await pair.video.queryPermission({ mode: 'read' })) !== 'granted') {
-    const permission = await pair.video.requestPermission({ mode: 'read' })
-    if (permission !== 'granted') {
-      return undefined
+  if (pair.video instanceof File) {
+    videoFile = pair.video
+  } else {
+    if ((await pair.video.queryPermission({ mode: 'read' })) !== 'granted') {
+      const permission = await pair.video.requestPermission({ mode: 'read' })
+      if (permission !== 'granted') {
+        return undefined
+      }
     }
+    videoFile = await pair.video.getFile()
   }
-  const videoFile = await pair.video.getFile()
   return videoFileCache.add(file, videoFile)
 }
 
@@ -111,10 +116,17 @@ class SubtitleFileCache {
 
 const subtitleFileCache = new SubtitleFileCache()
 
-export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle]) {
+export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], saveCache = false) {
   const [video, subtitle] = pair
   const subtitleText = await subtitle.text()
-  await setPair(video.name, { video: video?.handle as FileSystemFileHandle, subtitle: subtitleText })
+  await setPair(
+    video.name,
+    {
+      video: saveCache ? video : (video?.handle as FileSystemFileHandle),
+      subtitle: subtitleText,
+    },
+    saveCache,
+  )
   videoFileCache.add(video.name, video)
   if (!supported) {
     subtitleFileCache.add(video.name, subtitleText)
@@ -122,8 +134,7 @@ export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle]) {
 }
 
 export async function getFileList() {
-  if (!supported) {
-    return Object.keys(videoFileCache.cache)
-  }
-  return (await keys(FilesStore)) as string[]
+  const cached = Object.keys(videoFileCache.cache)
+  const stored = (await keys(FilesStore)) as string[]
+  return Array.from(new Set([...cached, ...stored]))
 }
