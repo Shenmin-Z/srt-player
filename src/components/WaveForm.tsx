@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useRef } from 'react'
-import { getSampling, doVideo, doVideoWithDefault, PIXELS_PER_SECOND } from '../utils'
+import { getSampling, doVideo, doVideoWithDefault, PIXELS_PER_SECOND, IS_MOBILE } from '../utils'
 import { useSelector } from '../state'
 import cn from 'classnames'
 import styles from './WaveForm.module.less'
@@ -14,6 +14,11 @@ export const WaveForm: FC<Props> = () => {
   const [ready, setReady] = useState(false)
   const [offset, setOffset] = useState<number | undefined>(undefined)
   const [replayPos, setReplayPos] = useState<number>(-1)
+  const replayPosRef = useRef(replayPos)
+
+  useEffect(() => {
+    replayPosRef.current = replayPos
+  }, [replayPos])
 
   const images = useImages(file, setOffset, () => setReady(true))
   useEffect(() => {
@@ -22,16 +27,22 @@ export const WaveForm: FC<Props> = () => {
     }
   }, [ready])
 
+  const replay = (pos: number, play = false) => {
+    doVideo(video => {
+      if (pos >= 0) {
+        video.currentTime = pos / PIXELS_PER_SECOND
+        if (play) {
+          video.play()
+        }
+      }
+    })
+  }
+
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
       if (!window.enableShortcuts) return
       if (e.code === 'KeyR' && !e.repeat) {
-        doVideo(video => {
-          if (replayPos > 0) {
-            video.currentTime = replayPos / PIXELS_PER_SECOND
-            video.play()
-          }
-        })
+        replay(replayPosRef.current, true)
       } else if (e.code == 'Comma') {
         const step = e.shiftKey ? 3 : 1
         setReplayPos(p => p - step)
@@ -48,7 +59,7 @@ export const WaveForm: FC<Props> = () => {
     return () => {
       window.removeEventListener('keydown', keyListener)
     }
-  }, [replayPos])
+  }, [])
 
   return (
     <div className={cn(styles['waveform'], { [styles['ready']]: ready })}>
@@ -59,7 +70,11 @@ export const WaveForm: FC<Props> = () => {
         onClick={e => {
           if (!waveformDivRef.current) return
           const { left } = waveformDivRef.current.getBoundingClientRect()
-          setReplayPos(e.clientX - left)
+          const newReplayPos = e.clientX - left
+          setReplayPos(newReplayPos)
+          if (IS_MOBILE) {
+            replay(newReplayPos)
+          }
         }}
       >
         {images}
@@ -80,6 +95,7 @@ const useImages = (file: string, setOffset: { (x: number): void }, onReady: { ()
   const [images, setImages] = useState<string[]>([])
   const [loaded, setLoaded] = useState(false)
   const loadedCount = useRef(0)
+  const hasVideo = useSelector(s => s.video.hasVideo)
 
   useEffect(() => {
     let cb = () => {}
@@ -99,11 +115,11 @@ const useImages = (file: string, setOffset: { (x: number): void }, onReady: { ()
   }, [])
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded && hasVideo) {
       updatePosition(setOffset, true)
-      setTimeout(onReady)
+      onReady()
     }
-  }, [loaded])
+  }, [loaded, hasVideo])
 
   return (
     <>

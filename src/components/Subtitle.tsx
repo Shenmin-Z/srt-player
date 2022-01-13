@@ -3,7 +3,7 @@ import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle } from '../utils'
+import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, IS_MOBILE } from '../utils'
 
 export const Subtitle: FC = () => {
   const nodes = useNodes()
@@ -142,8 +142,10 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
           setHighlight(counter)
         }}
         onContextMenu={e => {
-          e.preventDefault()
-          setDelay(start.timestamp)
+          if (!IS_MOBILE) {
+            e.preventDefault()
+            setDelay(start.timestamp)
+          }
         }}
       >
         <span className={styles['counter']}>{counter}</span>

@@ -1,4 +1,4 @@
-import { FC, useEffect, MouseEventHandler } from 'react'
+import { FC, useEffect, MouseEventHandler, TouchEventHandler } from 'react'
 import { Language } from './components/Language'
 import { Uploader } from './components/Uploader'
 import { List } from './components/List'
@@ -9,7 +9,7 @@ import { Video } from './components/Video'
 import { Message, Confirm } from './components/Modal'
 import { useDispatch, useSelector, getList, LoadSettingsFromLocal, updateSubtitleWidth } from './state'
 import styles from './App.module.less'
-import { useSaveHistory, migrate } from './utils'
+import { useSaveHistory, migrate, IS_MOBILE } from './utils'
 
 const App: FC = migrate(() => {
   const dispatch = useDispatch()
@@ -69,25 +69,41 @@ const ResizeBar: FC = () => {
   const subtitleWidth = useSelector(s => s.settings.subtitleWidth)
   const dispatch = useDispatch()
 
-  const onMD: MouseEventHandler<HTMLDivElement> = e => {
+  const handleMouse: MouseEventHandler = e => {
     const prev = e.clientX
-    function onMouseMove(e: MouseEvent) {
-      const delta = e.clientX - prev
+    function onMove(e: MouseEvent) {
+      const clientX = e.clientX
+      const delta = clientX - prev
       dispatch(updateSubtitleWidth(subtitleWidth - delta))
     }
-    function onMouseUp() {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
-      const dictionaryIFrame = document.getElementById('dictionary-iframe')
-      if (dictionaryIFrame) {
-        dictionaryIFrame.style.pointerEvents = 'auto'
-      }
+    function onEnd() {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onEnd)
     }
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onEnd)
   }
 
-  return <div className={styles['resize']} onMouseDown={onMD} />
+  const handleTouch: TouchEventHandler = e => {
+    const prev = e.touches[0].clientX
+    function onMove(e: TouchEvent) {
+      const clientX = e.touches[0].clientX
+      const delta = clientX - prev
+      dispatch(updateSubtitleWidth(subtitleWidth - delta))
+    }
+    function onEnd() {
+      document.removeEventListener('touchmove', onMove)
+      document.removeEventListener('touchend', onEnd)
+    }
+    document.addEventListener('touchmove', onMove)
+    document.addEventListener('touchend', onEnd)
+  }
+
+  return (
+    <div className={styles['resize']} onMouseDown={handleMouse}>
+      {IS_MOBILE && <div className={styles['fat-bar']} onTouchStart={handleTouch} />}
+    </div>
+  )
 }
 
 export default App

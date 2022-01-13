@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
 import { useDispatch, useSelector, setSelected, updateSubtitleAuto } from '../../state'
-import { useSaveHistory } from '../../utils'
+import { useSaveHistory, IS_MOBILE } from '../../utils'
 import { SubtitleSetting } from './SubtitleSetting'
 import { Info } from './Info'
 import { WaveForm } from './WaveFormSetting'
@@ -70,12 +70,14 @@ export const Nav = () => {
           >
             {delayText}
           </Icon>
-          <Icon
-            type="info"
-            onClick={() => {
-              setShowInfo(true)
-            }}
-          />
+          {!IS_MOBILE && (
+            <Icon
+              type="info"
+              onClick={() => {
+                setShowInfo(true)
+              }}
+            />
+          )}
         </div>
       </nav>
       <WaveForm
