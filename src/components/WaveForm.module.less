@@ -1,11 +1,27 @@
-@height: 80px;
+@H: 80px;
+@h: 40px;
+.media-mobile(@rules) {
+  @media only screen and (max-height: 420px) {
+    @rules();
+  }
+}
+.responsive(@rules) {
+  @height: @H;
+  @rules();
+  .media-mobile({
+    @height: @h;
+    @rules();
+  });
+}
 @scrollbar-height: 8px;
 
 .waveform {
   position: relative;
   overflow-x: scroll;
   overflow-y: hidden;
+  .responsive({
   height: @height + @scrollbar-height;
+  });
   &.ready {
     scroll-behavior: smooth;
   }
@@ -39,10 +55,17 @@
 
 .waveform-container {
   position: relative;
+  .responsive({
   height: @height;
+  });
   display: inline-flex;
   img {
     pointer-events: none;
+    height: @H;
+    .media-mobile({
+      transform:scaleY(0.5);
+      transform-origin:top;
+    });
   }
   .replay-indicator,
   .current-time-indicator {
