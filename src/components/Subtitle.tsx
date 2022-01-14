@@ -3,7 +3,7 @@ import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, IS_MOBILE } from '../utils'
+import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle } from '../utils'
 
 export const Subtitle: FC = () => {
   const nodes = useNodes()
@@ -141,19 +141,27 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
         onClick={() => {
           setHighlight(counter)
         }}
-        onContextMenu={e => {
-          if (!IS_MOBILE) {
-            e.preventDefault()
-            setDelay(start.timestamp)
-          }
-        }}
       >
         <span className={styles['counter']}>{counter}</span>
         <div>
           <div className={styles['line']}>
-            <span className={styles['start']}>{start.raw}</span>
+            <span
+              className={styles['start']}
+              onClick={() => {
+                setDelay(start.timestamp)
+              }}
+            >
+              {start.raw}
+            </span>
             <span className={styles['hyphen']}> - </span>
-            <span className={styles['end']}>{end.raw}</span>
+            <span
+              className={styles['end']}
+              onClick={() => {
+                setDelay(end.timestamp)
+              }}
+            >
+              {end.raw}
+            </span>
           </div>
           {text.map((i, idx) => (
             <p key={idx} className={styles['text']}>

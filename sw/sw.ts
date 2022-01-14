@@ -8,6 +8,7 @@ const CACHE_URLS = [
   'index.css',
   'version.txt',
   'srt-player.svg',
+  'github.png',
   'fonts/MaterialIcons-Regular.ttf',
   'fonts/MaterialIconsOutlined-Regular.otf',
   'fonts/RobotoMono-Regular.ttf',
@@ -22,7 +23,7 @@ const cacheAll = async () => {
 }
 
 self.addEventListener('install', event => {
-  cacheAll()
+  self.skipWaiting()
   event.waitUntil(Promise.resolve())
 })
 
@@ -50,8 +51,22 @@ self.addEventListener('fetch', event => {
 })
 
 self.addEventListener('activate', event => {
-  // TODO
-  event.waitUntil(Promise.resolve())
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys()
+      await Promise.all(
+        keys.map(key => {
+          if (key.startsWith('srt-')) {
+            return caches.delete(key)
+          } else {
+            return Promise.resolve(true)
+          }
+        }),
+      )
+      await self.clients.claim()
+      cacheAll().catch(() => {})
+    })(),
+  )
 })
 
 self.addEventListener('message', async event => {

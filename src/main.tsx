@@ -15,5 +15,5 @@ ReactDOM.render(
 )
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/srt-player/sw.js').then(reg => {})
+  navigator.serviceWorker.register('/srt-player/sw.js')
 }

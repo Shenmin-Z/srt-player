@@ -8,7 +8,7 @@
 
 ![screenshot](./docs/screenshot.png)
 
-Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [B 站](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
+Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [Bilibili](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
 
 ### What's wrong with normal video player?
 
@@ -17,7 +17,7 @@ Nothing is wrong, it's just that in certain situations, you want to:
 - see the full context
 - copy & paste subtitle content
 - adjust subtitle delay
-- pinpoint in the timeline and replay from there
+- pinpoint in the timeline and replay from that place
 
 With normal video players it may not be very convenient to do these.
 
@@ -26,7 +26,7 @@ With normal video players it may not be very convenient to do these.
 ### Subtitle
 
 - scrollable and selectable
-- adjust delay in a breeze (`right click` on the subtitle that should be displayed)
+- adjust delay in a breeze (`click` on start or end time that is above individual subtitle text)
 
 ### Waveform
 
@@ -38,6 +38,5 @@ With normal video players it may not be very convenient to do these.
 
 ## Limitations
 
-- Desktop Chrome only (needs [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker) to read local files)
 - Video has to be in codecs that browser can play, which means if your video file has an incompatible format you will have to convert it to a compatible one first
 - Waveform generation might not be accurate or fail on large file, in which case you can extract audio from video with some other software and select the `Enable using extra audio file` option
