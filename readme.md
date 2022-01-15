@@ -14,6 +14,14 @@ Screenshot on android Chrome
 
 Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [哔哩哔哩](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
 
+## Browsers support
+
+Tested on the following browsers.
+
+| ![chrome](./docs/chrome_48x48.png) | ![firefox](./docs/firefox_48x48.png) | ![edge](./docs/edge_48x48.png) | ![safari](./docs/safari_48x48.png) |
+|---|---|---|---|
+| Chrome | Firefox | Edge | Safari |
+
 ## Usage
 
 - prepare video and subtitle files
