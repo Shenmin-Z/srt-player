@@ -4,6 +4,11 @@
     "save": "保存",
     "save_cache": "复制文件到缓存"
   },
+  "play_list": {
+    "download_example": "播放列表为空，要下载一些示例吗？",
+    "example": "示例 {0}",
+    "downloading": "下载中..."
+  },
   "footer": {
     "current_version": "当前版本",
     "update": "升级"

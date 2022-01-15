@@ -2,24 +2,22 @@
   <img src="https://github.com/Shenmin-Z/srt-player/raw/master/public/srt-player.svg" width="120" alt="wstunnel logo"/>
 </p>
 
-# SRT Player - Video and subtitle side by side
+# SRT Player
 
-[https://shenmin-z.github.io/srt-player/](https://shenmin-z.github.io/srt-player/)
+Video player that displays subtitle by the side
 
-![screenshot](./docs/screenshot.png)
+[Try it here](https://shenmin-z.github.io/srt-player/)
 
-Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [Bilibili](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
+Screenshot on android Chrome
 
-### What's wrong with normal video player?
+![screenshot](./docs/screenshot.jpg)
 
-Nothing is wrong, it's just that in certain situations, you want to:
+Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [哔哩哔哩](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
 
-- see the full context
-- copy & paste subtitle content
-- adjust subtitle delay
-- pinpoint in the timeline and replay from that place
+## Usage
 
-With normal video players it may not be very convenient to do these.
+- prepare video and subtitle files
+- click on the 'upload' button or drag and drop files
 
 ## Features
 
@@ -30,13 +28,21 @@ With normal video players it may not be very convenient to do these.
 
 ### Waveform
 
-- find the exact location to replay (`click` to set replay position, which is indicated by a vertical yellow line, and press `r` to play at that position)
+- find the exact location to replay (`click` to set replay position)
 
 ### Offline usable
 
 - onced loaded, can be used without internet next time
 
+## About "upload"
+
+This application plays local video, it's not real "upload". This causes the problem that a user will have to "upload" everytime after the web page is reloaded. To mitigate this problem you can:
+
+- use desktop Chrome or Edge, which supports reading local files(user permission required)
+- check the `Copy file(s) to cache` option when uploading, which will save video files to indexeddb
+
 ## Limitations
 
-- Video has to be in codecs that browser can play, which means if your video file has an incompatible format you will have to convert it to a compatible one first
-- Waveform generation might not be accurate or fail on large file, in which case you can extract audio from video with some other software and select the `Enable using extra audio file` option
+- Modern browser required. Tested on Chrome, Firefox, Edge and desktop Safari.
+- Video has to be in codecs that browser can play, which means if your video file has an incompatible format you will have to convert it to a compatible one first.
+- Waveform generation might not be accurate or fail on large file, in which case you can extract audio from video with some other software and select the `Enable using extra audio file` option.

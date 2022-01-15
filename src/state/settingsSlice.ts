@@ -8,12 +8,13 @@ import {
   saveEnableWaveForm,
   EnableWaveForm,
   deleteSampling,
+  IS_MOBILE,
 } from '../utils'
 
 const SETTINGS_KEY = 'SRT-SETTINGS'
 
 const INIT_SETTING: Settings = {
-  subtitleWidth: 400,
+  subtitleWidth: IS_MOBILE ? 300 : 400,
   subtitleFontSize: 16,
   locale: 'en-US',
 }

@@ -47,3 +47,42 @@
     }
   }
 }
+
+.download-example {
+  margin: 20px 10px;
+  font-size: 14px;
+  line-height: 20px;
+  :global(.material-icons-outlined) {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .message-box {
+    max-width: 600px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    background: var(--background-blue-color);
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 6px solid #2a98b9;
+
+    .example-list {
+      margin-top: 5px;
+      .list-item {
+        list-style: inside;
+      }
+      .downloading {
+        a {
+          text-decoration: none;
+          cursor: wait;
+        }
+        .progress {
+          display: inline;
+          margin-left: 10px;
+        }
+      }
+      .progress {
+        display: none;
+      }
+    }
+  }
+}

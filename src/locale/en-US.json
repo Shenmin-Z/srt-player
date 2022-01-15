@@ -4,6 +4,11 @@
     "save": "Save",
     "save_cache": "Copy file(s) to cache"
   },
+  "play_list": {
+    "download_example": "There is currently no videos in the play list, would you like to download some examples?",
+    "example": "Example {0}",
+    "downloading": "Downloading..."
+  },
   "footer": {
     "current_version": "Current version",
     "update": "Update"
