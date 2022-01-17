@@ -23,7 +23,6 @@ const cacheAll = async () => {
 }
 
 self.addEventListener('install', event => {
-  self.skipWaiting()
   event.waitUntil(Promise.resolve())
 })
 

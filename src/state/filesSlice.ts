@@ -15,9 +15,9 @@ export const deleteFile = createAsyncThunk<void, string>('files/deleteFile', asy
 })
 
 const initialState: {
-  list: string[]
+  list: null | string[]
   selected: null | string
-} = { list: [], selected: null }
+} = { list: null, selected: null }
 
 export const filesSlice = createSlice({
   name: 'files',

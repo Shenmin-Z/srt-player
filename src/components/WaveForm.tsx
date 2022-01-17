@@ -72,9 +72,7 @@ export const WaveForm: FC<Props> = () => {
           const { left } = waveformDivRef.current.getBoundingClientRect()
           const newReplayPos = e.clientX - left
           setReplayPos(newReplayPos)
-          if (IS_MOBILE) {
-            replay(newReplayPos)
-          }
+          replay(newReplayPos)
         }}
       >
         {images}

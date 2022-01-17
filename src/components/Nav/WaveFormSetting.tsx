@@ -120,7 +120,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
       }}
     >
       <span className="material-icons-outlined">{icon}</span>
-      <span>{text}</span>
+      <span className={styles['waveform-text']}>{text}</span>
       <Progress stage={stage} />
     </div>
   )

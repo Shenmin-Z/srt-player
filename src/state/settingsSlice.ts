@@ -13,10 +13,17 @@ import {
 
 const SETTINGS_KEY = 'SRT-SETTINGS'
 
+const INIT_LANG = (() => {
+  if (/^zh/i.test(navigator.language)) {
+    return 'zh-CN'
+  }
+  return 'en-US'
+})()
+
 const INIT_SETTING: Settings = {
   subtitleWidth: IS_MOBILE ? 300 : 400,
   subtitleFontSize: 16,
-  locale: 'en-US',
+  locale: INIT_LANG,
 }
 
 async function getSettings(): Promise<Settings> {

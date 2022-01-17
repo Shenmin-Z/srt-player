@@ -15,6 +15,8 @@ export const List = () => {
     })
   }, [list])
 
+  if (list === null) return null
+
   if (list.length === 0) {
     return <DownloadExample />
   }
