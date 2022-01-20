@@ -19,51 +19,22 @@ const CACHE_URLS = [
 const cacheAll = async () => {
   const cache = await caches.open(SRT_CACHE)
   const requests = CACHE_URLS.map(url => new Request(url, { cache: 'reload' }))
-  await cache.addAll(requests)
+  return await cache.addAll(requests)
 }
 
 self.addEventListener('install', event => {
-  event.waitUntil(Promise.resolve())
+  event.waitUntil(Promise.resolve(cacheAll()))
 })
 
 self.addEventListener('fetch', event => {
   event.respondWith(
     (async () => {
-      const response = await caches.match(event.request)
-      const url = event.request.url
-      const bypassCache = new URL(url).search.includes('bypassCache')
-      if (response && !bypassCache) {
-        return response
+      const cachedResponse = await caches.match(event.request)
+      if (cachedResponse) {
+        return cachedResponse
       } else {
-        const response = await fetch(event.request, { cache: 'reload' })
-
-        if (!bypassCache && response.status === 200 && url.startsWith('http')) {
-          const responseToCache = response.clone()
-          const cache = await caches.open(SRT_CACHE)
-          cache.put(event.request, responseToCache)
-        }
-
-        return response
+        return await fetch(event.request)
       }
-    })(),
-  )
-})
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    (async () => {
-      const keys = await caches.keys()
-      await Promise.all(
-        keys.map(key => {
-          if (key.startsWith('srt-')) {
-            return caches.delete(key)
-          } else {
-            return Promise.resolve(true)
-          }
-        }),
-      )
-      await self.clients.claim()
-      cacheAll().catch(() => {})
     })(),
   )
 })
@@ -77,7 +48,16 @@ self.addEventListener('message', async event => {
 })
 
 async function clearAndUpate() {
-  await caches.delete(SRT_CACHE)
+  const keys = await caches.keys()
+  await Promise.all(
+    keys.map(key => {
+      if (key.startsWith('srt-')) {
+        return caches.delete(key)
+      } else {
+        return Promise.resolve(true)
+      }
+    }),
+  )
   await cacheAll()
 }
 
