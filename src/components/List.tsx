@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected, getList } from '../state'
 import { getWatchHistory, WatchHistories, WatchHistory, useI18n, saveVideoSubPair } from '../utils'
@@ -126,10 +126,17 @@ async function download(url: string, onProgress: onProgress) {
   return await res.blob()
 }
 
+enum DownloadStatus {
+  start,
+  downloading,
+  finished,
+}
+
 const DownloadExample: FC = () => {
   const i18n = useI18n()
   const dispatch = useDispatch()
-  const [status, setStatus] = useState<{ [s: string]: { downloading: boolean; progress?: number } }>({})
+  const [status, setStatus] = useState<{ [s: string]: { status: DownloadStatus; progress?: number } }>({})
+  const countRef = useRef(0)
 
   return (
     <div className={styles['download-example']}>
@@ -138,25 +145,34 @@ const DownloadExample: FC = () => {
         {i18n('play_list.download_example')}
         <ul className={styles['example-list']}>
           {EXAMPLES.map((i, idx) => {
-            const isDownloading = !!status[i.name]?.downloading
             const progress = (Math.min(status[i.name]?.progress || 0, 1) * 100).toFixed(2)
             const setIsDownloading = (d: boolean) => {
-              setStatus(s => ({ ...s, [i.name]: { downloading: d } }))
+              setStatus(s => ({ ...s, [i.name]: { status: d ? DownloadStatus.downloading : DownloadStatus.finished } }))
             }
             const setProgress = (p: number) => {
-              setStatus(s => ({ ...s, [i.name]: { downloading: true, progress: p } }))
+              setStatus(s => ({ ...s, [i.name]: { status: DownloadStatus.downloading, progress: p } }))
             }
             return (
-              <li key={i.name} className={cn(styles['list-item'], { [styles['downloading']]: isDownloading })}>
+              <li
+                key={i.name}
+                className={cn(styles['list-item'], {
+                  [styles['downloading']]: status[i.name]?.status === DownloadStatus.downloading,
+                  [styles['finished']]: status[i.name]?.status === DownloadStatus.finished,
+                })}
+              >
                 <a
                   href="#"
                   onClick={async e => {
-                    if (isDownloading) return
+                    if (status[i.name]?.status === DownloadStatus.downloading) return
                     e.preventDefault()
                     setIsDownloading(true)
+                    countRef.current++
                     await downloadExample(i, setProgress)
-                    dispatch(getList())
                     setIsDownloading(false)
+                    countRef.current--
+                    if (countRef.current === 0) {
+                      dispatch(getList())
+                    }
                   }}
                 >
                   {i18n('play_list.example', idx + 1 + '')}
