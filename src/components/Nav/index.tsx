@@ -46,10 +46,9 @@ export const Nav = () => {
       <nav className={styles['nav']}>
         <Icon
           type="arrow_back"
-          onClick={() => {
-            saveHistory().then(() => {
-              dispatch(setSelected(null))
-            })
+          onClick={async () => {
+            await saveHistory()
+            dispatch(setSelected(null))
           }}
         />
         <div className={styles['name']}>{file}</div>

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { get, set } from 'idb-keyval'
 import { useSelector } from '../state'
 import { doVideo } from './video'
@@ -95,6 +96,24 @@ export const useSaveHistory = () => {
       })
     })
   }
+}
+
+export const useActiveSaveHistory = () => {
+  const saveHistory = useSaveHistory()
+  const timerRef = useRef<number | null>(null)
+  const onPlay = () => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+  }
+  const onPause = () => {
+    timerRef.current = setTimeout(() => {
+      saveHistory()
+      timerRef.current = null
+    }, 60000)
+  }
+  return { onPlay, onPause }
 }
 
 const writeHelper = async (file: string, cb: (h: WatchHistory) => void) => {

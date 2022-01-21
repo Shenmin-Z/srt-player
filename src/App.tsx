@@ -42,12 +42,9 @@ const Play: FC = () => {
   const saveHistory = useSaveHistory()
 
   useEffect(() => {
-    function listener() {
-      saveHistory()
-    }
-    window.addEventListener('beforeunload', listener)
+    window.addEventListener('beforeunload', saveHistory)
     return () => {
-      window.removeEventListener('beforeunload', listener)
+      window.removeEventListener('beforeunload', saveHistory)
     }
   }, [])
 

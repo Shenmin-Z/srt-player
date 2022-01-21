@@ -50,7 +50,7 @@ export class DurationError {
 
 export const computeAudioSampling = async (task: ComputeAudioSampling) => {
   const { worker, arrayBuffer, fileName, videoDuration, onProgress } = task
-  const audioContext = new AudioContext()
+  const audioContext = new OfflineAudioContext(1, 2, 44100)
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   const { sampleRate, duration, length } = audioBuffer
   if (Math.abs(videoDuration - duration) > 0.5) {

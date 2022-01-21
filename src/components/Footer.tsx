@@ -3,6 +3,50 @@ import { getCurrentVersion, getLatestVersion, useI18n } from '../utils'
 import { confirm } from './Modal'
 import styles from './Footer.module.less'
 
+const clearAndUpate = () => {
+  return new Promise<void>(resolve => {
+    const sw = navigator.serviceWorker.controller
+    if (sw) {
+      const channel = new MessageChannel()
+      sw.postMessage(
+        {
+          type: 'UPDATE',
+        },
+        [channel.port2],
+      )
+      channel.port1.onmessage = event => {
+        if (event.data === 'updated') {
+          resolve()
+        }
+      }
+    }
+  })
+}
+
+const click5Times = {
+  count: 0,
+  waiting: false,
+  timer: 0,
+  click() {
+    if (this.waiting) {
+      this.count++
+      clearTimeout(this.timer)
+      if (this.count === 5) {
+        this.count = 0
+        clearAndUpate().then(() => {
+          location.reload()
+        })
+      }
+    } else {
+      this.count = 1
+    }
+    this.waiting = true
+    this.timer = setTimeout(() => {
+      this.waiting = false
+    }, 200)
+  },
+}
+
 const Version: FC = () => {
   const [version, setVersion] = useState('')
   const [hasUpdate, setHasUpdate] = useState(false)
@@ -18,19 +62,8 @@ const Version: FC = () => {
       const current = await getCurrentVersion()
       const latest = await getLatestVersion(true)
       if (current !== latest) {
-        const sw = navigator.serviceWorker.controller
-        if (sw) {
-          const channel = new MessageChannel()
-          sw.postMessage(
-            {
-              type: 'UPDATE',
-            },
-            [channel.port2],
-          )
-          channel.port1.onmessage = () => {
-            setHasUpdate(true)
-          }
-        }
+        await clearAndUpate()
+        setHasUpdate(true)
       }
     }, 2500)
   }, [])
@@ -39,7 +72,7 @@ const Version: FC = () => {
   return (
     <div className={styles['version']}>
       <img className={styles['icon']} src="./srt-player.svg" />
-      <span className={styles['text']}>
+      <span className={styles['text']} onClick={click5Times.click.bind(click5Times)}>
         {i18n('footer.current_version')}: {version}
       </span>
       {hasUpdate && (
