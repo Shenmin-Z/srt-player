@@ -15,39 +15,34 @@ export const List = () => {
     })
   }, [list])
 
-  if (list === null) return null
+  let listItems =
+    list !== null && list?.length > 0
+      ? list.map(i => {
+          return (
+            <div key={i} className={styles['item']} style={{ '--watch-progress': percentage(hs?.[i]) + '%' } as any}>
+              <span
+                className={styles['file-name']}
+                onClick={() => {
+                  dispatch(setSelected(i))
+                }}
+              >
+                {i}
+              </span>
+              <Label history={hs} file={i} />
+              <span
+                className={cn('material-icons', styles['icon'])}
+                onClick={() => {
+                  dispatch(deleteFile(i))
+                }}
+              >
+                delete_outline
+              </span>
+            </div>
+          )
+        })
+      : null
 
-  if (list.length === 0) {
-    return <DownloadExample />
-  }
-
-  return (
-    <div className={styles['list']}>
-      {list.map(i => {
-        return (
-          <div key={i} className={styles['item']} style={{ '--watch-progress': percentage(hs?.[i]) + '%' } as any}>
-            <span
-              className={styles['file-name']}
-              onClick={() => {
-                dispatch(setSelected(i))
-              }}
-            >
-              {i}
-            </span>
-            <Label history={hs} file={i} />
-            <span
-              className={cn('material-icons', styles['icon'])}
-              onClick={() => {
-                dispatch(deleteFile(i))
-              }}
-            >
-              delete_outline
-            </span>
-          </div>
-        )
-      })}
-    </div>
-  )
+  return <div className={styles['list']}>{listItems}</div>
 }
 
 const Label: FC<{ history: WatchHistories; file: string }> = ({ history, file }) => {
@@ -132,11 +127,16 @@ enum DownloadStatus {
   finished,
 }
 
-const DownloadExample: FC = () => {
+export const DownloadExample: FC<{ show: boolean }> = ({ show }) => {
+  const list = useSelector(state => state.files.list)
   const i18n = useI18n()
   const dispatch = useDispatch()
   const [status, setStatus] = useState<{ [s: string]: { status: DownloadStatus; progress?: number } }>({})
   const countRef = useRef(0)
+
+  if (list?.length !== 0 || !show) {
+    return null
+  }
 
   return (
     <div className={styles['download-example']}>

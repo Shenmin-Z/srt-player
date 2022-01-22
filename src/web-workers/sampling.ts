@@ -2,7 +2,7 @@ import {
   Payload,
   SamplingResult,
   RenderTask,
-  SAMPLING_PER_SECOND,
+  NEW_SAMPLING_RATE,
   PIXELS_PER_SECOND,
   SLICE_WIDTH,
   WAVEFORM_HEIGHT,
@@ -12,7 +12,7 @@ import {
 
 self.addEventListener('message', async e => {
   const data: Payload = e.data
-  if (typeof data.file === 'string' && typeof data.sampleRate === 'number') {
+  if (typeof data.file === 'string' && typeof data.duration === 'number') {
     try {
       self.postMessage({ stage: StageEnum.resampling })
       const result = await sampling(data)
@@ -26,37 +26,42 @@ self.addEventListener('message', async e => {
 })
 
 async function sampling(payload: Payload): Promise<SamplingResult> {
-  const { buffer: _buffer, sampleRate, length } = payload
+  const { buffer: _buffer, duration } = payload
   const buffer = new Float32Array(..._buffer)
-  const stepSize = sampleRate / SAMPLING_PER_SECOND
-  const samples = []
+  let total = NEW_SAMPLING_RATE * duration
+  const stepSize = buffer.length / total
+  total = Math.ceil(total)
+  const samples: number[] = Array.from({ length: total })
   let max = 0
-  for (let i = 0; i < length / stepSize; i++) {
+  for (let i = 0; i < total; i++) {
     let tmp = 0
     for (let j = 0; j < stepSize; j++) {
-      tmp += Math.abs(buffer[i * stepSize + j])
+      const index = Math.floor(i * stepSize) + j
+      if (index < buffer.length) {
+        tmp += Math.abs(buffer[index])
+      }
     }
     if (isNaN(tmp)) {
       continue
     }
-    samples.push(tmp)
+    samples[i] = tmp
     max = Math.max(max, tmp)
   }
-  const result = new Uint8Array(Math.ceil(length / stepSize))
+  const result = new Uint8Array(total)
   if (max !== 0) {
     for (let i = 0; i < result.length; i++) {
       result[i] = Math.floor((samples[i] / max) * 256)
     }
   }
-  return { sampleRate: SAMPLING_PER_SECOND, buffer: result }
+  return { buffer: result }
 }
 
 const LINE_WIDTH = 2
 const GAP_WIDTH = 1
 
 const drawWaveForm = async (task: RenderTask, target: 'webp' | 'svg') => {
-  const { sampleRate, buffer, file } = task
-  const pixelPerSample = PIXELS_PER_SECOND / sampleRate
+  const { buffer, file } = task
+  const pixelPerSample = PIXELS_PER_SECOND / NEW_SAMPLING_RATE
   const width = Math.ceil(buffer.length * pixelPerSample)
   const height = WAVEFORM_HEIGHT
 

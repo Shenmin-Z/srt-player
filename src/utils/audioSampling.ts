@@ -4,14 +4,11 @@ const AudioSamplingStore = createStore('audio-sampling', 'keyval')
 
 export interface Payload {
   file: string
-  sampleRate: number
   duration: number
-  length: number
   buffer: [ArrayBuffer, number, number]
 }
 
 export interface SamplingResult {
-  sampleRate: number
   buffer: Uint8Array
 }
 
@@ -19,8 +16,9 @@ export interface RenderTask extends SamplingResult {
   file: string
 }
 
+export const SAMPLE_RATE = 44100
 export const WAVEFORM_HEIGHT = 80
-export const SAMPLING_PER_SECOND = 10
+export const NEW_SAMPLING_RATE = 10
 export const PIXELS_PER_SECOND = 30
 export const SLICE_WIDTH = 4002 // canvas cannot be too wide
 
@@ -44,24 +42,14 @@ interface ComputeAudioSampling {
   onProgress: (s: StageEnum) => void
 }
 
-export class DurationError {
-  constructor(public expected: number, public actual: number) {}
-}
-
 export const computeAudioSampling = async (task: ComputeAudioSampling) => {
   const { worker, arrayBuffer, fileName, videoDuration, onProgress } = task
-  const audioContext = new OfflineAudioContext(1, 2, 44100)
+  const audioContext = new OfflineAudioContext(1, 2, SAMPLE_RATE)
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-  const { sampleRate, duration, length } = audioBuffer
-  if (Math.abs(videoDuration - duration) > 0.5) {
-    throw new DurationError(videoDuration, duration)
-  }
   const float32Array = audioBuffer.getChannelData(0)
   const payload: Payload = {
     file: fileName,
-    sampleRate,
-    duration,
-    length,
+    duration: videoDuration,
     buffer: [float32Array.buffer, float32Array.byteOffset, float32Array.byteLength / Float32Array.BYTES_PER_ELEMENT],
   }
   worker.postMessage(payload, [payload.buffer[0]])

@@ -1,14 +1,6 @@
 import { FC, useState, useEffect } from 'react'
 import { useSelector, useDispatch, updateEnableWaveForm } from '../../state'
-import {
-  computeAudioSampling,
-  doVideoWithDefault,
-  useI18n,
-  EnableWaveForm,
-  StageEnum,
-  DurationError,
-  getVideo,
-} from '../../utils'
+import { computeAudioSampling, doVideoWithDefault, useI18n, EnableWaveForm, StageEnum, getVideo } from '../../utils'
 import { Modal, message } from '../Modal'
 import styles from './Nav.module.less'
 import SamplingWorker from '../../web-workers/sampling?worker&inline'
@@ -105,13 +97,6 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
           setStatus(type)
         } catch (e) {
           let msg = typeof (e as any)?.toString === 'function' ? (e as any).toString() : 'Unexpected error'
-          if (e instanceof DurationError) {
-            msg = i18n(
-              'nav.waveform.duration_error',
-              i18n('nav.waveform.enable_with_video'),
-              i18n('nav.waveform.enable_with_audio'),
-            )
-          }
           message(msg)
           setStage(StageEnum.stopped)
         } finally {
@@ -135,7 +120,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
       <div className={styles['waveform']}>
         <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.disable} />
         <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.video} />
-        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.audio} />
+        {/* <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.audio} /> */}
       </div>
     </Modal>
   )

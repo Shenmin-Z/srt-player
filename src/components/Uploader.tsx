@@ -5,6 +5,7 @@ import styles from './Uploader.module.less'
 import { useDispatch, getList } from '../state'
 import { confirm } from './Modal'
 import { useI18n, saveVideoSubPair, getFileList } from '../utils'
+import { DownloadExample } from './List'
 import cn from 'classnames'
 
 export const Uploader = () => {
@@ -49,7 +50,7 @@ export const Uploader = () => {
   const uploadStyle = { display: hasBuffer ? undefined : 'none' }
   const disabled = videoHandles.current.length !== subtitleHandles.current.length
 
-  return (
+  const uploadElm = (
     <div className={styles['container']}>
       <div
         className={cn(styles['upload-area'], { 'drag-over': dragOver })}
@@ -191,6 +192,13 @@ export const Uploader = () => {
         </button>
       </div>
     </div>
+  )
+
+  return (
+    <>
+      {uploadElm}
+      <DownloadExample show={!hasBuffer} />
+    </>
   )
 }
 
