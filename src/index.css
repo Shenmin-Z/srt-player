@@ -1,4 +1,5 @@
 @import './reset.css';
+@import './theme.css';
 
 html {
   height: 100%;
@@ -20,27 +21,6 @@ body {
 
 *[lang='zh'] {
   font-family: Microsoft Jhenghei, PingFang HK, STHeitiTC-Light, tahoma, arial, sans-serif;
-}
-
-:root {
-  --main-border-color: #8f8f9d;
-  --main-background-color: #f4f4f4;
-  --background-green-color: #f1fdf9;
-  --background-blue-color: #ecf4f9;
-  --main-danger-color: #c82829;
-  --main-ok-color: #1869da;
-  --main-icon-color: #5f6368;
-  --text-light: #babfc4;
-  --text-gray: #5f6368;
-  --text-blue: #0969da;
-  --text-green: #5eba7d;
-  --text-green-light: #dbf0e2;
-  --text-footer: #606770;
-  --bs-sm: 0 1px 2px hsla(0, 0%, 0%, 0.05), 0 1px 4px hsla(0, 0%, 0%, 0.05), 0 2px 8px hsla(0, 0%, 0%, 0.05);
-  --bs-md: 0 1px 3px hsla(0, 0%, 0%, 0.06), 0 2px 6px hsla(0, 0%, 0%, 0.06), 0 3px 8px hsla(0, 0%, 0%, 0.09);
-  --bs-lg: 0 1px 4px hsla(0, 0%, 0%, 0.09), 0 3px 8px hsla(0, 0%, 0%, 0.09), 0 4px 13px hsla(0, 0%, 0%, 0.13);
-  --scrollbar-thumb-color: #babac0;
-  --scrollbar-track-color: rgba(255, 255, 255, 0.1);
 }
 
 @font-face {

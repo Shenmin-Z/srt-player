@@ -39,12 +39,12 @@ const Home: FC = () => {
 }
 
 const Play: FC = () => {
-  const saveHistory = useSaveHistory()
+  const saveHistory = useSaveHistory(5000)
 
   useEffect(() => {
-    window.addEventListener('beforeunload', saveHistory)
+    document.addEventListener('mouseleave', saveHistory)
     return () => {
-      window.removeEventListener('beforeunload', saveHistory)
+      document.removeEventListener('mouseleave', saveHistory)
     }
   }, [])
 

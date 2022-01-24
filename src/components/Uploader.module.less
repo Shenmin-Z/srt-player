@@ -6,7 +6,7 @@
     max-width: 600px;
     height: 120px;
     margin: 0 auto;
-    background: var(--main-background-color);
+    background: var(--bg-gray);
     border-radius: 10px;
     cursor: pointer;
     box-shadow: var(--bs-sm);
@@ -15,10 +15,10 @@
       box-shadow: var(--bs-md);
     }
     &:hover {
-      background: var(--background-blue-color);
+      background: var(--bg-blue);
     }
     &:global(.drag-over) {
-      background: var(--background-green-color);
+      background: var(--bg-green);
     }
 
     display: flex;
@@ -42,7 +42,7 @@
 
     .videos,
     .subtitles {
-      background: var(--main-background-color);
+      background: var(--bg-gray);
       padding: 5px 5px 0 5px;
 
       & > :global(.material-icons) {
@@ -61,7 +61,7 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         &:global(.error) {
-          color: var(--main-danger-color);
+          color: var(--text-red);
           opacity: 0.6;
         }
         & > :global(.material-icons) {
@@ -91,9 +91,9 @@
     display: flex;
     justify-content: center;
     button {
-      border: 1px solid var(--main-ok-color);
+      border: 1px solid var(--text-blue);
       border-radius: 5px;
-      background: var(--main-ok-color);
+      background: var(--text-blue);
       color: #fff;
       padding: 5px 10px;
       font-size: 16px;

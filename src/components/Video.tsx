@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react'
 import styles from './Video.module.less'
 import { setVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
-import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo, useActiveSaveHistory } from '../utils'
+import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm } from './Modal'
 import cn from 'classnames'
@@ -9,7 +9,6 @@ import cn from 'classnames'
 export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
   const restoreVideo = useRestoreVideo()
-  const { onPlay, onPause } = useActiveSaveHistory()
   const i18n = useI18n()
   const dispatch = useDispatch()
   const hasVideo = useSelector(s => s.video.hasVideo)
@@ -106,8 +105,6 @@ export const Video: FC = () => {
               await restoreVideo()
               dispatch(setVideo(true))
             }}
-            onPlay={onPlay}
-            onPause={onPause}
           />
         </div>
       </div>

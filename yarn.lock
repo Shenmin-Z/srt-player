@@ -643,10 +643,10 @@ iconv-lite@^0.4.4:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-idb-keyval@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/idb-keyval/-/idb-keyval-6.0.2.tgz#5079bae35169594d571973ac5bb387d17f21ae60"
-  integrity sha512-He4/fj9peGfjms7KSm2VuI6jubGv57SiicBEkLXEn9WEAuR+3S2SvLlvOVrXHRooAodrP5d11WOXGjONMgIypQ==
+idb-keyval@^6.1.0:
+  version "6.1.0"
+  resolved "http://registry.npm.release.ctripcorp.com/idb-keyval/download/idb-keyval-6.1.0.tgz#e659cff41188e6097d7fadd69926f6adbbe70041"
+  integrity sha1-5lnP9BGI5gl9f63WmSb2rbvnAEE=
   dependencies:
     safari-14-idb-fix "^3.0.0"
 

@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react'
-import { set, get } from 'idb-keyval'
+import { set, get, setMany, createStore, del } from 'idb-keyval'
 
 const BASE = '/srt-player/'
 const KEY_VERSION = 'SRT-VERSION'
@@ -30,6 +30,19 @@ async function checkAndMigrate() {
   const currentVersion = await getCurrentVersion()
   const latestVersion = await getLatestVersion()
   if (currentVersion !== latestVersion) {
+    migrateHistory(currentVersion)
     await set(KEY_VERSION, latestVersion)
+  }
+}
+
+async function migrateHistory(currentVersion: string) {
+  if (currentVersion.startsWith('1.1')) {
+    const HistoryStore = createStore('history', 'keyval')
+    const hs = await get('SRT-HISTORY')
+    await setMany(
+      Object.keys(hs).map(k => [k, hs[k]]),
+      HistoryStore,
+    )
+    await del('SRT-HISTORY')
   }
 }

@@ -1,9 +1,8 @@
-import { useRef } from 'react'
-import { get, set } from 'idb-keyval'
+import { get, update, entries, del, createStore } from 'idb-keyval'
 import { useSelector } from '../state'
 import { doVideo } from './video'
 
-export const KEY_HISTORY = 'SRT-HISTORY'
+const HistoryStore = createStore('history', 'keyval')
 
 export enum EnableWaveForm {
   disable,
@@ -32,8 +31,8 @@ export const useRestoreSubtitle = () => {
   const file = useSelector(s => s.files.selected)
   return async () => {
     if (!file) return
-    const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-    const subtitleTop = hs[file]?.subtitleTop ?? 0
+    const h = await getHistoryByFileName(file)
+    const subtitleTop = h?.subtitleTop ?? 0
     const subtitle = getSubtitleElm()
     if (subtitle) {
       subtitle.scrollTop = subtitleTop
@@ -45,8 +44,8 @@ export const useRestoreVideo = () => {
   const file = useSelector(s => s.files.selected)
   return async () => {
     if (!file) return
-    const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-    const currentTime = hs[file]?.currentTime ?? 0
+    const h = await getHistoryByFileName(file)
+    const currentTime = h?.currentTime ?? 0
     doVideo(video => {
       video.currentTime = currentTime
     })
@@ -54,13 +53,13 @@ export const useRestoreVideo = () => {
 }
 
 export const getSubtitlePreference = async (f: string) => {
-  const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-  return { auto: hs[f]?.subtitleAuto ?? true, delay: hs[f]?.subtitleDelay || 0 }
+  const h = await getHistoryByFileName(f)
+  return { auto: h?.subtitleAuto ?? true, delay: h?.subtitleDelay || 0 }
 }
 
 export const getWaveFormPreference = async (f: string) => {
-  const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-  return hs[f]?.waveform ?? EnableWaveForm.disable
+  const h = await getHistoryByFileName(f)
+  return h?.waveform ?? EnableWaveForm.disable
 }
 
 export const saveSubtitleAuto = async (f: string, auto: boolean) => {
@@ -81,10 +80,11 @@ export const saveEnableWaveForm = async (f: string, enable: EnableWaveForm) => {
   })
 }
 
-export const useSaveHistory = () => {
+export const useSaveHistory = (cooldown?: number) => {
   const file = useSelector(s => s.files.selected)
+  let skip = false
   return async () => {
-    if (!file) return
+    if (!file || skip) return
     await writeHelper(file, h => {
       const subtitle = getSubtitleElm()
       if (subtitle) {
@@ -95,50 +95,48 @@ export const useSaveHistory = () => {
         h.duration = video.duration
       })
     })
-  }
-}
-
-export const useActiveSaveHistory = () => {
-  const saveHistory = useSaveHistory()
-  const timerRef = useRef<number | null>(null)
-  const onPlay = () => {
-    if (timerRef.current !== null) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
+    if (cooldown) {
+      skip = true
+      setTimeout(() => {
+        skip = false
+      }, cooldown)
     }
   }
-  const onPause = () => {
-    timerRef.current = setTimeout(() => {
-      saveHistory()
-      timerRef.current = null
-    }, 60000)
-  }
-  return { onPlay, onPause }
 }
 
-const writeHelper = async (file: string, cb: (h: WatchHistory) => void) => {
-  const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-  const h = {
-    subtitleTop: 0,
-    currentTime: 0,
-    duration: 0,
-    subtitleAuto: true,
-    subtitleDelay: 0,
-    waveform: EnableWaveForm.disable,
-    ...((hs[file] as WatchHistory | undefined) || {}),
-  }
-  cb(h)
-  hs[file] = h
-  await set(KEY_HISTORY, hs)
+async function getHistoryByFileName(file: string): Promise<WatchHistory | undefined> {
+  return await get(file, HistoryStore)
 }
 
-export async function getWatchHistory() {
-  const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
+async function writeHelper(file: string, cb: (h: WatchHistory) => void) {
+  await update(
+    file,
+    h => {
+      const t = {
+        subtitleTop: 0,
+        currentTime: 0,
+        duration: 0,
+        subtitleAuto: true,
+        subtitleDelay: 0,
+        waveform: EnableWaveForm.disable,
+        ...(h || {}),
+      }
+      cb(t)
+      return t
+    },
+    HistoryStore,
+  )
+}
+
+export async function getWatchHistory(): Promise<WatchHistories> {
+  const _hs = await entries(HistoryStore)
+  const hs: WatchHistories = {}
+  _hs.forEach(([k, v]) => {
+    hs[k as string] = v
+  })
   return hs
 }
 
 export async function deleteHistory(f: string) {
-  const hs: WatchHistories = (await get(KEY_HISTORY)) || {}
-  delete hs[f]
-  await set(KEY_HISTORY, hs)
+  await del(f, HistoryStore)
 }
