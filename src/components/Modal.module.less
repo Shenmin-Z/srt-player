@@ -24,7 +24,7 @@
     max-width: 100vw;
     max-height: 100vh;
     box-shadow: var(--bs-lg);
-    overflow: auto;
+    overflow: hidden;
 
     .header {
       display: flex;
@@ -37,14 +37,19 @@
         }
       }
       .icon {
-        color: var(--text-gray);
+        color: var(--black-500);
         cursor: pointer;
       }
-      border-bottom: 1px solid var(--bg-gray);
+      border-bottom: 1px solid var(--bc-lighter);
     }
 
     .body {
-      padding: 15px;
+      overflow: auto;
+      .padding {
+        padding: 15px;
+        width: fit-content;
+        height: fit-content;
+      }
     }
   }
 }
@@ -64,13 +69,13 @@
       padding: 4px 8px;
     }
     .ok {
-      border: 1px solid var(--text-blue);
-      background: var(--text-blue);
+      border: 1px solid var(--blue-600);
+      background: var(--blue-600);
       color: #fff;
       margin-right: 10px;
     }
     .cancel {
-      border: 1px solid var(--border-gray);
+      border: 1px solid var(--black-400);
     }
   }
 }

@@ -25,7 +25,9 @@ export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader,
             </span>
           </div>
         )}
-        <div className={styles['body']}>{children}</div>
+        <div className={styles['body']}>
+          <div className={styles['padding']}>{children}</div>
+        </div>
       </div>
     </div>
   )

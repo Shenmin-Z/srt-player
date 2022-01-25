@@ -6,7 +6,7 @@
     max-width: 600px;
     height: 120px;
     margin: 0 auto;
-    background: var(--bg-gray);
+    background: var(--bc-lighter);
     border-radius: 10px;
     cursor: pointer;
     box-shadow: var(--bs-sm);
@@ -14,17 +14,15 @@
     &:global(.drag-over) {
       box-shadow: var(--bs-md);
     }
-    &:hover {
-      background: var(--bg-blue);
-    }
+    &:hover,
     &:global(.drag-over) {
-      background: var(--bg-green);
+      background: var(--black-025);
     }
 
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-gray);
+    color: var(--black-600);
     font-size: 22px;
 
     :global(.material-icons) {
@@ -42,7 +40,7 @@
 
     .videos,
     .subtitles {
-      background: var(--bg-gray);
+      background: var(--bc-lighter);
       padding: 5px 5px 0 5px;
 
       & > :global(.material-icons) {
@@ -61,7 +59,7 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         &:global(.error) {
-          color: var(--text-red);
+          color: var(--red-500);
           opacity: 0.6;
         }
         & > :global(.material-icons) {
@@ -91,9 +89,9 @@
     display: flex;
     justify-content: center;
     button {
-      border: 1px solid var(--text-blue);
+      border: 1px solid var(--blue-600);
       border-radius: 5px;
-      background: var(--text-blue);
+      background: var(--blue-600);
       color: #fff;
       padding: 5px 10px;
       font-size: 16px;

@@ -14,7 +14,7 @@
     line-height: @height;
 
     &:nth-child(odd) {
-      background: var(--bg-gray);
+      background: var(--bc-lighter);
     }
 
     .file-name {
@@ -32,7 +32,7 @@
     .icon {
       width: 15px;
       cursor: pointer;
-      color: var(--text-red);
+      color: var(--red-500);
       line-height: @height;
     }
 
@@ -43,7 +43,7 @@
       left: 0;
       bottom: 0;
       width: var(--watch-progress);
-      background: #1f75cb;
+      background: var(--blue-600);
     }
   }
 }
@@ -60,10 +60,10 @@
     max-width: 600px;
     box-sizing: border-box;
     margin: 0 auto;
-    background: var(--bg-blue);
+    background: var(--blue-050);
     padding: 15px;
     border-radius: 6px;
-    border-left: 6px solid #2a98b9;
+    border-left: 6px solid var(--blue-600);
 
     .example-list {
       margin-top: 5px;

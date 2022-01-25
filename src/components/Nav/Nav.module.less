@@ -1,7 +1,7 @@
 .nav {
   grid-column: 1 / 4;
   border-bottom: 1px solid;
-  border-color: var(--border-gray);
+  border-color: var(--black-400);
   box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
@@ -10,7 +10,7 @@
 
 .icon {
   cursor: pointer;
-  color: var(--text-gray);
+  color: var(--black-500);
   height: 100%;
   :global(.material-icons) {
     line-height: var(--nav-height);
@@ -20,7 +20,7 @@
     color: #ebebeb;
   }
   &:hover {
-    background: var(--bg-gray);
+    background: var(--bc-lighter);
     color: #000;
   }
 }
@@ -46,7 +46,7 @@
       left: 0;
       right: 0;
       bottom: 2px;
-      color: var(--text-red);
+      color: var(--red-500);
       font-size: 9px;
       text-align: center;
       font-family: 'Roboto Mono', monospace;
@@ -72,13 +72,13 @@
   .body {
     position: relative;
     input[type='text'] {
-      border: 1px solid var(--border-gray);
+      border: 1px solid var(--black-400);
       border-width: 0 0 1px 0;
       padding-bottom: 1px;
       width: 100px;
       &:focus {
         outline: none;
-        border-color: var(--text-blue);
+        border-color: var(--blue-600);
         border-width: 0 0 2px 0;
         padding-bottom: 0;
       }
@@ -111,7 +111,7 @@
 
   :global(.column) {
     padding: 10px;
-    border: 1px solid var(--bg-gray);
+    border: 1px solid var(--bc-lighter);
     box-shadow: var(--bs-sm);
     border-radius: 10px;
 
@@ -146,7 +146,7 @@
     .right-click {
       border-radius: 3px;
       padding: 5px;
-      background: var(--bg-gray);
+      background: var(--bc-lighter);
     }
 
     span[class='material-icons'] {
@@ -165,21 +165,29 @@
   column-gap: 10px;
   .waveform-option {
     padding: 20px;
-    border: 1px solid var(--bg-gray);
     cursor: pointer;
-    &:hover {
-      box-shadow: var(--bs-sm);
-    }
+    box-shadow: var(--bs-sm);
     &:global(.active) {
-      background-color: var(--bg-gray);
-      color: var(--text-gray);
+      background-color: var(--black-500);
+      color: var(--white);
+      .progress {
+        svg {
+          line {
+            stroke: var(--white);
+          }
+          circle {
+            fill: var(--white);
+            stroke: var(--white);
+          }
+        }
+      }
     }
     border-radius: 10px;
     width: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: var(--text-light);
+    color: var(--black-200);
     :global(.material-icons-outlined) {
       font-size: 40px;
       margin: 32px 0 16px 0;
@@ -196,22 +204,23 @@
   svg {
     margin: 20px 0 10px 0;
     line {
-      stroke: var(--bg-gray);
+      stroke: var(--black-100);
       stroke-width: 2;
       &:global(.done) {
-        stroke: var(--text-green);
+        stroke: var(--black-700);
       }
       &:global(.current) {
-        stroke: var(--text-green-light);
+        stroke: var(--black-200);
       }
     }
     circle {
-      fill: var(--bg-gray);
+      fill: var(--black-100);
+      stroke-width: 0;
       &:global(.done) {
-        fill: var(--text-green);
+        fill: var(--black-700);
       }
       &:global(.current) {
-        fill: var(--text-green-light);
+        fill: var(--black-200);
       }
     }
   }
