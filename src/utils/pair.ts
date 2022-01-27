@@ -1,28 +1,20 @@
 import { FileWithHandle, supported } from 'browser-fs-access'
-import { createStore, get, set, del, keys } from 'idb-keyval'
 import { parseSRT, Node } from './subtitle'
-
-interface VideoSubPair {
-  video: FileSystemFileHandle | File
-  subtitle: string | Node[]
-}
-
-const FilesStore = createStore('files', 'keyval')
+import { db, VideoSubPair } from './idb'
 
 async function getPair(file: string) {
-  const pair: VideoSubPair | undefined = await get(file, FilesStore)
-  return pair
+  return db.get('files', file)
 }
 
 async function setPair(file: string, pair: VideoSubPair, saveCache = false) {
   if (supported || saveCache) {
-    await set(file, pair, FilesStore)
+    return db.put('files', pair, file)
   }
 }
 
 export async function deletePair(file: string) {
   videoFileCache.remove(file)
-  await del(file, FilesStore)
+  return db.delete('files', file)
 }
 
 export async function getSubtitle(file: string): Promise<Node[]> {
@@ -135,6 +127,6 @@ export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], s
 
 export async function getFileList() {
   const cached = Object.keys(videoFileCache.cache)
-  const stored = (await keys(FilesStore)) as string[]
+  const stored = await db.getAllKeys('files')
   return Array.from(new Set([...cached, ...stored]))
 }

@@ -1,23 +1,6 @@
-import { get, update, entries, del, createStore } from 'idb-keyval'
 import { useSelector } from '../state'
 import { doVideo } from './video'
-
-const HistoryStore = createStore('history', 'keyval')
-
-export enum EnableWaveForm {
-  disable,
-  video,
-  audio,
-}
-
-export interface WatchHistory {
-  currentTime: number
-  duration: number
-  subtitleTop: number // scroll position
-  subtitleAuto: boolean
-  subtitleDelay: number
-  waveform: EnableWaveForm
-}
+import { db, WatchHistory, EnableWaveForm } from './idb'
 
 export interface WatchHistories {
   [s: string]: WatchHistory
@@ -104,39 +87,35 @@ export const useSaveHistory = (cooldown?: number) => {
   }
 }
 
-async function getHistoryByFileName(file: string): Promise<WatchHistory | undefined> {
-  return await get(file, HistoryStore)
+async function getHistoryByFileName(file: string) {
+  return db.get('history', file)
 }
 
 async function writeHelper(file: string, cb: (h: WatchHistory) => void) {
-  await update(
-    file,
-    h => {
-      const t = {
-        subtitleTop: 0,
-        currentTime: 0,
-        duration: 0,
-        subtitleAuto: true,
-        subtitleDelay: 0,
-        waveform: EnableWaveForm.disable,
-        ...(h || {}),
-      }
-      cb(t)
-      return t
-    },
-    HistoryStore,
-  )
+  const h = await db.get('history', file)
+  const t = {
+    subtitleTop: 0,
+    currentTime: 0,
+    duration: 0,
+    subtitleAuto: true,
+    subtitleDelay: 0,
+    waveform: EnableWaveForm.disable,
+    ...(h || {}),
+  }
+  cb(t)
+  return db.put('history', t, file)
 }
 
-export async function getWatchHistory(): Promise<WatchHistories> {
-  const _hs = await entries(HistoryStore)
+export async function getWatchHistory() {
   const hs: WatchHistories = {}
-  _hs.forEach(([k, v]) => {
-    hs[k as string] = v
-  })
+  let cursor = await db.transaction('history').store.openCursor()
+  while (cursor) {
+    hs[cursor.key] = cursor.value
+    cursor = await cursor.continue()
+  }
   return hs
 }
 
 export async function deleteHistory(f: string) {
-  await del(f, HistoryStore)
+  return db.delete('history', f)
 }

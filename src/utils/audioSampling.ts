@@ -1,6 +1,4 @@
-import { set, get, del, createStore } from 'idb-keyval'
-
-const AudioSamplingStore = createStore('audio-sampling', 'keyval')
+import { db } from './idb'
 
 export interface Payload {
   file: string
@@ -22,9 +20,9 @@ export const NEW_SAMPLING_RATE = 10
 export const PIXELS_PER_SECOND = 30
 export const SLICE_WIDTH = 4002 // canvas cannot be too wide
 
-export const getSampling = (file: string) => get<Blob[]>(file, AudioSamplingStore)
-export const deleteSampling = (file: string) => del(file, AudioSamplingStore)
-export const saveSampling = (file: string, blobs: Blob[]) => set(file, blobs, AudioSamplingStore)
+export const getSampling = (file: string) => db.get('audio-sampling', file)
+export const deleteSampling = (file: string) => db.delete('audio-sampling', file)
+export const saveSampling = (file: string, blobs: Blob[]) => db.put('audio-sampling', blobs, file)
 
 export enum StageEnum {
   stopped,

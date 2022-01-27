@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { get, set } from 'idb-keyval'
 import {
+  db,
   getSubtitlePreference,
   getWaveFormPreference,
   saveSubtitleAuto,
@@ -10,8 +10,6 @@ import {
   deleteSampling,
   IS_MOBILE,
 } from '../utils'
-
-const SETTINGS_KEY = 'SRT-SETTINGS'
 
 const INIT_LANG = (() => {
   if (/^zh/i.test(navigator.language)) {
@@ -27,18 +25,19 @@ const INIT_SETTING: Settings = {
 }
 
 async function getSettings(): Promise<Settings> {
-  const settings = (await get(SETTINGS_KEY)) as Settings
-  Object.keys(settings || {}).forEach(k => {
-    const key = k as keyof Settings
-    if (INIT_SETTING[key] === undefined || typeof INIT_SETTING[key] !== typeof settings[key]) {
-      delete settings[key]
+  const init_setting = INIT_SETTING as unknown as { [s: string]: string | number }
+  const settings = { ...init_setting }
+  const tx = db.transaction('global', 'readwrite')
+  for (const key of Object.keys(settings)) {
+    const value = await tx.store.get(key)
+    if (value === undefined) {
+      await tx.store.put(init_setting[key], key)
+    } else {
+      settings[key] = value
     }
-  })
-  const ns: Settings = { ...INIT_SETTING, ...(settings || {}) }
-  if (JSON.stringify(settings) !== JSON.stringify(ns)) {
-    await set(SETTINGS_KEY, ns)
   }
-  return ns
+  await tx.done
+  return settings as unknown as Settings
 }
 
 interface Settings {
@@ -91,24 +90,21 @@ export const LoadWaveFormPreference = createAsyncThunk('settings/waveFormPrefere
 
 export const updateSubtitleWidth = createAsyncThunk<number, number>('settings/updateSubtitleWidth', async v => {
   setWidth({ '--subtitle-width': v })
-  const settings = await getSettings()
-  settings.subtitleWidth = v
-  await set(SETTINGS_KEY, settings)
+  await db.put('global', v, 'subtitleWidth')
   return v
 })
 
 export const updateSubtitleFontSize = createAsyncThunk<number, number | boolean>(
   'settings/updateSubtitleFontSize',
   async v => {
-    const settings = await getSettings()
     let size: number
     if (typeof v === 'number') {
       size = v
     } else {
-      size = settings.subtitleFontSize + (v ? 1 : -1)
+      const _size = ((await db.get('global', 'subtitleFontSize')) as number) || INIT_SETTING.subtitleFontSize
+      size = _size + (v ? 1 : -1)
     }
-    settings.subtitleFontSize = size
-    await set(SETTINGS_KEY, settings)
+    await db.put('global', size, 'subtitleFontSize')
     return size
   },
 )
@@ -148,9 +144,7 @@ export const updateEnableWaveForm = createAsyncThunk<EnableWaveForm, { file: str
 )
 
 export const updateLanguage = createAsyncThunk<string, string>('settings/updateLanguage', async v => {
-  const settings = await getSettings()
-  settings.locale = v
-  await set(SETTINGS_KEY, settings)
+  await db.put('global', v, 'locale')
   return v
 })
 

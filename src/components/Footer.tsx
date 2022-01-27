@@ -1,7 +1,19 @@
 import { FC, useState, useEffect } from 'react'
-import { getCurrentVersion, getLatestVersion, useI18n } from '../utils'
+import { db, useI18n } from '../utils'
 import { confirm } from './Modal'
 import styles from './Footer.module.less'
+
+const BASE = '/srt-player/'
+
+async function getCurrentVersion() {
+  return db.get('global', 'version') as Promise<string | undefined>
+}
+
+async function getLatestVersion() {
+  const url = `${BASE}version.txt?bypassCache=true`
+  const latest = (await (await fetch(url)).text()).trim()
+  return latest
+}
 
 const clearAndUpate = () => {
   return new Promise<void>(resolve => {
@@ -53,19 +65,20 @@ const Version: FC = () => {
   const i18n = useI18n()
 
   useEffect(() => {
-    getCurrentVersion().then(v => {
-      if (v) {
-        setVersion(v)
+    ;(async () => {
+      let current = await getCurrentVersion()
+      const latest = await getLatestVersion()
+      if (current === undefined) {
+        db.put('global', latest, 'version')
+      } else {
+        setVersion(current)
+        if (current !== latest) {
+          await clearAndUpate()
+          db.put('global', latest, 'version')
+          setHasUpdate(true)
+        }
       }
-    })
-    setTimeout(async () => {
-      const current = await getCurrentVersion()
-      const latest = await getLatestVersion(true)
-      if (current !== latest) {
-        await clearAndUpate()
-        setHasUpdate(true)
-      }
-    }, 2500)
+    })()
   }, [])
 
   if (!version) return null
