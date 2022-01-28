@@ -184,7 +184,7 @@ const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay
   useEffect(() => {
     if (!nodes || nodes.length === 0) return
     function scroll(e: KeyboardEvent) {
-      if (!divRef.current || !window.enableShortcuts) return
+      if (!divRef.current || !window.__SRT_ENABLE_SHORTCUTS__) return
       const step = divRef.current.offsetHeight / 2
       let top = divRef.current.scrollTop
       if (e.code === 'ArrowUp') {
@@ -198,7 +198,7 @@ const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay
       divRef.current.scroll({ top, behavior: 'smooth' })
     }
     function fontSize(e: KeyboardEvent) {
-      if (!divRef.current || !window.enableShortcuts) return
+      if (!divRef.current || !window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'Minus') {
         e.preventDefault()
         dispath(updateSubtitleFontSize(false))
@@ -210,14 +210,14 @@ const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay
     }
     let autoTmp: boolean
     function disableAuto(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
+      if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.key === 'Control' && !e.repeat) {
         autoTmp = autoRef.current
         autoRef.current = false
       }
     }
     function enableAuto(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
+      if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.key === 'Control') {
         autoRef.current = autoTmp
         tick()

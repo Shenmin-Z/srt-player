@@ -21,9 +21,9 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
 
   useEffect(() => {
     if (props.show) {
-      window.enableShortcuts = false
+      window.__SRT_ENABLE_SHORTCUTS__ = false
     } else {
-      window.enableShortcuts = true
+      window.__SRT_ENABLE_SHORTCUTS__ = true
     }
   }, [props.show])
 

@@ -120,7 +120,7 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
       <div className={styles['waveform']}>
         <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.disable} />
         <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.video} />
-        {/* <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.audio} /> */}
+        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.audio} />
       </div>
     </Modal>
   )

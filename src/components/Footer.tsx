@@ -1,18 +1,15 @@
 import { FC, useState, useEffect } from 'react'
-import { db, useI18n } from '../utils'
+import { useI18n } from '../utils'
 import { confirm } from './Modal'
 import styles from './Footer.module.less'
 
 const BASE = '/srt-player/'
 
-async function getCurrentVersion() {
-  return db.get('global', 'version') as Promise<string | undefined>
-}
-
 async function getLatestVersion() {
-  const url = `${BASE}version.txt?bypassCache=true`
+  const url = `${BASE}version.js?bypassCache=true`
   const latest = (await (await fetch(url)).text()).trim()
-  return latest
+  const match = (latest || '').match(/__SRT_VERSION__\s?=\s?('(.*)'|"(.*)")/)
+  return match?.[2] || match?.[3] || '0'
 }
 
 const clearAndUpate = () => {
@@ -60,33 +57,25 @@ const click5Times = {
 }
 
 const Version: FC = () => {
-  const [version, setVersion] = useState('')
   const [hasUpdate, setHasUpdate] = useState(false)
   const i18n = useI18n()
 
   useEffect(() => {
     ;(async () => {
-      let current = await getCurrentVersion()
       const latest = await getLatestVersion()
-      if (current === undefined) {
-        db.put('global', latest, 'version')
-      } else {
-        setVersion(current)
-        if (current !== latest) {
-          await clearAndUpate()
-          db.put('global', latest, 'version')
-          setHasUpdate(true)
-        }
+      if (window.__SRT_VERSION__ !== latest) {
+        await clearAndUpate()
+        setHasUpdate(true)
       }
     })()
   }, [])
 
-  if (!version) return null
+  if (!window.__SRT_VERSION__) return null
   return (
     <div className={styles['version']}>
       <img className={styles['icon']} src="./srt-player.svg" />
       <span className={styles['text']} onClick={click5Times.click.bind(click5Times)}>
-        {i18n('footer.current_version')}: {version}
+        {i18n('footer.current_version')}: {window.__SRT_VERSION__}
       </span>
       {hasUpdate && (
         <span

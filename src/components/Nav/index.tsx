@@ -21,7 +21,7 @@ export const Nav = () => {
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
+      if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'KeyS' && !e.repeat) {
         setShowSubtitle(s => !s)
       }
@@ -101,7 +101,7 @@ export const Nav = () => {
   )
 }
 
-window.enableShortcuts = true
+window.__SRT_ENABLE_SHORTCUTS__ = true
 
 const Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled, children }) => {
   return (

@@ -2,6 +2,7 @@ export {}
 
 declare global {
   interface Window {
-    enableShortcuts: boolean
+    __SRT_ENABLE_SHORTCUTS__: boolean
+    __SRT_VERSION__: string
   }
 }

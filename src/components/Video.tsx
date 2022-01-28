@@ -64,7 +64,7 @@ export const Video: FC = () => {
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
+      if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'Space') {
         e.preventDefault()
         togglePlay()

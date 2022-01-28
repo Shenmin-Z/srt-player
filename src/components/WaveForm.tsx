@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useRef } from 'react'
-import { getSampling, doVideo, doVideoWithDefault, PIXELS_PER_SECOND, IS_MOBILE } from '../utils'
+import { getSampling, doVideo, doVideoWithDefault, PIXELS_PER_SECOND } from '../utils'
 import { useSelector } from '../state'
 import cn from 'classnames'
 import styles from './WaveForm.module.less'
@@ -23,6 +23,7 @@ export const WaveForm: FC<Props> = () => {
   const images = useImages(file, setOffset, () => setReady(true))
   useEffect(() => {
     if (ready) {
+      setReplayPos(doVideoWithDefault(v => v.currentTime, 0) * PIXELS_PER_SECOND)
       return listenToVideoEvents(setOffset)
     }
   }, [ready])
@@ -40,7 +41,7 @@ export const WaveForm: FC<Props> = () => {
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
-      if (!window.enableShortcuts) return
+      if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'KeyR' && !e.repeat) {
         replay(replayPosRef.current, true)
       } else if (e.code == 'Comma') {

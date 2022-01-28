@@ -1,4 +1,4 @@
-import { db } from './idb'
+import { db, getDB } from './idb'
 
 export interface Payload {
   file: string
@@ -22,7 +22,11 @@ export const SLICE_WIDTH = 4002 // canvas cannot be too wide
 
 export const getSampling = (file: string) => db.get('audio-sampling', file)
 export const deleteSampling = (file: string) => db.delete('audio-sampling', file)
-export const saveSampling = (file: string, blobs: Blob[]) => db.put('audio-sampling', blobs, file)
+// saveSampling is called from web worker which does not have access to db
+export const saveSampling = async (file: string, blobs: Blob[]) => {
+  const db = await getDB()
+  return db.put('audio-sampling', blobs, file)
+}
 
 export enum StageEnum {
   stopped,

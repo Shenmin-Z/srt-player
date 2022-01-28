@@ -43,26 +43,31 @@ interface SRTPlayerDB extends DBSchema {
 
 export let db: IDBPDatabase<SRTPlayerDB>
 
+export const getDB = async () => {
+  const _db = await openDB<SRTPlayerDB>('srt-player', 1, {
+    upgrade(db, oldVersion) {
+      if (oldVersion === 0) {
+        db.createObjectStore('audio-sampling')
+        db.createObjectStore('files')
+        db.createObjectStore('history')
+        db.createObjectStore('global')
+      }
+    },
+    blocking() {
+      _db.close()
+      location.reload()
+    },
+  })
+  return _db
+}
+
 export const migrate = (FC: FC): FC => {
   return props => {
     const [migrated, setMigrated] = useState(false)
 
     useEffect(() => {
       ;(async () => {
-        db = await openDB<SRTPlayerDB>('srt-player', 1, {
-          upgrade(db, oldVersion) {
-            if (oldVersion === 0) {
-              db.createObjectStore('audio-sampling')
-              db.createObjectStore('files')
-              db.createObjectStore('history')
-              db.createObjectStore('global')
-            }
-          },
-          blocking() {
-            db.close()
-            location.reload()
-          },
-        })
+        db = await getDB()
         setMigrated(true)
       })()
     }, [])

@@ -87,12 +87,12 @@ export const useSaveHistory = (cooldown?: number) => {
   }
 }
 
-async function getHistoryByFileName(file: string) {
+function getHistoryByFileName(file: string) {
   return db.get('history', file)
 }
 
 async function writeHelper(file: string, cb: (h: WatchHistory) => void) {
-  const h = await db.get('history', file)
+  const h = await getHistoryByFileName(file)
   const t = {
     subtitleTop: 0,
     currentTime: 0,

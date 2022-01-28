@@ -6,7 +6,7 @@ const CACHE_URLS = [
   '',
   'index.js',
   'index.css',
-  'version.txt',
+  'version.js',
   'srt-player.svg',
   'github.png',
   'fonts/MaterialIcons-Regular.ttf',
