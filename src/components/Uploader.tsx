@@ -1,5 +1,4 @@
 import { useReducer, useRef, useState } from 'react'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
 import { useDispatch, getList } from '../state'
@@ -17,6 +16,7 @@ export const Uploader = () => {
   const [, forceUpdate] = useReducer(s => !s, true)
   const [dragOver, setDragOver] = useState(false)
   const [saveCache, setSaveCache] = useState(false)
+  const [transition, setTransition] = useState({ vUp: -1, vDown: -1, sUp: -1, sDown: -1 })
 
   const process = async () => {
     const vs = videoHandles.current
@@ -44,6 +44,32 @@ export const Uploader = () => {
       .concat(shs)
       .filter((v, i, a) => a.findIndex(t => t.name === v.name) === i)
     forceUpdate()
+  }
+
+  const move = (type: 'video' | 'subtitle', direction: 'up' | 'down', prev: number) => () => {
+    const handles = type === 'video' ? videoHandles.current : subtitleHandles.current
+    const next = prev + (direction === 'up' ? -1 : 1)
+    if (next < 0 || next > handles.length - 1) return
+    if (transition.sUp !== -1 || transition.sDown !== -1 || transition.vUp !== -1 || transition.vDown !== -1) return
+    if (direction === 'up') {
+      if (type === 'video') {
+        setTransition(s => ({ ...s, vUp: prev, vDown: prev - 1 }))
+      } else {
+        setTransition(s => ({ ...s, sUp: prev, sDown: prev - 1 }))
+      }
+    } else {
+      if (type === 'video') {
+        setTransition(s => ({ ...s, vUp: prev + 1, vDown: prev }))
+      } else {
+        setTransition(s => ({ ...s, sUp: prev + 1, sDown: prev }))
+      }
+    }
+    setTimeout(() => {
+      const tmp = handles[prev]
+      handles[prev] = handles[next]
+      handles[next] = tmp
+      setTransition({ vUp: -1, vDown: -1, sUp: -1, sDown: -1 })
+    }, 300)
   }
 
   const hasBuffer = videoHandles.current.length > 0 || subtitleHandles.current.length > 0
@@ -86,94 +112,76 @@ export const Uploader = () => {
         {i18n('import_video_and_subtitle.click_drop')}
       </div>
       <div className={styles['buffer']} style={uploadStyle}>
-        <DragDropContext
-          onDragEnd={result => {
-            if (!result.destination) {
-              return
-            }
-            videoHandles.current = reorder(videoHandles.current, result.source.index, result.destination.index)
-            forceUpdate()
-          }}
-        >
-          <Droppable droppableId="videos">
-            {provided => (
-              <div className={styles['videos']} {...provided.droppableProps} ref={provided.innerRef}>
-                <div className="material-icons">live_tv</div>
-                {videoHandles.current
-                  .map(v => v.name)
-                  .map((v, index) => (
-                    <Draggable key={v} draggableId={v} index={index}>
-                      {provided => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={cn(styles['file'], { error: subtitleHandles.current[index] === undefined })}
-                          title={v}
-                        >
-                          {v}
-                          <span
-                            className="material-icons"
-                            onClick={() => {
-                              videoHandles.current = videoHandles.current.filter(i => i.name !== v)
-                              forceUpdate()
-                            }}
-                          >
-                            close
-                          </span>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        <DragDropContext
-          onDragEnd={result => {
-            if (!result.destination) {
-              return
-            }
-            subtitleHandles.current = reorder(subtitleHandles.current, result.source.index, result.destination.index)
-            forceUpdate()
-          }}
-        >
-          <Droppable droppableId="subtitles">
-            {provided => (
-              <div className={styles['subtitles']} {...provided.droppableProps} ref={provided.innerRef}>
-                <div className="material-icons">closed_caption_off</div>
-                {subtitleHandles.current
-                  .map(s => s.name)
-                  .map((s, index) => (
-                    <Draggable key={s} draggableId={s} index={index}>
-                      {provided => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={cn(styles['file'], { error: videoHandles.current[index] === undefined })}
-                          title={s}
-                        >
-                          {s}
-                          <span
-                            className="material-icons"
-                            onClick={() => {
-                              subtitleHandles.current = subtitleHandles.current.filter(i => i.name !== s)
-                              forceUpdate()
-                            }}
-                          >
-                            close
-                          </span>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        <div className={styles['videos']}>
+          <div className="material-icons">live_tv</div>
+          <ul onMouseDown={dndMouseDown(reorder(videoHandles.current, forceUpdate))}>
+            {videoHandles.current
+              .map(v => v.name)
+              .map((v, index) => (
+                <li
+                  key={v}
+                  className={cn({
+                    error: subtitleHandles.current[index] === undefined,
+                    [styles['upward']]: transition.vUp === index,
+                    [styles['downward']]: transition.vDown === index,
+                  })}
+                  title={v}
+                >
+                  <span className={styles['file']}>{v}</span>
+                  <span className="material-icons" onClick={move('video', 'up', index)}>
+                    arrow_upward
+                  </span>
+                  <span className="material-icons" onClick={move('video', 'down', index)}>
+                    arrow_downward
+                  </span>
+                  <span
+                    className="material-icons"
+                    onClick={() => {
+                      videoHandles.current = videoHandles.current.filter(i => i.name !== v)
+                      forceUpdate()
+                    }}
+                  >
+                    close
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </div>
+        <div className={styles['subtitles']}>
+          <div className="material-icons">closed_caption_off</div>
+          <ul onMouseDown={dndMouseDown(reorder(subtitleHandles.current, forceUpdate))}>
+            {subtitleHandles.current
+              .map(s => s.name)
+              .map((s, index) => (
+                <li
+                  key={s}
+                  className={cn({
+                    error: videoHandles.current[index] === undefined,
+                    [styles['upward']]: transition.sUp === index,
+                    [styles['downward']]: transition.sDown === index,
+                  })}
+                  title={s}
+                >
+                  <span className={styles['file']}>{s}</span>
+                  <span className="material-icons" onClick={move('subtitle', 'up', index)}>
+                    arrow_upward
+                  </span>
+                  <span className="material-icons" onClick={move('subtitle', 'down', index)}>
+                    arrow_downward
+                  </span>
+                  <span
+                    className="material-icons"
+                    onClick={() => {
+                      subtitleHandles.current = subtitleHandles.current.filter(i => i.name !== s)
+                      forceUpdate()
+                    }}
+                  >
+                    close
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </div>
       </div>
       <div className={styles['save-cache']} style={uploadStyle}>
         <input
@@ -236,10 +244,93 @@ async function checkExist(vs: FileWithHandle[]): Promise<string[]> {
   return fs.filter(i => fileNames.has(i))
 }
 
-function reorder<T>(list: T[], startIndex: number, endIndex: number) {
-  const result = Array.from(list)
-  const [removed] = result.splice(startIndex, 1)
-  result.splice(endIndex, 0, removed)
-
-  return result
+interface MyMouseEvent {
+  currentTarget: EventTarget | null
+  clientX: number
+  clientY: number
 }
+
+const dndMouseDown = (cb: (selected: number, hovered: number) => void) => (e: MyMouseEvent) => {
+  const h = 26
+  const m = 5
+  const ul = e.currentTarget as HTMLUListElement
+  const { left, top, width: ulWidth, height: ulHeight } = ul.getBoundingClientRect()
+  const getXY = (e: MyMouseEvent) => ({ x: e.clientX - left, y: e.clientY - top })
+
+  const { x: startX, y: startY } = getXY(e)
+  const selected = Math.floor(startY / (h + m))
+  // margin area, ignore
+  if (startY > selected * (h + m) + h) return
+  const selectedLi = ul.children[selected] as HTMLLIElement
+
+  selectedLi.classList.add(styles['selected'])
+  Array.from(ul.children).forEach(li => {
+    if (li !== selectedLi) {
+      li.classList.add(styles['stay'])
+    }
+  })
+  const removeTransitions = (stay: boolean) => {
+    Array.from(ul.children).forEach(li => {
+      li.classList.remove(styles['upward'])
+      li.classList.remove(styles['downward'])
+      if (!stay) {
+        li.classList.remove(styles['stay'])
+        selectedLi.classList.remove(styles['selected'])
+      }
+    })
+  }
+
+  let prevHovered = -1
+  const cleanUp = () => {
+    cb(selected, prevHovered)
+    removeTransitions(false)
+    selectedLi.style.transform = ''
+    ul.removeEventListener('mousemove', onMove)
+    ul.removeEventListener('mouseup', cleanUp)
+    ul.removeEventListener('mousedown', cleanUp)
+  }
+  const onMove = (e: MouseEvent) => {
+    const { x, y } = getXY(e)
+    if (x < 0 || x > ulWidth || y < 0 || y > ulHeight) {
+      cleanUp()
+      return
+    }
+    let hovered = Math.floor(y / (h + m))
+    if (y > hovered * (h + m) + h) hovered = -1
+    if (hovered !== -1 && prevHovered !== hovered) {
+      prevHovered = hovered
+
+      removeTransitions(true)
+      if (hovered > selected) {
+        for (let i = selected + 1; i <= hovered; i++) {
+          ul.children[i].classList.add(styles['upward'])
+        }
+      } else {
+        for (let i = hovered; i < selected; i++) {
+          ul.children[i].classList.add(styles['downward'])
+        }
+      }
+    }
+    selectedLi.style.transform = `translate3d(${x - startX}px,${y - startY}px,0)`
+  }
+  ul.addEventListener('mousemove', onMove)
+  ul.addEventListener('mouseup', cleanUp)
+  ul.addEventListener('mousedown', cleanUp)
+}
+
+const reorder =
+  <T,>(array: T[], forceUpdate: () => void) =>
+  (selected: number, hovered: number) => {
+    const tmp = array[selected]
+    if (selected < hovered) {
+      for (let i = selected + 1; i <= hovered; i++) {
+        array[i - 1] = array[i]
+      }
+    } else {
+      for (let i = selected - 1; i >= hovered; i--) {
+        array[i + 1] = array[i]
+      }
+    }
+    array[hovered] = tmp
+    forceUpdate()
+  }

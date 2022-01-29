@@ -66,7 +66,6 @@
   gap: 24px 32px;
 
   .title {
-    font-weight: 600;
   }
 
   .body {
@@ -94,6 +93,10 @@
       right: 0;
       bottom: 2px;
       font-size: 17px;
+      color: var(--black-300);
+      &:hover {
+        color: var(--black-800);
+      }
     }
   }
 }
@@ -112,7 +115,6 @@
   :global(.column) {
     padding: 10px;
     border: 1px solid var(--bc-lighter);
-    box-shadow: var(--bs-sm);
     border-radius: 10px;
 
     :global(.column-title) {

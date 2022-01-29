@@ -79,7 +79,7 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_settings')}</div>
 
             <div className={styles['title']}>
-              <span className={styles['right-click']}>{i18n('nav.info.subtitle.right_click')}</span>
+              <span className={styles['right-click']}>{i18n('nav.info.subtitle.click_time')}</span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.adjust_delay')}</div>
           </div>
