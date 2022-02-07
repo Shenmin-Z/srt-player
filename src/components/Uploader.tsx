@@ -3,7 +3,7 @@ import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
 import { useDispatch, getList } from '../state'
 import { confirm } from './Modal'
-import { useI18n, saveVideoSubPair, getFileList } from '../utils'
+import { useI18n, saveVideoSubPair, getFileList, IS_MOBILE } from '../utils'
 import { DownloadExample } from './List'
 import cn from 'classnames'
 
@@ -114,7 +114,11 @@ export const Uploader = () => {
       <div className={styles['buffer']} style={uploadStyle}>
         <div className={styles['videos']}>
           <div className="material-icons">live_tv</div>
-          <ul onMouseDown={dndMouseDown(reorder(videoHandles.current, forceUpdate))}>
+          <ul
+            onMouseDown={dndMouseDown(reorder(videoHandles.current, forceUpdate))}
+            onTouchStart={dndTouchStart(reorder(videoHandles.current, forceUpdate))}
+            className={cn({ [styles['has-transition']]: transition.vUp !== -1 })}
+          >
             {videoHandles.current
               .map(v => v.name)
               .map((v, index) => (
@@ -149,7 +153,11 @@ export const Uploader = () => {
         </div>
         <div className={styles['subtitles']}>
           <div className="material-icons">closed_caption_off</div>
-          <ul onMouseDown={dndMouseDown(reorder(subtitleHandles.current, forceUpdate))}>
+          <ul
+            onMouseDown={dndMouseDown(reorder(subtitleHandles.current, forceUpdate))}
+            onTouchStart={dndTouchStart(reorder(subtitleHandles.current, forceUpdate))}
+            className={cn({ [styles['has-transition']]: transition.sUp !== -1 })}
+          >
             {subtitleHandles.current
               .map(s => s.name)
               .map((s, index) => (
@@ -244,63 +252,86 @@ async function checkExist(vs: FileWithHandle[]): Promise<string[]> {
   return fs.filter(i => fileNames.has(i))
 }
 
-interface MyMouseEvent {
-  currentTarget: EventTarget | null
-  clientX: number
-  clientY: number
-}
+const dndMouseDown =
+  (cb: (selected: number, hovered: number) => void): React.MouseEventHandler =>
+  e => {
+    const getEvent = () => {
+      return {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        currentTarget: e.currentTarget,
+      }
+    }
+    if (IS_MOBILE) return
+    dndStart(cb, getEvent)
+  }
 
-const dndMouseDown = (cb: (selected: number, hovered: number) => void) => (e: MyMouseEvent) => {
+const dndTouchStart =
+  (cb: (selected: number, hovered: number) => void): React.TouchEventHandler =>
+  e => {
+    const getEvent = () => {
+      return {
+        clientX: e.touches[0].clientX,
+        clientY: e.touches[0].clientY,
+        currentTarget: e.currentTarget,
+      }
+    }
+    if (!IS_MOBILE) return
+    dndStart(cb, getEvent)
+  }
+
+const dndStart = (
+  cb: (selected: number, hovered: number) => void,
+  getEvent: () => { clientX: number; clientY: number; currentTarget: EventTarget },
+) => {
+  const e = getEvent()
   const h = 26
   const m = 5
   const ul = e.currentTarget as HTMLUListElement
   const { left, top, width: ulWidth, height: ulHeight } = ul.getBoundingClientRect()
-  const getXY = (e: MyMouseEvent) => ({ x: e.clientX - left, y: e.clientY - top })
+  const getXY = (e: { clientX: number; clientY: number }) => ({ x: e.clientX - left, y: e.clientY - top })
 
-  const { x: startX, y: startY } = getXY(e)
+  const { y: startY } = getXY(e)
   const selected = Math.floor(startY / (h + m))
   // margin area, ignore
   if (startY > selected * (h + m) + h) return
   const selectedLi = ul.children[selected] as HTMLLIElement
 
+  ul.classList.add(styles['has-transition'])
   selectedLi.classList.add(styles['selected'])
-  Array.from(ul.children).forEach(li => {
-    if (li !== selectedLi) {
-      li.classList.add(styles['stay'])
-    }
-  })
-  const removeTransitions = (stay: boolean) => {
+  const removeTransitions = () => {
     Array.from(ul.children).forEach(li => {
       li.classList.remove(styles['upward'])
       li.classList.remove(styles['downward'])
-      if (!stay) {
-        li.classList.remove(styles['stay'])
-        selectedLi.classList.remove(styles['selected'])
-      }
     })
   }
 
   let prevHovered = -1
   const cleanUp = () => {
-    cb(selected, prevHovered)
-    removeTransitions(false)
-    selectedLi.style.transform = ''
-    ul.removeEventListener('mousemove', onMove)
-    ul.removeEventListener('mouseup', cleanUp)
-    ul.removeEventListener('mousedown', cleanUp)
-  }
-  const onMove = (e: MouseEvent) => {
-    const { x, y } = getXY(e)
-    if (x < 0 || x > ulWidth || y < 0 || y > ulHeight) {
-      cleanUp()
-      return
+    removeTransitions()
+    ul.classList.remove(styles['has-transition'])
+    selectedLi.classList.remove(styles['selected'])
+    selectedLi.style.removeProperty('top')
+    if (!IS_MOBILE) {
+      ul.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', cleanUp)
+    } else {
+      ul.removeEventListener('touchmove', onMove)
+      ul.removeEventListener('touchend', cleanUp)
     }
+    if (prevHovered !== -1) {
+      cb(selected, prevHovered)
+    }
+  }
+  const onMove = (e: MouseEvent | TouchEvent) => {
+    const { x, y } = getXY(e instanceof MouseEvent ? e : e.touches[0])
+    const within = x >= 0 && x <= ulWidth && y >= 0 && y <= ulHeight
     let hovered = Math.floor(y / (h + m))
-    if (y > hovered * (h + m) + h) hovered = -1
+    if (y > hovered * (h + m) + h || !within) hovered = -1
     if (hovered !== -1 && prevHovered !== hovered) {
       prevHovered = hovered
 
-      removeTransitions(true)
+      removeTransitions()
       if (hovered > selected) {
         for (let i = selected + 1; i <= hovered; i++) {
           ul.children[i].classList.add(styles['upward'])
@@ -311,11 +342,17 @@ const dndMouseDown = (cb: (selected: number, hovered: number) => void) => (e: My
         }
       }
     }
-    selectedLi.style.transform = `translate3d(${x - startX}px,${y - startY}px,0)`
+    if (within) {
+      selectedLi.style.top = `${y - startY}px`
+    }
   }
-  ul.addEventListener('mousemove', onMove)
-  ul.addEventListener('mouseup', cleanUp)
-  ul.addEventListener('mousedown', cleanUp)
+  if (!IS_MOBILE) {
+    ul.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', cleanUp)
+  } else {
+    ul.addEventListener('touchmove', onMove)
+    ul.addEventListener('touchend', cleanUp)
+  }
 }
 
 const reorder =
