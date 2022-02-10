@@ -42,6 +42,8 @@
     .subtitles {
       background: var(--bc-lighter);
       padding: 5px 5px 0 5px;
+      touch-action: none;
+      user-select: none;
 
       & > :global(.material-icons) {
         text-align: center;
@@ -51,7 +53,8 @@
 
       ul.has-transition {
         li {
-          transition: top 0.25s ease;
+          transition: top 0.15s ease;
+          /* transition: top 5s ease; */
           &.selected {
             transition: none;
           }
@@ -71,6 +74,7 @@
         grid-template-columns: minmax(0, 1fr) 16px 16px 16px;
         gap: 2px;
         align-items: center;
+        cursor: move;
 
         position: relative;
         top: 0;

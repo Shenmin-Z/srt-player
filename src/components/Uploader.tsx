@@ -46,11 +46,19 @@ export const Uploader = () => {
     forceUpdate()
   }
 
-  const move = (type: 'video' | 'subtitle', direction: 'up' | 'down', prev: number) => () => {
+  const move = (type: 'video' | 'subtitle', direction: 'up' | 'down', prev: number) => (e: React.MouseEvent) => {
+    if (locked) return
+    locked = true
     const handles = type === 'video' ? videoHandles.current : subtitleHandles.current
     const next = prev + (direction === 'up' ? -1 : 1)
-    if (next < 0 || next > handles.length - 1) return
-    if (transition.sUp !== -1 || transition.sDown !== -1 || transition.vUp !== -1 || transition.vDown !== -1) return
+    if (next < 0 || next > handles.length - 1) {
+      locked = false
+      return
+    }
+    if (transition.sUp !== -1 || transition.sDown !== -1 || transition.vUp !== -1 || transition.vDown !== -1) {
+      locked = false
+      return
+    }
     if (direction === 'up') {
       if (type === 'video') {
         setTransition(s => ({ ...s, vUp: prev, vDown: prev - 1 }))
@@ -64,12 +72,16 @@ export const Uploader = () => {
         setTransition(s => ({ ...s, sUp: prev + 1, sDown: prev }))
       }
     }
-    setTimeout(() => {
+    const liEl = e.currentTarget.parentElement as HTMLLIElement
+    const onEnd = () => {
       const tmp = handles[prev]
       handles[prev] = handles[next]
       handles[next] = tmp
       setTransition({ vUp: -1, vDown: -1, sUp: -1, sDown: -1 })
-    }, 300)
+      liEl.removeEventListener('transitionend', onEnd)
+      locked = false
+    }
+    liEl.addEventListener('transitionend', onEnd)
   }
 
   const hasBuffer = videoHandles.current.length > 0 || subtitleHandles.current.length > 0
@@ -280,10 +292,15 @@ const dndTouchStart =
     dndStart(cb, getEvent)
   }
 
+let locked = false
+
 const dndStart = (
   cb: (selected: number, hovered: number) => void,
   getEvent: () => { clientX: number; clientY: number; currentTarget: EventTarget },
 ) => {
+  if (locked) return
+  locked = true
+
   const e = getEvent()
   const h = 26
   const m = 5
@@ -294,7 +311,10 @@ const dndStart = (
   const { y: startY } = getXY(e)
   const selected = Math.floor(startY / (h + m))
   // margin area, ignore
-  if (startY > selected * (h + m) + h) return
+  if (startY > selected * (h + m) + h) {
+    locked = false
+    return
+  }
   const selectedLi = ul.children[selected] as HTMLLIElement
 
   ul.classList.add(styles['has-transition'])
@@ -307,11 +327,7 @@ const dndStart = (
   }
 
   let prevHovered = -1
-  const cleanUp = () => {
-    removeTransitions()
-    ul.classList.remove(styles['has-transition'])
-    selectedLi.classList.remove(styles['selected'])
-    selectedLi.style.removeProperty('top')
+  const cleanUp = async () => {
     if (!IS_MOBILE) {
       ul.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', cleanUp)
@@ -319,9 +335,31 @@ const dndStart = (
       ul.removeEventListener('touchmove', onMove)
       ul.removeEventListener('touchend', cleanUp)
     }
+
+    selectedLi.classList.remove(styles['selected'])
+    await new Promise<void>(res => {
+      if (prevHovered === -1) {
+        res()
+        return
+      }
+      const targetTop = (prevHovered - selected) * (h + m)
+      selectedLi.style.top = `${targetTop}px`
+      const onEnd = () => {
+        res()
+        selectedLi.removeEventListener('transitionend', onEnd)
+      }
+      selectedLi.addEventListener('transitionend', onEnd)
+      // sometimes transitionend is not fired?
+      setTimeout(onEnd, 200)
+    })
+    ul.classList.remove(styles['has-transition'])
+    removeTransitions()
+    selectedLi.style.removeProperty('top')
     if (prevHovered !== -1) {
       cb(selected, prevHovered)
     }
+
+    locked = false
   }
   const onMove = (e: MouseEvent | TouchEvent) => {
     const { x, y } = getXY(e instanceof MouseEvent ? e : e.touches[0])
