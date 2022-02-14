@@ -109,11 +109,11 @@ export const Uploader = () => {
           const items = Array.from(event.dataTransfer.items).filter(i => i.kind === 'file')
           const files: FileWithHandle[] = await Promise.all(
             items.map(async i => {
-              const f = i.getAsFile() as File
-              const handle = supported
-                ? (((await i.getAsFileSystemHandle()) || undefined) as FileSystemFileHandle)
-                : undefined
-              return { ...f, handle }
+              const f: FileWithHandle = i.getAsFile() as File
+              if (supported) {
+                f.handle = (await i.getAsFileSystemHandle()) as FileSystemFileHandle
+              }
+              return f
             }),
           )
           const { videos, subtitles } = await filterFileHandles(files)
