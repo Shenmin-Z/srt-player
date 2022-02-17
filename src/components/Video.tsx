@@ -101,6 +101,8 @@ export const Video: FC = () => {
             id={VIDEO_ID}
             src={videoUrl}
             controls
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate"
             onLoadedData={async () => {
               await restoreVideo()
               dispatch(setVideo(true))
