@@ -5,6 +5,8 @@ import { message } from './Modal'
 import styles from './Subtitle.module.less'
 import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle } from '../utils'
 
+// subtitle_time + subtitle_delay = video_time
+
 export const Subtitle: FC = () => {
   const nodes = useNodes()
   const hasVideo = useSelector(s => s.video.hasVideo)
@@ -119,6 +121,13 @@ export const Subtitle: FC = () => {
                 })
               }
             }}
+            jumpToTime={t => {
+              if (autoRef.current) {
+                doVideo(video => {
+                  video.currentTime = (t + delayRef.current) / 1000
+                })
+              }
+            }}
           />
         ))}
       </div>
@@ -130,11 +139,12 @@ interface SubtitleNodeProps extends Node {
   highlight: boolean
   setHighlight: (h: number) => void
   setDelay: (start: number) => void
+  jumpToTime: (t: number) => void
 }
 
 const SubtitleNode: FC<SubtitleNodeProps> = memo(
   props => {
-    const { counter, start, end, text, highlight, setHighlight, setDelay } = props
+    const { counter, start, end, text, highlight, setHighlight, setDelay, jumpToTime } = props
     return (
       <div
         className={cn(styles['node'], { [styles['highlight']]: highlight })}
@@ -142,7 +152,14 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
           setHighlight(counter)
         }}
       >
-        <span className={styles['counter']}>{counter}</span>
+        <span
+          className={styles['counter']}
+          onClick={() => {
+            jumpToTime(start.timestamp)
+          }}
+        >
+          {counter}
+        </span>
         <div>
           <div className={styles['line']}>
             <span
