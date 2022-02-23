@@ -6,7 +6,8 @@ import styles from './Footer.module.less'
 const BASE = '/srt-player/'
 
 async function getLatestVersion() {
-  const url = `${BASE}version.js?bypassCache=true`
+  const randomNumber = Math.ceil(Math.random() * Math.pow(10, 10))
+  const url = `${BASE}version.js?bypassCache=${randomNumber}`
   const latest = (await (await fetch(url)).text()).trim()
   const match = (latest || '').match(/__SRT_VERSION__\s?=\s?('(.*)'|"(.*)")/)
   return match?.[2] || match?.[3] || '0'
