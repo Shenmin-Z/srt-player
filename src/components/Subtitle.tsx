@@ -17,7 +17,7 @@ export const Subtitle: FC = () => {
   const [lang, setLang] = useState<string>('')
   const [ready, setReady] = useState(false)
   const [highlight, setHighlight] = useState<number | null>(null)
-  const { divRef, autoRef, timerRef, delayRef } = useShortcuts(nodes, subtitleAuto, subtitleDelay, tick)
+  const { divRef, autoRef, timerRef, delayRef } = useShortcuts(nodes, subtitleAuto, subtitleDelay)
 
   useEffect(() => {
     autoRef.current = subtitleAuto
@@ -192,7 +192,7 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
   (prevProps, nextProps) => prevProps.highlight === nextProps.highlight,
 )
 
-const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay: number, tick: { (): void }) => {
+const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay: number) => {
   const dispath = useDispatch()
   const divRef = useRef<HTMLDivElement>(null)
   const autoRef = useRef<boolean>(subtitleAuto)
@@ -225,30 +225,11 @@ const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay
         dispath(updateSubtitleFontSize(true))
       }
     }
-    let autoTmp: boolean
-    function disableAuto(e: KeyboardEvent) {
-      if (!window.__SRT_ENABLE_SHORTCUTS__) return
-      if (e.key === 'Control' && !e.repeat) {
-        autoTmp = autoRef.current
-        autoRef.current = false
-      }
-    }
-    function enableAuto(e: KeyboardEvent) {
-      if (!window.__SRT_ENABLE_SHORTCUTS__) return
-      if (e.key === 'Control') {
-        autoRef.current = autoTmp
-        tick()
-      }
-    }
     window.addEventListener('keydown', scroll)
     window.addEventListener('keydown', fontSize)
-    window.addEventListener('keydown', disableAuto)
-    window.addEventListener('keyup', enableAuto)
     return () => {
       window.removeEventListener('keydown', scroll)
       window.removeEventListener('keydown', fontSize)
-      window.removeEventListener('keydown', disableAuto)
-      window.removeEventListener('keyup', enableAuto)
     }
   }, [nodes])
   return { divRef, autoRef, timerRef, delayRef }
