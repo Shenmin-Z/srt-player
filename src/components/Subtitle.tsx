@@ -3,7 +3,7 @@ import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle } from '../utils'
+import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, ib } from '../utils'
 
 // subtitle_time + subtitle_delay = video_time
 
@@ -180,11 +180,7 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
               {end.raw}
             </span>
           </div>
-          {text.map((i, idx) => (
-            <p key={idx} className={styles['text']}>
-              {i}
-            </p>
-          ))}
+          <p className={styles['text']}>{ib(text.join('\n'))}</p>
         </div>
       </div>
     )
