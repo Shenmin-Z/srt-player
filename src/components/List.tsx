@@ -50,7 +50,9 @@ const Label: FC<{ history: WatchHistories; file: string }> = ({ history, file })
   const time = history[file].currentTime
   if (time === 0) return <span />
   const str =
-    time < 3600 ? new Date(time * 1000).toISOString().substr(14, 5) : new Date(time * 1000).toISOString().substr(11, 8)
+    time < 3600
+      ? new Date(time * 1000).toISOString().substring(14, 14 + 5)
+      : new Date(time * 1000).toISOString().substring(11, 11 + 8)
   return <span className={styles['label']}>{str}</span>
 }
 

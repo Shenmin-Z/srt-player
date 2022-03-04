@@ -74,6 +74,10 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_auto')}</div>
             <div className={styles['title']}>
+              <span className={styles['key']}>L</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_listening_mode')}</div>
+            <div className={styles['title']}>
               <span className={styles['key']}>S</span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_settings')}</div>

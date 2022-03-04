@@ -4,9 +4,9 @@
 
 # SRT Player
 
-[中文介绍](https://zhuanlan.zhihu.com/p/469289749)
+[介绍](https://zhuanlan.zhihu.com/p/469289749)
 
-Video player with separate subtitle display and waveform 
+Video player with separate subtitle display and waveform
 
 [Try it here](https://shenmin-z.github.io/srt-player/)
 

@@ -1,5 +1,4 @@
 .subtitle {
-  padding: 5px;
   background: #272822;
   color: #e6e6e0;
   height: 100%;
@@ -14,16 +13,10 @@
   }
 
   .node {
-    padding: 4px 0;
+    padding: 4px;
     display: grid;
     grid-template-columns: minmax(0, auto) 1fr;
     column-gap: 16px;
-    &:first-child {
-      padding-top: 0;
-    }
-    &:last-child {
-      padding-bottom: 0;
-    }
     &.highlight {
       background: #484d5b;
     }
@@ -93,5 +86,14 @@
   }
   :global(.subtitle-bold) {
     font-weight: bold;
+  }
+}
+
+.subtitle.listening-mode {
+  .node.highlight ~ .node {
+    .text {
+      color: transparent;
+      text-shadow: 0 0 8px rgb(255, 255, 255);
+    }
   }
 }

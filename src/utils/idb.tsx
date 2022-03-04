@@ -19,6 +19,8 @@ export interface WatchHistory {
   subtitleTop: number // scroll position
   subtitleAuto: boolean
   subtitleDelay: number
+  subtitleListeningMode: boolean
+  subtitleLastActive: number | null
   waveform: EnableWaveForm
 }
 

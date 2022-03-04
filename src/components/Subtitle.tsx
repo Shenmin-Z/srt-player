@@ -3,20 +3,22 @@ import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, ib } from '../utils'
+import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, ib, useSavableHighlight } from '../utils'
 
 // subtitle_time + subtitle_delay = video_time
 
 export const Subtitle: FC = () => {
   const nodes = useNodes()
   const hasVideo = useSelector(s => s.video.hasVideo)
+  const file = useSelector(s => s.files.selected) as string
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
   const subtitleFontSize = useSelector(s => s.settings.subtitleFontSize)
+  const subtitleListeningMode = useSelector(s => s.settings.subtitleListeningMode)
   const dispath = useDispatch()
   const [lang, setLang] = useState<string>('')
   const [ready, setReady] = useState(false)
-  const [highlight, setHighlight] = useState<number | null>(null)
+  const [highlight, setHighlight] = useSavableHighlight()
   const { divRef, autoRef, timerRef, delayRef } = useShortcuts(nodes, subtitleAuto, subtitleDelay)
 
   useEffect(() => {
@@ -65,8 +67,15 @@ export const Subtitle: FC = () => {
   const restoreSubtitle = useRestoreSubtitle()
 
   useEffect(() => {
+    dispath(LoadSubtitlePreference(file))
+  }, [])
+
+  useEffect(() => {
     if (nodes !== null) {
-      restoreSubtitle().then(() => {
+      restoreSubtitle().then(active => {
+        if (active !== null) {
+          setHighlight(active)
+        }
         setReady(true)
       })
 
@@ -82,11 +91,6 @@ export const Subtitle: FC = () => {
     }
   }, [nodes])
 
-  const file = useSelector(s => s.files.selected) as string
-  useEffect(() => {
-    dispath(LoadSubtitlePreference(file))
-  }, [])
-
   if (nodes === null) {
     return <div className={styles['subtitle']} />
   } else {
@@ -99,7 +103,10 @@ export const Subtitle: FC = () => {
       <div
         id="srt-player-subtitle"
         ref={divRef}
-        className={cn(styles['subtitle'], { [styles['ready']]: ready })}
+        className={cn(styles['subtitle'], {
+          [styles['ready']]: ready,
+          [styles['listening-mode']]: subtitleListeningMode,
+        })}
         lang={lang}
         style={{ ...fontSizes }}
       >
@@ -108,7 +115,11 @@ export const Subtitle: FC = () => {
             {...n}
             key={n.counter}
             highlight={highlight === n.counter}
-            setHighlight={setHighlight}
+            onClick={h => {
+              if (!autoRef.current) {
+                setHighlight(h)
+              }
+            }}
             setDelay={start => {
               if (autoRef.current) {
                 doVideo(video => {
@@ -137,19 +148,19 @@ export const Subtitle: FC = () => {
 
 interface SubtitleNodeProps extends Node {
   highlight: boolean
-  setHighlight: (h: number) => void
+  onClick: (h: number) => void
   setDelay: (start: number) => void
   jumpToTime: (t: number) => void
 }
 
 const SubtitleNode: FC<SubtitleNodeProps> = memo(
   props => {
-    const { counter, start, end, text, highlight, setHighlight, setDelay, jumpToTime } = props
+    const { counter, start, end, text, highlight, onClick, setDelay, jumpToTime } = props
     return (
       <div
         className={cn(styles['node'], { [styles['highlight']]: highlight })}
         onClick={() => {
-          setHighlight(counter)
+          onClick(counter)
         }}
       >
         <span

@@ -5,6 +5,7 @@ import {
   getWaveFormPreference,
   saveSubtitleAuto,
   saveSubtitleDelay,
+  saveSubtitleListeningMode,
   saveEnableWaveForm,
   EnableWaveForm,
   deleteSampling,
@@ -51,6 +52,7 @@ interface InitialState {
   subtitleWidth: number
   subtitleAuto: boolean
   subtitleDelay: number
+  subtitleListeningMode: boolean
   subtitleFontSize: number
   waveform: EnableWaveForm
   locale: string
@@ -61,6 +63,7 @@ const initialState: InitialState = {
   subtitleWidth: 0,
   subtitleAuto: true,
   subtitleDelay: 0,
+  subtitleListeningMode: false,
   subtitleFontSize: 16,
   waveform: EnableWaveForm.disable,
   locale: '',
@@ -132,6 +135,16 @@ export const updateSubtitleDelay = createAsyncThunk<number, { file: string; dela
   },
 )
 
+export const updateSubtitleListeningMode = createAsyncThunk<boolean, { file: string }>(
+  'settings/updateSubtitleListeningMode',
+  async ({ file }, { getState }) => {
+    const state = getState() as { settings: InitialState }
+    const listeningMode = !state.settings.subtitleListeningMode
+    await saveSubtitleListeningMode(file, listeningMode)
+    return listeningMode
+  },
+)
+
 export const updateEnableWaveForm = createAsyncThunk<EnableWaveForm, { file: string; enable: EnableWaveForm }>(
   'settings/updateEnableWaveForm',
   async ({ file, enable }) => {
@@ -164,6 +177,7 @@ export const settingsSlice = createSlice({
       .addCase(LoadSubtitlePreference.fulfilled, (state, action) => {
         state.subtitleAuto = action.payload.auto
         state.subtitleDelay = action.payload.delay
+        state.subtitleListeningMode = action.payload.listeningMode
       })
       .addCase(LoadWaveFormPreference.fulfilled, (state, action) => {
         state.waveform = action.payload
@@ -179,6 +193,9 @@ export const settingsSlice = createSlice({
       })
       .addCase(updateSubtitleDelay.fulfilled, (state, action) => {
         state.subtitleDelay = action.payload
+      })
+      .addCase(updateSubtitleListeningMode.fulfilled, (state, action) => {
+        state.subtitleListeningMode = action.payload
       })
       .addCase(updateEnableWaveForm.fulfilled, (state, action) => {
         state.waveform = action.payload

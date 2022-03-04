@@ -6,6 +6,7 @@ import {
   updateSubtitleFontSize,
   updateSubtitleAuto,
   updateSubtitleDelay,
+  updateSubtitleListeningMode,
 } from '../../state'
 import { Modal } from '../Modal'
 import { NumberInput } from './form'
@@ -15,7 +16,7 @@ import styles from './Nav.module.less'
 export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props => {
   const settings = useSelector(s => s.settings)
   const file = useSelector(s => s.files.selected) as string
-  const { subtitleAuto } = settings
+  const { subtitleAuto, subtitleListeningMode } = settings
   const dispatch = useDispatch()
   const i18n = useI18n()
 
@@ -78,6 +79,19 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
           >
             cancel
           </span>
+        </div>
+        <label htmlFor="subtitle-settings-listening-mode" className={styles['title']} style={{ cursor: 'pointer' }}>
+          {i18n('nav.subtitle.listening_mode')}
+        </label>
+        <div className={styles['body']}>
+          <input
+            id="subtitle-settings-listening-mode"
+            type="checkbox"
+            checked={subtitleListeningMode}
+            onChange={() => {
+              dispatch(updateSubtitleListeningMode({ file }))
+            }}
+          />
         </div>
       </div>
     </Modal>

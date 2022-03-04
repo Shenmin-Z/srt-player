@@ -29,6 +29,7 @@
         "page_up": "Page up",
         "page_down": "Page down",
         "toggle_auto": "Toggle auto",
+        "toggle_listening_mode": "Toggle listening mode",
         "toggle_settings": "Toggle settings",
         "adjust_delay": "Adjust delay",
         "click_time": "Click start or end time",
@@ -51,7 +52,8 @@
       "width": "Width",
       "auto": "Auto mode",
       "delay": "Delay (seconds)",
-      "font_size": "Font size"
+      "font_size": "Font size",
+      "listening_mode": "Listening mode"
     },
     "waveform": {
       "name": "Waveform",

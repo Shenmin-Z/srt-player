@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useSelector } from '../state'
 import { doVideo } from './video'
 import { db, WatchHistory, EnableWaveForm } from './idb'
@@ -12,14 +13,15 @@ function getSubtitleElm() {
 
 export const useRestoreSubtitle = () => {
   const file = useSelector(s => s.files.selected)
-  return async () => {
-    if (!file) return
+  return async (): Promise<number | null> => {
+    if (!file) return null
     const h = await getHistoryByFileName(file)
     const subtitleTop = h?.subtitleTop ?? 0
     const subtitle = getSubtitleElm()
     if (subtitle) {
       subtitle.scrollTop = subtitleTop
     }
+    return h?.subtitleLastActive === undefined ? null : h.subtitleLastActive
   }
 }
 
@@ -37,7 +39,11 @@ export const useRestoreVideo = () => {
 
 export const getSubtitlePreference = async (f: string) => {
   const h = await getHistoryByFileName(f)
-  return { auto: h?.subtitleAuto ?? true, delay: h?.subtitleDelay || 0 }
+  return {
+    auto: h?.subtitleAuto ?? true,
+    delay: h?.subtitleDelay || 0,
+    listeningMode: h?.subtitleListeningMode ?? false,
+  }
 }
 
 export const getWaveFormPreference = async (f: string) => {
@@ -57,10 +63,38 @@ export const saveSubtitleDelay = async (f: string, delay: number) => {
   })
 }
 
+export const saveSubtitleListeningMode = async (f: string, listeningMode: boolean) => {
+  return writeHelper(f, h => {
+    h.subtitleListeningMode = listeningMode
+  })
+}
+
+export const saveSubtitleLastActive = async (f: string, lastActive: number) => {
+  return writeHelper(f, h => {
+    h.subtitleLastActive = lastActive
+  })
+}
+
 export const saveEnableWaveForm = async (f: string, enable: EnableWaveForm) => {
   return writeHelper(f, h => {
     h.waveform = enable
   })
+}
+
+let active: number | null = null
+
+export const useSavableHighlight = (): [number | null, (h: number) => void] => {
+  const [highlight, setHighlight] = useState<number | null>(() => {
+    active = null
+    return null
+  })
+  return [
+    highlight,
+    (h: number) => {
+      active = h
+      setHighlight(h)
+    },
+  ]
 }
 
 export const useSaveHistory = (cooldown?: number) => {
@@ -77,6 +111,7 @@ export const useSaveHistory = (cooldown?: number) => {
         h.currentTime = Math.floor(video.currentTime)
         h.duration = video.duration
       })
+      h.subtitleLastActive = active
     })
     if (cooldown) {
       skip = true
@@ -99,6 +134,8 @@ async function writeHelper(file: string, cb: (h: WatchHistory) => void) {
     duration: 0,
     subtitleAuto: true,
     subtitleDelay: 0,
+    subtitleListeningMode: false,
+    subtitleLastActive: null,
     waveform: EnableWaveForm.disable,
     ...(h || {}),
   }

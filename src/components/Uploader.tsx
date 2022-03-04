@@ -1,7 +1,7 @@
 import { useReducer, useRef, useState } from 'react'
 import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
-import { useDispatch, getList } from '../state'
+import { useDispatch, getList, globalStore } from '../state'
 import { confirm } from './Modal'
 import { useI18n, saveVideoSubPair, getFileList, IS_MOBILE } from '../utils'
 import { DownloadExample } from './List'
@@ -14,6 +14,7 @@ export const Uploader = () => {
   const subtitleHandles = useRef<FileWithHandle[]>([])
   const videoHandles = useRef<FileWithHandle[]>([])
   const [, forceUpdate] = useReducer(s => !s, true)
+  const [processing, setProcessing] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [saveCache, setSaveCache] = useState(false)
   const [transition, setTransition] = useState({ vUp: -1, vDown: -1, sUp: -1, sDown: -1 })
@@ -32,8 +33,17 @@ export const Uploader = () => {
     videoHandles.current = []
     subtitleHandles.current = []
     setSaveCache(false)
-    forceUpdate()
+    setProcessing(true)
     dispatch(getList())
+
+    // wait until file list is updated
+    await new Promise<void>(resolve => {
+      const unsubscribe = globalStore.subscribe(() => {
+        unsubscribe()
+        resolve()
+      })
+    })
+    setProcessing(false)
   }
 
   const addToBuf = (vhs: FileWithHandle[], shs: FileWithHandle[]) => {
@@ -225,7 +235,7 @@ export const Uploader = () => {
   return (
     <>
       {uploadElm}
-      <DownloadExample show={!hasBuffer} />
+      <DownloadExample show={!hasBuffer && !processing} />
     </>
   )
 }
