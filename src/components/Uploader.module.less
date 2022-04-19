@@ -31,6 +31,16 @@
     }
   }
 
+  .buffer-container {
+    @p: 24px;
+    width: calc(100vw - @p * 2);
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: calc(-50vw + @p);
+    margin-right: calc(-50vw + @p);
+  }
+
   .buffer {
     margin: 20px 0 10px 0;
     display: grid;

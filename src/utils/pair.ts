@@ -17,6 +17,10 @@ export async function deletePair(file: string) {
   return db.delete('files', file)
 }
 
+function preprocess(s: string) {
+  return s.replace(/&lrm;/gim, '')
+}
+
 export async function getSubtitle(file: string): Promise<Node[]> {
   const pair = await getPair(file)
   if (!supported && !pair) {
@@ -25,7 +29,7 @@ export async function getSubtitle(file: string): Promise<Node[]> {
   if (!pair) return []
   const { subtitle, video } = pair
   if (typeof subtitle === 'string') {
-    const nodes = parseSRT(subtitle)
+    const nodes = parseSRT(preprocess(subtitle))
     await setPair(file, { video, subtitle: nodes })
     return nodes
   } else {

@@ -133,84 +133,86 @@ export const Uploader = () => {
         <span className="material-icons">upload_file</span>
         {i18n('import_video_and_subtitle.click_drop')}
       </div>
-      <div className={styles['buffer']} style={uploadStyle}>
-        <div className={styles['videos']}>
-          <div className="material-icons">live_tv</div>
-          <ul
-            onMouseDown={dndMouseDown(reorder(videoHandles.current, forceUpdate))}
-            onTouchStart={dndTouchStart(reorder(videoHandles.current, forceUpdate))}
-            className={cn({ [styles['has-transition']]: transition.vUp !== -1 })}
-          >
-            {videoHandles.current
-              .map(v => v.name)
-              .map((v, index) => (
-                <li
-                  key={v}
-                  className={cn({
-                    error: subtitleHandles.current[index] === undefined,
-                    [styles['upward']]: transition.vUp === index,
-                    [styles['downward']]: transition.vDown === index,
-                  })}
-                  title={v}
-                >
-                  <span className={styles['file']}>{v}</span>
-                  <span className="material-icons" onClick={move('video', 'up', index)}>
-                    arrow_upward
-                  </span>
-                  <span className="material-icons" onClick={move('video', 'down', index)}>
-                    arrow_downward
-                  </span>
-                  <span
-                    className="material-icons"
-                    onClick={() => {
-                      videoHandles.current = videoHandles.current.filter(i => i.name !== v)
-                      forceUpdate()
-                    }}
+      <div className={styles['buffer-container']}>
+        <div className={styles['buffer']} style={uploadStyle}>
+          <div className={styles['videos']}>
+            <div className="material-icons">live_tv</div>
+            <ul
+              onMouseDown={dndMouseDown(reorder(videoHandles.current, forceUpdate))}
+              onTouchStart={dndTouchStart(reorder(videoHandles.current, forceUpdate))}
+              className={cn({ [styles['has-transition']]: transition.vUp !== -1 })}
+            >
+              {videoHandles.current
+                .map(v => v.name)
+                .map((v, index) => (
+                  <li
+                    key={v}
+                    className={cn({
+                      error: subtitleHandles.current[index] === undefined,
+                      [styles['upward']]: transition.vUp === index,
+                      [styles['downward']]: transition.vDown === index,
+                    })}
+                    title={v}
                   >
-                    close
-                  </span>
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div className={styles['subtitles']}>
-          <div className="material-icons">closed_caption_off</div>
-          <ul
-            onMouseDown={dndMouseDown(reorder(subtitleHandles.current, forceUpdate))}
-            onTouchStart={dndTouchStart(reorder(subtitleHandles.current, forceUpdate))}
-            className={cn({ [styles['has-transition']]: transition.sUp !== -1 })}
-          >
-            {subtitleHandles.current
-              .map(s => s.name)
-              .map((s, index) => (
-                <li
-                  key={s}
-                  className={cn({
-                    error: videoHandles.current[index] === undefined,
-                    [styles['upward']]: transition.sUp === index,
-                    [styles['downward']]: transition.sDown === index,
-                  })}
-                  title={s}
-                >
-                  <span className={styles['file']}>{s}</span>
-                  <span className="material-icons" onClick={move('subtitle', 'up', index)}>
-                    arrow_upward
-                  </span>
-                  <span className="material-icons" onClick={move('subtitle', 'down', index)}>
-                    arrow_downward
-                  </span>
-                  <span
-                    className="material-icons"
-                    onClick={() => {
-                      subtitleHandles.current = subtitleHandles.current.filter(i => i.name !== s)
-                      forceUpdate()
-                    }}
+                    <span className={styles['file']}>{v}</span>
+                    <span className="material-icons" onClick={move('video', 'up', index)}>
+                      arrow_upward
+                    </span>
+                    <span className="material-icons" onClick={move('video', 'down', index)}>
+                      arrow_downward
+                    </span>
+                    <span
+                      className="material-icons"
+                      onClick={() => {
+                        videoHandles.current = videoHandles.current.filter(i => i.name !== v)
+                        forceUpdate()
+                      }}
+                    >
+                      close
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className={styles['subtitles']}>
+            <div className="material-icons">closed_caption_off</div>
+            <ul
+              onMouseDown={dndMouseDown(reorder(subtitleHandles.current, forceUpdate))}
+              onTouchStart={dndTouchStart(reorder(subtitleHandles.current, forceUpdate))}
+              className={cn({ [styles['has-transition']]: transition.sUp !== -1 })}
+            >
+              {subtitleHandles.current
+                .map(s => s.name)
+                .map((s, index) => (
+                  <li
+                    key={s}
+                    className={cn({
+                      error: videoHandles.current[index] === undefined,
+                      [styles['upward']]: transition.sUp === index,
+                      [styles['downward']]: transition.sDown === index,
+                    })}
+                    title={s}
                   >
-                    close
-                  </span>
-                </li>
-              ))}
-          </ul>
+                    <span className={styles['file']}>{s}</span>
+                    <span className="material-icons" onClick={move('subtitle', 'up', index)}>
+                      arrow_upward
+                    </span>
+                    <span className="material-icons" onClick={move('subtitle', 'down', index)}>
+                      arrow_downward
+                    </span>
+                    <span
+                      className="material-icons"
+                      onClick={() => {
+                        subtitleHandles.current = subtitleHandles.current.filter(i => i.name !== s)
+                        forceUpdate()
+                      }}
+                    >
+                      close
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          </div>
         </div>
       </div>
       <div className={styles['save-cache']} style={uploadStyle}>
