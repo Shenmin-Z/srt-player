@@ -14,7 +14,7 @@ Screenshot on android Chrome
 
 ![screenshot](./docs/screenshot.jpg)
 
-Video demo: [youtube](https://youtu.be/UpgwD5ejwMo), [哔哩哔哩](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
+Video demo: [youtube](https://youtu.be/ZPnu17pJsIo), [哔哩哔哩](https://www.bilibili.com/video/BV1Ci4y1d7iA/)
 
 ## Features
 

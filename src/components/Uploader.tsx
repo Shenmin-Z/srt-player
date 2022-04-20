@@ -59,6 +59,7 @@ export const Uploader = () => {
   const move = (type: 'video' | 'subtitle', direction: 'up' | 'down', prev: number) => (e: React.MouseEvent) => {
     if (locked) return
     locked = true
+    e.stopPropagation()
     const handles = type === 'video' ? videoHandles.current : subtitleHandles.current
     const next = prev + (direction === 'up' ? -1 : 1)
     if (next < 0 || next > handles.length - 1) {
@@ -155,10 +156,10 @@ export const Uploader = () => {
                     title={v}
                   >
                     <span className={styles['file']}>{v}</span>
-                    <span className="material-icons" onClick={move('video', 'up', index)}>
+                    <span className="material-icons" onMouseDown={move('video', 'up', index)}>
                       arrow_upward
                     </span>
-                    <span className="material-icons" onClick={move('video', 'down', index)}>
+                    <span className="material-icons" onMouseDown={move('video', 'down', index)}>
                       arrow_downward
                     </span>
                     <span
@@ -194,10 +195,10 @@ export const Uploader = () => {
                     title={s}
                   >
                     <span className={styles['file']}>{s}</span>
-                    <span className="material-icons" onClick={move('subtitle', 'up', index)}>
+                    <span className="material-icons" onMouseDown={move('subtitle', 'up', index)}>
                       arrow_upward
                     </span>
-                    <span className="material-icons" onClick={move('subtitle', 'down', index)}>
+                    <span className="material-icons" onMouseDown={move('subtitle', 'down', index)}>
                       arrow_downward
                     </span>
                     <span
