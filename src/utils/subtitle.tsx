@@ -8,7 +8,26 @@ export interface Node {
   text: string[]
 }
 
-export function parseSRT(content: string): Node[] {
+function filterText(s: string) {
+  return s.replace(/&lrm;/gim, '')
+}
+
+function removeCurlyBrakets(s: string) {
+  return s.replace(/\{[^\}]*\}/g, '')
+}
+
+export const SSA = '[SSA]'
+
+export function parseSubtitle(content: string): Node[] {
+  // formats other than srt will have [format] at beginning
+  if (content.startsWith(SSA)) {
+    return parseSSA(content)
+  } else {
+    return parseSRT(content)
+  }
+}
+
+function parseSRT(content: string): Node[] {
   const lines = content.split('\n').map(i => i.trim())
   let group: string[][] = []
   let p = 0
@@ -26,9 +45,34 @@ export function parseSRT(content: string): Node[] {
     if (!matched) {
       throw new Error('Invalid time: ' + i[1])
     }
-    const start = new Time(matched[1])
-    const end = new Time(matched[2])
-    const text = i.slice(2)
+    const start = new Time(matched[1], 'srt')
+    const end = new Time(matched[2], 'srt')
+    const text = i.slice(2).map(filterText)
+    nodes.push({ counter, start, end, text })
+  }
+  return nodes
+}
+
+function parseSSA(content: string): Node[] {
+  const lines = content
+    .split('\n')
+    .map(i => {
+      const section = i.trim().match(/^dialogue:(.*)$/i)?.[1]
+      if (!section) return ''
+      return section.trim()
+    })
+    .filter(Boolean)
+  const nodes: Node[] = []
+  for (let i = 0; i < lines.length; i++) {
+    const tmp = /^[^,]*,(?<startRaw>[^,]*),(?<endRaw>[^,]*),[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,(?<textRaw>.*)$/.exec(
+      lines[i],
+    )
+    if (!tmp?.groups) throw new Error('SSA parer error in line: ' + lines[i])
+    const { startRaw, endRaw, textRaw } = tmp.groups
+    const counter = i + 1
+    const start = new Time(startRaw, 'ssa')
+    const end = new Time(endRaw, 'ssa')
+    const text = [removeCurlyBrakets(filterText(textRaw))]
     nodes.push({ counter, start, end, text })
   }
   return nodes
@@ -41,18 +85,31 @@ class Time {
   ms: number
   timestamp: number // ms
 
-  constructor(public raw: string) {
-    const matched = raw.match(/(\d+):(\d+):(\d+),(\d+)/)
-    if (matched) {
-      const [_, h, m, s, ms] = matched
-      this.h = parseInt(h)
-      this.m = parseInt(m)
-      this.s = parseInt(s)
-      this.ms = parseInt(ms)
-      this.timestamp = this.ms + this.s * 1000 + this.m * 60 * 1000 + this.h * 60 * 60 * 1000
+  constructor(public raw: string, type: 'srt' | 'ssa') {
+    if (type === 'srt') {
+      const matched = raw.match(/(\d+):(\d+):(\d+),(\d+)/)
+      if (matched) {
+        const [_, h, m, s, ms] = matched
+        this.h = parseInt(h)
+        this.m = parseInt(m)
+        this.s = parseInt(s)
+        this.ms = parseInt(ms)
+      } else {
+        throw new Error('Invalid time string: ' + raw)
+      }
     } else {
-      throw new Error('Invalid time string: ' + raw)
+      const matched = raw.match(/(\d):(\d{2}):(\d{2}).(\d{2})/)
+      if (matched) {
+        const [_, h, m, s, ms] = matched
+        this.h = parseInt(h)
+        this.m = parseInt(m)
+        this.s = parseInt(s)
+        this.ms = parseInt(ms) * 10
+      } else {
+        throw new Error('Invalid time string: ' + raw)
+      }
     }
+    this.timestamp = this.ms + this.s * 1000 + this.m * 60 * 1000 + this.h * 60 * 60 * 1000
   }
 }
 

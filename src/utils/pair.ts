@@ -1,5 +1,5 @@
 import { FileWithHandle, supported } from 'browser-fs-access'
-import { parseSRT, Node } from './subtitle'
+import { parseSubtitle, SSA, Node } from './subtitle'
 import { db, VideoSubPair } from './idb'
 
 async function getPair(file: string) {
@@ -17,10 +17,6 @@ export async function deletePair(file: string) {
   return db.delete('files', file)
 }
 
-function preprocess(s: string) {
-  return s.replace(/&lrm;/gim, '')
-}
-
 export async function getSubtitle(file: string): Promise<Node[]> {
   const pair = await getPair(file)
   if (!supported && !pair) {
@@ -29,7 +25,7 @@ export async function getSubtitle(file: string): Promise<Node[]> {
   if (!pair) return []
   const { subtitle, video } = pair
   if (typeof subtitle === 'string') {
-    const nodes = parseSRT(preprocess(subtitle))
+    const nodes = parseSubtitle(subtitle)
     await setPair(file, { video, subtitle: nodes })
     return nodes
   } else {
@@ -101,7 +97,7 @@ class SubtitleFileCache {
   get(f: string): Node[] {
     const subtitle = this.cache[f]
     if (typeof subtitle === 'string') {
-      const nodes = parseSRT(subtitle)
+      const nodes = parseSubtitle(subtitle)
       this.add(f, nodes)
       return nodes
     } else {
@@ -114,7 +110,11 @@ const subtitleFileCache = new SubtitleFileCache()
 
 export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], saveCache = false) {
   const [video, subtitle] = pair
-  const subtitleText = await subtitle.text()
+  let subtitleText = await subtitle.text()
+  // add format at the beginning if not srt
+  if (/.ssa$/i.test(subtitle.name)) {
+    subtitleText = SSA + subtitleText
+  }
   await setPair(
     video.name,
     {
