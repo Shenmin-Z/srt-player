@@ -112,7 +112,7 @@ export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], s
   const [video, subtitle] = pair
   let subtitleText = await getFileText(subtitle)
   // add format at the beginning if not srt
-  if (/.ssa$/i.test(subtitle.name)) {
+  if (/.(ssa|ass)$/i.test(subtitle.name)) {
     subtitleText = SSA + subtitleText
   }
   await setPair(
@@ -129,29 +129,18 @@ export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], s
   }
 }
 
-enum TextEncoding {
-  utf8,
-  utf16,
-}
-
-async function getFileText(file: File): Promise<string> {
-  let encoding = TextEncoding.utf8
-  const first2bytes = new Uint8Array(await file.slice(0, 2).arrayBuffer())
+async function getFileText(file: File) {
+  let encoding = 'utf-8'
+  const bytes = new Uint8Array(await file.arrayBuffer())
   // check byte order mark
-  if ((first2bytes[0] === 0xff && first2bytes[1] === 0xfe) || (first2bytes[0] === 0xfe && first2bytes[1] === 0xff)) {
-    encoding = TextEncoding.utf16
+  if (bytes[0] === 0xff && bytes[1] === 0xfe) {
+    encoding = 'utf-16le'
+  } else if (bytes[0] === 0xfe && bytes[1] === 0xff) {
+    encoding = 'utf-16be'
   }
 
-  if (encoding === TextEncoding.utf16) {
-    const reader = new FileReader()
-    return new Promise(resolve => {
-      reader.addEventListener('load', () => {
-        resolve(reader.result as string)
-      })
-      reader.readAsText(file, 'utf-16')
-    })
-  }
-  return file.text()
+  const decoder = new TextDecoder(encoding)
+  return decoder.decode(bytes)
 }
 
 export async function getFileList() {

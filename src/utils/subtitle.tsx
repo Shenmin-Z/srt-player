@@ -57,7 +57,7 @@ function parseSSA(content: string): Node[] {
   const lines = content
     .split('\n')
     .map(i => {
-      const section = i.trim().match(/^dialogue:(.*)$/i)?.[1]
+      const section = i.trim().match(/^Dialogue:(.*)$/)?.[1]
       if (!section) return ''
       return section.trim()
     })
@@ -72,7 +72,7 @@ function parseSSA(content: string): Node[] {
     const counter = i + 1
     const start = new Time(startRaw, 'ssa')
     const end = new Time(endRaw, 'ssa')
-    const text = [removeCurlyBrakets(filterText(textRaw))]
+    const text = removeCurlyBrakets(filterText(textRaw)).split(/\\n/i)
     nodes.push({ counter, start, end, text })
   }
   return nodes

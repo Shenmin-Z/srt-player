@@ -248,10 +248,10 @@ async function pickFiles() {
     const option = supported
       ? {
           mimeTypes: ['audio/*', 'video/*', 'text/plain'],
-          extensions: ['.srt', '.ssa'],
+          extensions: ['.srt', '.ssa', '.ass'],
         }
       : {
-          extensions: ['.srt', '.ssa', '.mp4', '.avi', '.mp3', '.aac'],
+          extensions: ['.srt', '.ssa', '.ass', '.mp4', '.avi', '.mp3', '.aac'],
         }
     const files = await fileOpen({
       description: 'Videos & Subtitles',
@@ -266,7 +266,7 @@ async function pickFiles() {
 }
 
 async function filterFileHandles(files: FileWithHandle[]) {
-  const isSubtitle = (s: string) => /\.(srt|ssa)$/i.test(s)
+  const isSubtitle = (s: string) => /\.(srt|ssa|ass)$/i.test(s)
   const videos = files.filter(h => !isSubtitle(h.name))
   const subtitles = files.filter(h => isSubtitle(h.name))
   return { videos, subtitles }
