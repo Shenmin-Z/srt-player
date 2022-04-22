@@ -266,7 +266,7 @@ async function pickFiles() {
 }
 
 async function filterFileHandles(files: FileWithHandle[]) {
-  const isSubtitle = (s: string) => /\.(srt|ssa)/i.test(s)
+  const isSubtitle = (s: string) => /\.(srt|ssa)$/i.test(s)
   const videos = files.filter(h => !isSubtitle(h.name))
   const subtitles = files.filter(h => isSubtitle(h.name))
   return { videos, subtitles }

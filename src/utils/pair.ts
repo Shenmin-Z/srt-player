@@ -110,7 +110,7 @@ const subtitleFileCache = new SubtitleFileCache()
 
 export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], saveCache = false) {
   const [video, subtitle] = pair
-  let subtitleText = await subtitle.text()
+  let subtitleText = await getFileText(subtitle)
   // add format at the beginning if not srt
   if (/.ssa$/i.test(subtitle.name)) {
     subtitleText = SSA + subtitleText
@@ -127,6 +127,31 @@ export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], s
   if (!supported) {
     subtitleFileCache.add(video.name, subtitleText)
   }
+}
+
+enum TextEncoding {
+  utf8,
+  utf16,
+}
+
+async function getFileText(file: File): Promise<string> {
+  let encoding = TextEncoding.utf8
+  const first2bytes = new Uint8Array(await file.slice(0, 2).arrayBuffer())
+  // check byte order mark
+  if ((first2bytes[0] === 0xff && first2bytes[1] === 0xfe) || (first2bytes[0] === 0xfe && first2bytes[1] === 0xff)) {
+    encoding = TextEncoding.utf16
+  }
+
+  if (encoding === TextEncoding.utf16) {
+    const reader = new FileReader()
+    return new Promise(resolve => {
+      reader.addEventListener('load', () => {
+        resolve(reader.result as string)
+      })
+      reader.readAsText(file, 'utf-16')
+    })
+  }
+  return file.text()
 }
 
 export async function getFileList() {
