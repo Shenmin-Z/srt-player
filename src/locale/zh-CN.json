@@ -72,5 +72,8 @@
   },
   "message": {
     "ok": "确定"
+  },
+  "error": {
+    "database_initialize": "数据库初始化错误"
   }
 }

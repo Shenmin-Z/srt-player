@@ -1,9 +1,17 @@
 import { useSelector } from '../state/hooks'
-import { locacle } from '../locale'
+import { locale } from '../locale'
 
-export const useI18n = (): ((path: string, ...args: string[]) => string) => {
-  const language = useSelector(s => s.settings.locale)
-  const text = locacle[language]
+export const INIT_LANG = (() => {
+  if (/^zh/i.test(navigator.language)) {
+    return 'zh-CN'
+  }
+  return 'en-US'
+})()
+
+export const useI18n = (_language?: string): ((path: string, ...args: string[]) => string) => {
+  let language = useSelector(s => s.settings.locale)
+  language = _language ?? language
+  const text = locale[language]
   if (!text) return () => ''
 
   return (path: string, ...args: string[]) => {

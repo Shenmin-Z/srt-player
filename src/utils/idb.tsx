@@ -1,6 +1,8 @@
 import { FC, useEffect, useState } from 'react'
 import { openDB, DBSchema, IDBPDatabase } from 'idb'
 import { Node } from './subtitle'
+import { Error } from '../components/Error'
+import { useI18n, INIT_LANG } from './i18n'
 
 export interface VideoSubPair {
   video: FileSystemFileHandle | File
@@ -65,15 +67,27 @@ export const getDB = async () => {
 
 export const migrate = (FC: FC): FC => {
   return props => {
-    const [migrated, setMigrated] = useState(false)
+    const [migrated, setMigrated] = useState<'init' | 'success' | 'failed'>('init')
+    const [errorMsg, setErrorMsg] = useState('')
+    const i18n = useI18n(INIT_LANG)
 
     useEffect(() => {
       ;(async () => {
-        db = await getDB()
-        setMigrated(true)
+        try {
+          db = await getDB()
+          setMigrated('success')
+        } catch (_e) {
+          setMigrated('failed')
+          const e = _e as any
+          if (typeof e?.toString === 'function') {
+            setErrorMsg(e.toString())
+          }
+        }
       })()
     }, [])
 
-    return migrated ? <FC {...props} /> : null
+    if (migrated === 'init') return null
+    if (migrated === 'success') return <FC {...props} />
+    return <Error main={i18n('error.database_initialize')} secondary={errorMsg} />
   }
 }

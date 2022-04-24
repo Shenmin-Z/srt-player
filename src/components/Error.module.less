@@ -1,0 +1,28 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  text-align: center;
+  :global(.material-icons-outlined) {
+    font-size: 64px;
+    color: var(--red-400);
+    margin-bottom: 8px;
+  }
+  .main {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  .secondary {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--black-500);
+  }
+}

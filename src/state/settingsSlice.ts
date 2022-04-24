@@ -10,14 +10,8 @@ import {
   EnableWaveForm,
   deleteSampling,
   IS_MOBILE,
+  INIT_LANG,
 } from '../utils'
-
-const INIT_LANG = (() => {
-  if (/^zh/i.test(navigator.language)) {
-    return 'zh-CN'
-  }
-  return 'en-US'
-})()
 
 const INIT_SETTING: Settings = {
   subtitleWidth: IS_MOBILE ? 300 : 400,

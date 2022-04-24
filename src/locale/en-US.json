@@ -72,5 +72,8 @@
   },
   "message": {
     "ok": "OK"
+  },
+  "error": {
+    "database_initialize": "Failed to initialize database"
   }
 }
