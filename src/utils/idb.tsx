@@ -1,8 +1,5 @@
-import { FC, useEffect, useState } from 'react'
 import { openDB, DBSchema, IDBPDatabase } from 'idb'
 import { Node } from './subtitle'
-import { Error } from '../components/Error'
-import { useI18n, INIT_LANG } from './i18n'
 
 export interface VideoSubPair {
   video: FileSystemFileHandle | File
@@ -46,6 +43,7 @@ interface SRTPlayerDB extends DBSchema {
 }
 
 export let db: IDBPDatabase<SRTPlayerDB>
+export const setGlobalDb = (_db: typeof db) => (db = _db)
 
 export const getDB = async () => {
   const _db = await openDB<SRTPlayerDB>('srt-player', 1, {
@@ -63,31 +61,4 @@ export const getDB = async () => {
     },
   })
   return _db
-}
-
-export const migrate = (FC: FC): FC => {
-  return props => {
-    const [migrated, setMigrated] = useState<'init' | 'success' | 'failed'>('init')
-    const [errorMsg, setErrorMsg] = useState('')
-    const i18n = useI18n(INIT_LANG)
-
-    useEffect(() => {
-      ;(async () => {
-        try {
-          db = await getDB()
-          setMigrated('success')
-        } catch (_e) {
-          setMigrated('failed')
-          const e = _e as any
-          if (typeof e?.toString === 'function') {
-            setErrorMsg(e.toString())
-          }
-        }
-      })()
-    }, [])
-
-    if (migrated === 'init') return null
-    if (migrated === 'success') return <FC {...props} />
-    return <Error main={i18n('error.database_initialize')} secondary={errorMsg} />
-  }
 }
