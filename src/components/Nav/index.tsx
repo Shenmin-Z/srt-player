@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
 import { useDispatch, useSelector, setSelected, updateSubtitleAuto, updateSubtitleListeningMode } from '../../state'
@@ -106,7 +106,14 @@ export const Nav = () => {
 
 window.__SRT_ENABLE_SHORTCUTS__ = true
 
-const Icon: FC<{ type: string; onClick: () => void; disabled?: boolean }> = ({ type, onClick, disabled, children }) => {
+interface IconProps {
+  type: string
+  onClick: () => void
+  disabled?: boolean
+  children?: ReactNode
+}
+
+const Icon: FC<IconProps> = ({ type, onClick, disabled, children }) => {
   return (
     <div className={cn(styles['icon'], { disabled: disabled })} onClick={onClick}>
       <span className="material-icons">{type}</span>

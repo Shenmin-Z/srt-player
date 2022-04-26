@@ -1,6 +1,14 @@
 import { FC, useState, useEffect } from 'react'
 import { useSelector, useDispatch, updateEnableWaveForm } from '../../state'
-import { computeAudioSampling, doVideoWithDefault, useI18n, EnableWaveForm, StageEnum, getVideo } from '../../utils'
+import {
+  computeAudioSampling,
+  getMediaDuration,
+  doVideoWithDefault,
+  useI18n,
+  EnableWaveForm,
+  StageEnum,
+  getVideo,
+} from '../../utils'
 import { Modal, message } from '../Modal'
 import styles from './Nav.module.less'
 import SamplingWorker from '../../web-workers/sampling?worker&inline'
@@ -29,14 +37,14 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
   let icon = ''
   let text = ''
   let cb = async () => {}
-  const createSampling = async (ab: ArrayBuffer) => {
+  const createSampling = async (ab: ArrayBuffer, duration?: number) => {
     if (!ab) return
     const worker = new SamplingWorker()
     await computeAudioSampling({
       worker,
       arrayBuffer: ab,
       fileName: file,
-      videoDuration,
+      audioDuration: duration ?? videoDuration,
       onProgress: s => setStage(s),
     })
   }
@@ -74,8 +82,10 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
           ],
         } as OpenFilePickerOptions)
         setStage(StageEnum.decoding)
-        const audioArrayBuffer = await (await handles[0].getFile()).arrayBuffer()
-        await createSampling(audioArrayBuffer)
+        const file = await handles[0].getFile()
+        const audioDuration = await getMediaDuration(file)
+        const audioArrayBuffer = await file.arrayBuffer()
+        await createSampling(audioArrayBuffer, audioDuration)
       }
       break
     }

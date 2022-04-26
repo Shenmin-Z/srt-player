@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, ReactNode, useState, useEffect, useRef } from 'react'
 import { Subject, useI18n } from '../utils'
 import styles from './Modal.module.less'
 import cn from 'classnames'
@@ -9,6 +9,7 @@ interface ModalProps {
   hideHeader?: boolean
   show: boolean
   onClose: () => void
+  children?: ReactNode
 }
 
 export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader, children }) => {

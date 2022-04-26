@@ -180,6 +180,7 @@ const updatePosition = (() => {
 
       if (locked) return
       const canvasContainer = document.getElementById(WAVEFORM_ID) as HTMLDivElement
+      if (!canvasContainer) return
       const parent = canvasContainer.parentElement as HTMLDivElement
       const { width } = parent.getBoundingClientRect()
       const left = parent.scrollLeft

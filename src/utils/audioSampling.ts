@@ -40,18 +40,18 @@ interface ComputeAudioSampling {
   worker: Worker
   arrayBuffer: ArrayBuffer
   fileName: string
-  videoDuration: number
+  audioDuration: number
   onProgress: (s: StageEnum) => void
 }
 
 export const computeAudioSampling = async (task: ComputeAudioSampling) => {
-  const { worker, arrayBuffer, fileName, videoDuration, onProgress } = task
+  const { worker, arrayBuffer, fileName, audioDuration, onProgress } = task
   const audioContext = new OfflineAudioContext(1, 2, SAMPLE_RATE)
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   const float32Array = audioBuffer.getChannelData(0)
   const payload: Payload = {
     file: fileName,
-    duration: videoDuration,
+    duration: audioDuration,
     buffer: [float32Array.buffer, float32Array.byteOffset, float32Array.byteLength / Float32Array.BYTES_PER_ELEMENT],
   }
   worker.postMessage(payload, [payload.buffer[0]])
