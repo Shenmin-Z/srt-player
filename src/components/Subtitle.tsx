@@ -3,7 +3,7 @@ import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, ib, useSavableHighlight } from '../utils'
+import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, useSavableHighlight } from '../utils'
 
 // subtitle_time + subtitle_delay = video_time
 
@@ -191,7 +191,7 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
               {end.raw}
             </span>
           </div>
-          <p className={styles['text']}>{ib(text.join('\n'))}</p>
+          <p className={styles['text']} dangerouslySetInnerHTML={{ __html: text.join('\n') }} />
         </div>
       </div>
     )
