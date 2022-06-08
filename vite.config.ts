@@ -31,19 +31,19 @@ const SWPlugin = (): Plugin => {
       config = resolvedConfig
     },
     configureServer({ middlewares }) {
-      build({
-        build: {
-          rollupOptions: {
-            input: 'sw/sw.ts',
-            output: {
-              entryFileNames: `[name].js`,
-              manualChunks: undefined,
-            },
-          },
-          minify: false,
-          watch: {},
-        },
-      })
+      // build({
+      //   build: {
+      //     rollupOptions: {
+      //       input: 'sw/sw.ts',
+      //       output: {
+      //         entryFileNames: `[name].js`,
+      //         manualChunks: undefined,
+      //       },
+      //     },
+      //     minify: false,
+      //     watch: {},
+      //   },
+      // })
       middlewares.use(async (req, res, next) => {
         if (req.originalUrl === config.base + 'sw.js') {
           const sw = await readFile(resolve(__dirname, 'dist/sw.js'))

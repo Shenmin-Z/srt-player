@@ -1,1 +1,1 @@
-window.__SRT_VERSION__ = '1.2.14'
+window.__SRT_VERSION__ = '1.2.15'
