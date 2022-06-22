@@ -22,7 +22,8 @@
         "back_10_seconds": "-10 s",
         "back_3_seconds": "-3 s",
         "forward_10_seconds": "+10 s",
-        "forward_3_seconds": "+3 s"
+        "forward_3_seconds": "+3 s",
+        "fullscreen": "全屏"
       },
       "subtitle": {
         "name": "Subtitle",

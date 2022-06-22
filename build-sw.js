@@ -1,6 +1,6 @@
 const { build } = require('vite')
 const { resolve } = require('path')
-const { writeFile } = require('fs/promises')
+const { writeFileSync } = require('fs')
 
 async function buildSW() {
   const { output } = await build({
@@ -17,7 +17,7 @@ async function buildSW() {
     },
   })
   const code = output[0].code
-  writeFile(resolve(__dirname, 'dist/sw.js'), code)
+  writeFileSync(resolve(__dirname, 'dist/sw.js'), code)
 }
 
 ;(async () => {

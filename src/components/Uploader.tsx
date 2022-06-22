@@ -1,4 +1,5 @@
 import { useReducer, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
 import { useDispatch, getList, globalStore } from '../state'
@@ -13,7 +14,8 @@ export const Uploader = () => {
 
   const subtitleHandles = useRef<FileWithHandle[]>([])
   const videoHandles = useRef<FileWithHandle[]>([])
-  const [, forceUpdate] = useReducer(s => !s, true)
+  const [, _forceUpdate] = useReducer(s => !s, true)
+  const forceUpdate = () => flushSync(_forceUpdate)
   const [processing, setProcessing] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [saveCache, setSaveCache] = useState(false)

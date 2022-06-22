@@ -1,6 +1,6 @@
 import { defineConfig, Plugin, ResolvedConfig, build } from 'vite'
 import react from '@vitejs/plugin-react'
-import { readFile } from 'fs/promises'
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 const SWPlugin = (): Plugin => {
@@ -44,9 +44,9 @@ const SWPlugin = (): Plugin => {
       //     watch: {},
       //   },
       // })
-      middlewares.use(async (req, res, next) => {
+      middlewares.use((req, res, next) => {
         if (req.originalUrl === config.base + 'sw.js') {
-          const sw = await readFile(resolve(__dirname, 'dist/sw.js'))
+          const sw = readFileSync(resolve(__dirname, 'dist/sw.js'))
           res.setHeader('Content-Type', 'text/javascript')
           res.end(sw)
         } else {

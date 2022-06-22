@@ -85,6 +85,9 @@ export const Video: FC = () => {
           forward(10)()
         }
       }
+      if (e.code === 'KeyF') {
+        document.body.requestFullscreen()
+      }
     }
     window.addEventListener('keydown', keyListener)
     return () => {

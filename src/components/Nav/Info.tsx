@@ -42,6 +42,10 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
               </span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.video.forward_3_seconds')}</div>
+            <div className={styles['title']}>
+              <span className={styles['key']}>F</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.video.fullscreen')}</div>
           </div>
         </div>
         <div className="column">
