@@ -11,7 +11,6 @@ const CACHE_URLS = [
   'github.png',
   'fonts/MaterialIcons-Regular.ttf',
   'fonts/MaterialIconsOutlined-Regular.otf',
-  'fonts/RobotoMono-Regular.ttf',
 ]
   .map(i => PATH + i)
   .concat(PATH.substring(0, PATH.length - 1))
