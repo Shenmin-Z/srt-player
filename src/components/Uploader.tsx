@@ -4,7 +4,7 @@ import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
 import { useDispatch, getList, globalStore } from '../state'
 import { confirm } from './Modal'
-import { useI18n, saveVideoSubPair, getFileList, IS_MOBILE } from '../utils'
+import { useI18n, saveVideoSubPairs, getFileList, IS_MOBILE } from '../utils'
 import { DownloadExample } from './List'
 import cn from 'classnames'
 
@@ -21,7 +21,7 @@ export const Uploader = () => {
   const [saveCache, setSaveCache] = useState(false)
   const [transition, setTransition] = useState({ vUp: -1, vDown: -1, sUp: -1, sDown: -1 })
 
-  const process = async () => {
+  const onSave = async () => {
     const vs = videoHandles.current
     const ss = subtitleHandles.current
     const exist = await checkExist(vs)
@@ -31,7 +31,7 @@ export const Uploader = () => {
         return
       }
     }
-    await Promise.all(vs.map((v, idx) => saveVideoSubPair([v, ss[idx]], saveCache)))
+    await saveVideoSubPairs(vs, ss, saveCache)
     videoHandles.current = []
     subtitleHandles.current = []
     setSaveCache(false)
@@ -99,7 +99,6 @@ export const Uploader = () => {
 
   const hasBuffer = videoHandles.current.length > 0 || subtitleHandles.current.length > 0
   const uploadStyle = { display: hasBuffer ? undefined : 'none' }
-  const disabled = videoHandles.current.length !== subtitleHandles.current.length
 
   const uploadElm = (
     <div className={styles['container']}>
@@ -151,7 +150,6 @@ export const Uploader = () => {
                   <li
                     key={v}
                     className={cn({
-                      error: subtitleHandles.current[index] === undefined,
                       [styles['upward']]: transition.vUp === index,
                       [styles['downward']]: transition.vDown === index,
                     })}
@@ -190,7 +188,6 @@ export const Uploader = () => {
                   <li
                     key={s}
                     className={cn({
-                      error: videoHandles.current[index] === undefined,
                       [styles['upward']]: transition.sUp === index,
                       [styles['downward']]: transition.sDown === index,
                     })}
@@ -230,9 +227,7 @@ export const Uploader = () => {
         <label htmlFor="upload-save-cache">{i18n('import_video_and_subtitle.save_cache')}</label>
       </div>
       <div className={styles['ok']} style={uploadStyle}>
-        <button onClick={process} disabled={disabled}>
-          {i18n('import_video_and_subtitle.save')}
-        </button>
+        <button onClick={onSave}>{i18n('import_video_and_subtitle.save')}</button>
       </div>
     </div>
   )

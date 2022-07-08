@@ -29,7 +29,7 @@ export async function getSubtitle(file: string): Promise<Node[]> {
     await setPair(file, { video, subtitle: nodes })
     return nodes
   } else {
-    return subtitle
+    return subtitle ?? []
   }
 }
 
@@ -101,12 +101,35 @@ class SubtitleFileCache {
       this.add(f, nodes)
       return nodes
     } else {
-      return subtitle
+      return subtitle ?? []
     }
   }
 }
 
 const subtitleFileCache = new SubtitleFileCache()
+
+export async function saveVideoSubPairs(vs: FileWithHandle[], ss: FileWithHandle[], saveCache: boolean) {
+  await Promise.all(
+    vs.map((v, idx) => {
+      if (ss[idx]) {
+        return saveVideoSubPair([v, ss[idx]], saveCache)
+      } else {
+        return saveVideoOnly(v, saveCache)
+      }
+    }),
+  )
+}
+
+async function saveVideoOnly(video: FileWithHandle, saveCache: boolean) {
+  await setPair(
+    video.name,
+    {
+      video: saveCache ? video : (video?.handle as FileSystemFileHandle),
+    },
+    saveCache,
+  )
+  videoFileCache.add(video.name, video)
+}
 
 export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], saveCache = false) {
   const [video, subtitle] = pair

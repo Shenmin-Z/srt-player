@@ -101,13 +101,6 @@
           top: @list-height + @list-margin-bottom;
         }
 
-        &:global(.error) {
-          color: var(--red-200);
-          .file {
-            text-decoration: line-through;
-          }
-        }
-
         .file {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -153,10 +146,6 @@
       font-size: 16px;
       cursor: pointer;
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-      &:disabled {
-        opacity: 0.5;
-        cursor: default;
-      }
     }
   }
 }

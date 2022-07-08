@@ -3,7 +3,7 @@ import { Node } from './subtitle'
 
 export interface VideoSubPair {
   video: FileSystemFileHandle | File
-  subtitle: string | Node[]
+  subtitle?: string | Node[]
 }
 
 export enum EnableWaveForm {

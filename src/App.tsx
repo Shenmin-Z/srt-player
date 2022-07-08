@@ -1,4 +1,5 @@
-import { FC, useEffect, MouseEventHandler, TouchEventHandler } from 'react'
+import { FC, useEffect, MouseEventHandler, TouchEventHandler, useState } from 'react'
+import cn from 'classnames'
 import { Language } from './components/Language'
 import { Uploader } from './components/Uploader'
 import { List } from './components/List'
@@ -9,20 +10,31 @@ import { Video } from './components/Video'
 import { Message, Confirm } from './components/Modal'
 import { useDispatch, useSelector, getList, LoadSettingsFromLocal, updateSubtitleWidth } from './state'
 import styles from './App.module.less'
-import { useSaveHistory, migrate, IS_MOBILE } from './utils'
+import { useSaveHistory, migrate, getSubtitle, IS_MOBILE } from './utils'
 
 const App: FC = migrate(() => {
   const dispatch = useDispatch()
   const selected = useSelector(state => state.files.selected)
   const locale = useSelector(state => state.settings.locale)
+  const [hasSubtitle, setHasSubtitle] = useState<boolean | null>(null)
 
   useEffect(() => {
     dispatch(getList())
     dispatch(LoadSettingsFromLocal())
   }, [])
 
+  useEffect(() => {
+    if (selected) {
+      getSubtitle(selected).then(nodes => {
+        setHasSubtitle(nodes.length > 0)
+      })
+    } else {
+      setHasSubtitle(null)
+    }
+  }, [selected])
+
   if (locale === '') return null
-  return selected === null ? <Home /> : <Play />
+  return hasSubtitle === null ? <Home /> : <Play hasSubtitle={hasSubtitle} />
 })
 
 const Home: FC = () => {
@@ -38,7 +50,7 @@ const Home: FC = () => {
   )
 }
 
-const Play: FC = () => {
+const Play: FC<{ hasSubtitle: boolean }> = ({ hasSubtitle }) => {
   const saveHistory = useSaveHistory(5000)
 
   useEffect(() => {
@@ -50,7 +62,7 @@ const Play: FC = () => {
 
   return (
     <>
-      <div className={styles['play']}>
+      <div className={cn(styles['play'], { 'no-subtitle': !hasSubtitle })}>
         <Nav />
         <Video />
         <ResizeBar />
