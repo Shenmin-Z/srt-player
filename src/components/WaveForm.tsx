@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useRef } from 'react'
-import { getSampling, doVideo, doVideoWithDefault, PIXELS_PER_SECOND } from '../utils'
+import { getSampling, doVideo, doVideoWithDefault, useVideoEvents, PIXELS_PER_SECOND } from '../utils'
 import { useSelector } from '../state'
 import cn from 'classnames'
 import styles from './WaveForm.module.less'
@@ -24,9 +24,9 @@ export const WaveForm: FC<Props> = () => {
   useEffect(() => {
     if (ready) {
       setReplayPos(doVideoWithDefault(v => v.currentTime, 0) * PIXELS_PER_SECOND)
-      return listenToVideoEvents(setOffset)
     }
   }, [ready])
+  listenToVideoEvents(setOffset)
 
   const replay = (pos: number, play = false) => {
     doVideo(video => {
@@ -139,36 +139,24 @@ const useImages = (file: string, setOffset: { (x: number): void }, onReady: { ()
 }
 
 const listenToVideoEvents = (setOffset: (x: number) => void) => {
-  return doVideoWithDefault(
-    video => {
-      let enable = true
-      const move = () => {
-        if (!enable) return
-        updatePosition(setOffset)
-        requestAnimationFrame(move)
-      }
-      const playListener = () => {
-        enable = true
-        move()
-      }
-      const stopListener = () => {
-        enable = false
-      }
-      const seekListener = () => {
-        updatePosition(setOffset, true)
-      }
-      if (!video.paused && !video.ended) playListener()
-      video.addEventListener('play', playListener)
-      video.addEventListener('pause', stopListener)
-      video.addEventListener('seeked', seekListener)
-      return () => {
-        video.removeEventListener('play', playListener)
-        video.removeEventListener('pause', stopListener)
-        video.removeEventListener('seeked', seekListener)
-      }
+  const enabled = useRef(true)
+  const tick = () => {
+    if (!enabled.current) return
+    updatePosition(setOffset)
+    requestAnimationFrame(tick)
+  }
+  useVideoEvents({
+    play() {
+      enabled.current = true
+      tick()
     },
-    () => {},
-  )
+    pause() {
+      enabled.current = false
+    },
+    seeked() {
+      updatePosition(setOffset, true)
+    },
+  })
 }
 
 const updatePosition = (() => {

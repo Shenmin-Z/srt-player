@@ -1,41 +1,29 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { doVideo } from '../utils'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+type videoStatus = 'init' | 'playing' | 'paused' | 'ended'
 interface initialState {
   hasVideo: boolean
-  status: 'playing' | 'stopped'
+  status: videoStatus
+  seeked: number // use number to mock seeked event
 }
-let initialState: initialState = { hasVideo: false, status: 'stopped' }
 
-export let setVideo = createAsyncThunk<boolean, boolean>('video/setVideo', (v, { dispatch }) => {
-  if (!v) return false
-  doVideo(video => {
-    function playListener() {
-      dispatch(setVideoStatus('playing'))
-    }
-    function pauseListener() {
-      dispatch(setVideoStatus('stopped'))
-    }
-    video.addEventListener('play', playListener)
-    video.addEventListener('pause', pauseListener)
-  })
-  return true
-})
+const initialState: initialState = { hasVideo: false, status: 'init', seeked: -1 }
 
-export let videoSlice = createSlice({
+export const videoSlice = createSlice({
   name: 'video',
   initialState,
   reducers: {
-    setVideoStatus: (state, action: PayloadAction<initialState['status']>) => {
+    setVideo: (state, action: PayloadAction<boolean>) => {
+      state.hasVideo = action.payload
+    },
+    setVideoStatus: (state, action: PayloadAction<videoStatus>) => {
       state.status = action.payload
     },
-  },
-  extraReducers: builder => {
-    builder.addCase(setVideo.fulfilled, (state, action) => {
-      state.hasVideo = action.payload
-    })
+    increaseSeeked(state) {
+      state.seeked = (state.seeked + 1) % 10
+    },
   },
 })
 
-export let videoReducer = videoSlice.reducer
-export let { setVideoStatus } = videoSlice.actions
+export const videoReducer = videoSlice.reducer
+export const { setVideo, setVideoStatus, increaseSeeked } = videoSlice.actions

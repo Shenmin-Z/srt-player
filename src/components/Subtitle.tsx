@@ -3,13 +3,21 @@ import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
 import { message } from './Modal'
 import styles from './Subtitle.module.less'
-import { useRestoreSubtitle, Node, isWithin, findNode, doVideo, getSubtitle, useSavableHighlight } from '../utils'
+import {
+  useRestoreSubtitle,
+  Node,
+  isWithin,
+  findNode,
+  doVideo,
+  getSubtitle,
+  useSavableHighlight,
+  useVideoEvents,
+} from '../utils'
 
 // subtitle_time + subtitle_delay = video_time
 
 export const Subtitle: FC = () => {
   const nodes = useNodes()
-  const hasVideo = useSelector(s => s.video.hasVideo)
   const file = useSelector(s => s.files.selected) as string
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
@@ -51,18 +59,7 @@ export const Subtitle: FC = () => {
     })
   }
 
-  useEffect(() => {
-    if (!hasVideo || nodes === null) return
-    return doVideo(video => {
-      tick()
-      video.addEventListener('play', tick)
-      video.addEventListener('seeked', tick)
-      return () => {
-        video.removeEventListener('play', tick)
-        video.removeEventListener('seeked', tick)
-      }
-    })
-  }, [hasVideo, subtitleAuto, nodes])
+  useVideoEvents({ play: tick, seeked: tick })
 
   const restoreSubtitle = useRestoreSubtitle()
 

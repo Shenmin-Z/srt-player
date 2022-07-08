@@ -1,6 +1,15 @@
 import { FC, useState, useEffect } from 'react'
 import styles from './Video.module.less'
-import { setVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
+import {
+  setVideo,
+  setVideoStatus,
+  increaseSeeked,
+  useDispatch,
+  useSelector,
+  setSelected,
+  LoadWaveFormPreference,
+  deleteFile,
+} from '../state'
 import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm } from './Modal'
@@ -109,6 +118,18 @@ export const Video: FC = () => {
             onLoadedData={async () => {
               await restoreVideo()
               dispatch(setVideo(true))
+            }}
+            onPlay={() => {
+              dispatch(setVideoStatus('playing'))
+            }}
+            onPause={() => {
+              dispatch(setVideoStatus('paused'))
+            }}
+            onEnded={() => {
+              dispatch(setVideoStatus('ended'))
+            }}
+            onSeeked={() => {
+              dispatch(increaseSeeked())
             }}
           />
         </div>
