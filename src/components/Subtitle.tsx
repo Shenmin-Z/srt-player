@@ -6,11 +6,12 @@ import styles from './Subtitle.module.less'
 import {
   useRestoreSubtitle,
   Node,
+  SUBTITLE_CONTAINER_ID,
   isWithin,
   findNode,
   doVideo,
   getSubtitle,
-  useSavableHighlight,
+  highlight,
   useVideoEvents,
 } from '../utils'
 
@@ -26,7 +27,6 @@ export const Subtitle: FC = () => {
   const dispath = useDispatch()
   const [lang, setLang] = useState<string>('')
   const [ready, setReady] = useState(false)
-  const [highlight, setHighlight] = useSavableHighlight()
   const { divRef, autoRef, timerRef, delayRef } = useShortcuts(nodes, subtitleAuto, subtitleDelay)
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const Subtitle: FC = () => {
       if (node === null) return
       let waitTime: number
       if (isWithin(current, node)) {
-        scrollToNthChild(node.counter - 1, divRef.current, n => setHighlight(n))
+        scrollToNthChild(node.counter - 1, divRef.current, highlight)
         waitTime = node.end.timestamp - current
       } else {
         waitTime = node.start.timestamp - current
@@ -71,7 +71,7 @@ export const Subtitle: FC = () => {
     if (nodes !== null) {
       restoreSubtitle().then(active => {
         if (active !== null) {
-          setHighlight(active)
+          highlight(active)
         }
         setReady(true)
       })
@@ -98,7 +98,7 @@ export const Subtitle: FC = () => {
     } as any
     return (
       <div
-        id="srt-player-subtitle"
+        id={SUBTITLE_CONTAINER_ID}
         ref={divRef}
         className={cn(styles['subtitle'], {
           [styles['ready']]: ready,
@@ -111,10 +111,9 @@ export const Subtitle: FC = () => {
           <SubtitleNode
             {...n}
             key={n.counter}
-            highlight={highlight === n.counter}
             onClick={h => {
               if (!autoRef.current) {
-                setHighlight(h)
+                highlight(h)
               }
             }}
             setDelay={start => {
@@ -144,7 +143,6 @@ export const Subtitle: FC = () => {
 }
 
 interface SubtitleNodeProps extends Node {
-  highlight: boolean
   onClick: (h: number) => void
   setDelay: (start: number) => void
   jumpToTime: (t: number) => void
@@ -152,10 +150,10 @@ interface SubtitleNodeProps extends Node {
 
 const SubtitleNode: FC<SubtitleNodeProps> = memo(
   props => {
-    const { counter, start, end, text, highlight, onClick, setDelay, jumpToTime } = props
+    const { counter, start, end, text, onClick, setDelay, jumpToTime } = props
     return (
       <div
-        className={cn(styles['node'], { [styles['highlight']]: highlight })}
+        className={styles['node']}
         onClick={() => {
           onClick(counter)
         }}
@@ -193,7 +191,7 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
       </div>
     )
   },
-  (prevProps, nextProps) => prevProps.highlight === nextProps.highlight,
+  () => true,
 )
 
 const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay: number) => {

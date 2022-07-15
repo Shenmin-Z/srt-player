@@ -1,15 +1,6 @@
 import { FC, useState, useEffect } from 'react'
 import styles from './Video.module.less'
-import {
-  setVideo,
-  setVideoStatus,
-  increaseSeeked,
-  useDispatch,
-  useSelector,
-  setSelected,
-  LoadWaveFormPreference,
-  deleteFile,
-} from '../state'
+import { setVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
 import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm } from './Modal'
@@ -20,10 +11,8 @@ export const Video: FC = () => {
   const restoreVideo = useRestoreVideo()
   const i18n = useI18n()
   const dispatch = useDispatch()
-  const hasVideo = useSelector(s => s.video.hasVideo)
   const enableStatus = useSelector(s => s.settings.waveform)
   const file = useSelector(s => s.files.selected) as string
-  const status = useSelector(s => s.video.status)
 
   useEffect(() => {
     dispatch(LoadWaveFormPreference(file))
@@ -59,18 +48,6 @@ export const Video: FC = () => {
     })
   }
 
-  function togglePlay() {
-    if (!hasVideo) return
-    doVideo(video => {
-      video.blur()
-      if (status === 'playing') {
-        video.pause()
-      } else {
-        video.play()
-      }
-    })
-  }
-
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
       if (!window.__SRT_ENABLE_SHORTCUTS__) return
@@ -102,7 +79,7 @@ export const Video: FC = () => {
     return () => {
       window.removeEventListener('keydown', keyListener)
     }
-  }, [togglePlay])
+  }, [])
 
   if (videoUrl) {
     return (
@@ -119,22 +96,21 @@ export const Video: FC = () => {
               await restoreVideo()
               dispatch(setVideo(true))
             }}
-            onPlay={() => {
-              dispatch(setVideoStatus('playing'))
-            }}
-            onPause={() => {
-              dispatch(setVideoStatus('paused'))
-            }}
-            onEnded={() => {
-              dispatch(setVideoStatus('ended'))
-            }}
-            onSeeked={() => {
-              dispatch(increaseSeeked())
-            }}
           />
         </div>
       </div>
     )
   }
   return <div />
+}
+
+function togglePlay() {
+  doVideo(video => {
+    video.blur()
+    if (video.paused) {
+      video.play()
+    } else {
+      video.pause()
+    }
+  })
 }

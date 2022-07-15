@@ -22,19 +22,30 @@ interface VideoEvents {
 }
 
 export const useVideoEvents = (cbs: VideoEvents) => {
-  const { status, seeked } = useSelector(s => s.video)
+  const { hasVideo } = useSelector(s => s.video)
   useEffect(() => {
-    if (status === 'playing' && cbs.play) {
-      cbs.play()
-    }
-    if (status === 'paused' && cbs.pause) {
-      cbs.pause()
-    }
-  }, [status])
-  useEffect(() => {
-    if (seeked === -1) return
-    if (cbs.seeked) {
-      cbs.seeked()
-    }
-  }, [seeked])
+    if (!hasVideo) return
+    return doVideo(video => {
+      if (cbs.play) {
+        video.addEventListener('play', cbs.play)
+      }
+      if (cbs.pause) {
+        video.addEventListener('pause', cbs.pause)
+      }
+      if (cbs.seeked) {
+        video.addEventListener('seeked', cbs.seeked)
+      }
+      return () => {
+        if (cbs.play) {
+          video.removeEventListener('play', cbs.play)
+        }
+        if (cbs.pause) {
+          video.removeEventListener('pause', cbs.pause)
+        }
+        if (cbs.seeked) {
+          video.removeEventListener('seeked', cbs.seeked)
+        }
+      }
+    })
+  }, [hasVideo])
 }

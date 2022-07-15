@@ -5,6 +5,24 @@ export interface Node {
   text: string[]
 }
 
+export const SUBTITLE_CONTAINER_ID = 'srt-player-subtitle'
+export let previousHighlighted: number
+
+// manual update for better performance
+export function highlight(counter: number) {
+  const container = document.querySelector(`#${SUBTITLE_CONTAINER_ID}`)
+  if (!container) return
+  const prev = container.children[previousHighlighted - 1]
+  if (prev) {
+    prev.classList.remove('highlighted-subtitle')
+  }
+  const elm = container.children[counter - 1] as HTMLElement
+  if (elm) {
+    previousHighlighted = counter
+    elm.classList.add('highlighted-subtitle')
+  }
+}
+
 function removeTags(s: string) {
   return s.replace(/<[^>]*>/g, s => {
     if (/^<\/?(i|b|u)>$/i.test(s)) return s

@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import { useSelector } from '../state'
 import { doVideo } from './video'
 import { db, WatchHistory, EnableWaveForm } from './idb'
+import { previousHighlighted } from './subtitle'
 
 export interface WatchHistories {
   [s: string]: WatchHistory
@@ -81,22 +81,6 @@ export const saveEnableWaveForm = async (f: string, enable: EnableWaveForm) => {
   })
 }
 
-let active: number | null = null
-
-export const useSavableHighlight = (): [number | null, (h: number) => void] => {
-  const [highlight, setHighlight] = useState<number | null>(() => {
-    active = null
-    return null
-  })
-  return [
-    highlight,
-    (h: number) => {
-      active = h
-      setHighlight(h)
-    },
-  ]
-}
-
 export const useSaveHistory = (cooldown?: number) => {
   const file = useSelector(s => s.files.selected)
   let skip = false
@@ -111,7 +95,7 @@ export const useSaveHistory = (cooldown?: number) => {
         h.currentTime = Math.floor(video.currentTime)
         h.duration = video.duration
       })
-      h.subtitleLastActive = active
+      h.subtitleLastActive = previousHighlighted
     })
     if (cooldown) {
       skip = true
