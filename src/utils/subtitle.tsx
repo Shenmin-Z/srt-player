@@ -1,7 +1,7 @@
 export interface Node {
   counter: number
-  start: Time
-  end: Time
+  start: SubtitleTime
+  end: SubtitleTime
   text: string[]
 }
 
@@ -50,25 +50,27 @@ export function parseSubtitle(content: string): Node[] {
 }
 
 function parseSRT(content: string): Node[] {
+  const timeReg = /(\d{2}:\d{2}:\d{2},\d{3})\s-->\s(\d{2}:\d{2}:\d{2},\d{3})/
   const lines = content.split('\n').map(i => i.trim())
   let group: string[][] = []
   let p = 0
   for (let i = 0; i < lines.length; i++) {
     if (lines[i] === '') {
-      group.push(lines.slice(p, i))
+      const item = lines.slice(p, i)
       p = i + 1
+
+      if (item.length < 3) continue
+      if (!/^\d+$/.test(item[0])) continue
+      if (!timeReg.test(item[1])) continue
+      group.push(item)
     }
   }
-  group = group.filter(i => i.length !== 0)
   const nodes: Node[] = []
   for (const i of group) {
     const counter = parseInt(i[0])
-    const matched = i[1].match(/(\d{2}:\d{2}:\d{2},\d{3})\s-->\s(\d{2}:\d{2}:\d{2},\d{3})/)
-    if (!matched) {
-      throw new Error('Invalid time: ' + i[1])
-    }
-    const start = new Time(matched[1], 'srt')
-    const end = new Time(matched[2], 'srt')
+    const matched = i[1].match(timeReg)!
+    const start = parseTime(matched[1], 'srt')
+    const end = parseTime(matched[2], 'srt')
     const text = i.slice(2).map(filterText).map(removeTags)
     nodes.push({ counter, start, end, text })
   }
@@ -92,47 +94,35 @@ function parseSSA(content: string): Node[] {
     if (!tmp?.groups) throw new Error('SSA parer error in line: ' + lines[i])
     const { startRaw, endRaw, textRaw } = tmp.groups
     const counter = i + 1
-    const start = new Time(startRaw, 'ssa')
-    const end = new Time(endRaw, 'ssa')
+    const start = parseTime(startRaw, 'ssa')
+    const end = parseTime(endRaw, 'ssa')
     const text = removeCurlyBrakets(filterText(textRaw)).split(/\\n/i)
     nodes.push({ counter, start, end, text })
   }
   return nodes
 }
 
-class Time {
-  h: number
-  m: number
-  s: number
-  ms: number
-  timestamp: number // ms
-
-  constructor(public raw: string, type: 'srt' | 'ssa') {
-    if (type === 'srt') {
-      const matched = raw.match(/(\d{2}):(\d{2}):(\d{2}),(\d{3})/)
-      if (matched) {
-        const [_, h, m, s, ms] = matched
-        this.h = parseInt(h)
-        this.m = parseInt(m)
-        this.s = parseInt(s)
-        this.ms = parseInt(ms)
-      } else {
-        throw new Error('Invalid time string: ' + raw)
-      }
+function parseTime(raw: string, type: 'srt' | 'ssa') {
+  const t: SubtitleTime = { raw, timestamp: 0 }
+  if (type === 'srt') {
+    const matched = raw.match(/(\d{2}):(\d{2}):(\d{2}),(\d{3})/)
+    const [_, h, m, s, ms] = matched!
+    t.timestamp = parseInt(ms) + parseInt(s) * 1000 + parseInt(m) * 60 * 1000 + parseInt(h) * 60 * 60 * 1000
+  } else {
+    const matched = raw.match(/(\d):(\d{2}):(\d{2}).(\d{2})/)
+    if (matched) {
+      const [_, h, m, s, ms] = matched
+      t.timestamp = parseInt(ms) + parseInt(s) * 1000 + parseInt(m) * 60 * 1000 + parseInt(h) * 60 * 60 * 1000
     } else {
-      const matched = raw.match(/(\d):(\d{2}):(\d{2}).(\d{2})/)
-      if (matched) {
-        const [_, h, m, s, ms] = matched
-        this.h = parseInt(h)
-        this.m = parseInt(m)
-        this.s = parseInt(s)
-        this.ms = parseInt(ms) * 10
-      } else {
-        throw new Error('Invalid time string: ' + raw)
-      }
+      throw new Error('Invalid time string: ' + raw)
     }
-    this.timestamp = this.ms + this.s * 1000 + this.m * 60 * 1000 + this.h * 60 * 60 * 1000
   }
+  return t
+}
+
+interface SubtitleTime {
+  raw: string
+  timestamp: number // ms
 }
 
 export function isBefore(ts: number, n: Node) {

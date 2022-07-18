@@ -1,7 +1,6 @@
 import { FC, useState, useEffect, useRef, memo } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, updateSubtitleDelay, updateSubtitleFontSize, LoadSubtitlePreference } from '../state'
-import { message } from './Modal'
 import styles from './Subtitle.module.less'
 import {
   useRestoreSubtitle,
@@ -10,7 +9,6 @@ import {
   isWithin,
   findNode,
   doVideo,
-  getSubtitle,
   highlight,
   useVideoEvents,
 } from '../utils'
@@ -18,8 +16,8 @@ import {
 // subtitle_time + subtitle_delay = video_time
 
 export const Subtitle: FC = () => {
-  const nodes = useNodes()
   const file = useSelector(s => s.files.selected) as string
+  const nodes = useSelector(s => s.files.subtitleNoes) as Node[]
   const subtitleAuto = useSelector(s => s.settings.subtitleAuto)
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
   const subtitleFontSize = useSelector(s => s.settings.subtitleFontSize)
@@ -44,7 +42,7 @@ export const Subtitle: FC = () => {
     doVideo(video => {
       const playing = video.currentTime >= 0 && !video.paused && !video.ended
       const current = Math.round(video.currentTime * 1000) - delayRef.current
-      const node = findNode(nodes || [], current)
+      const node = findNode(nodes, current)
       if (node === null) return
       let waitTime: number
       if (isWithin(current, node)) {
@@ -65,81 +63,73 @@ export const Subtitle: FC = () => {
 
   useEffect(() => {
     dispath(LoadSubtitlePreference(file))
-  }, [])
 
-  useEffect(() => {
-    if (nodes !== null) {
-      restoreSubtitle().then(active => {
-        if (active !== null) {
-          highlight(active)
-        }
-        setReady(true)
-      })
+    restoreSubtitle().then(active => {
+      if (active !== null) {
+        highlight(active)
+      }
+      setReady(true)
+    })
 
-      // detect language
-      for (let i = 0; i < Math.min(20, nodes.length); i++) {
-        const text = nodes[i].text.join('')
-        const jpCharacters = (text.match(/[ぁ-ゔ]+|[ァ-ヴー]+/gu) || []).join('')
-        if (jpCharacters.length >= 5) {
-          setLang('jp')
-          break
-        }
+    // detect language
+    for (let i = 0; i < Math.min(20, nodes.length); i++) {
+      const text = nodes[i].text.join('')
+      const jpCharacters = (text.match(/[ぁ-ゔ]+|[ァ-ヴー]+/gu) || []).join('')
+      if (jpCharacters.length >= 5) {
+        setLang('jp')
+        break
       }
     }
-  }, [nodes])
+  }, [])
 
-  if (nodes === null) {
-    return <div className={styles['subtitle']} />
-  } else {
-    const fontSizes = {
-      '--subtitle-text': `${Math.max(subtitleFontSize, 5)}px`,
-      '--subtitle-counter': `${Math.max(subtitleFontSize - 2, 5)}px`,
-      '--subtitle-time': `${Math.max(subtitleFontSize - 7, 5)}px`,
-    } as any
-    return (
-      <div
-        id={SUBTITLE_CONTAINER_ID}
-        ref={divRef}
-        className={cn(styles['subtitle'], {
-          [styles['ready']]: ready,
-          [styles['listening-mode']]: subtitleListeningMode,
-        })}
-        lang={lang}
-        style={{ ...fontSizes }}
-      >
-        {nodes.map(n => (
-          <SubtitleNode
-            {...n}
-            key={n.counter}
-            onClick={h => {
-              if (!autoRef.current) {
-                highlight(h)
-              }
-            }}
-            setDelay={start => {
-              if (autoRef.current) {
-                doVideo(video => {
-                  dispath(
-                    updateSubtitleDelay({
-                      file,
-                      delay: Math.round(video.currentTime * 1000 - start),
-                    }),
-                  )
-                })
-              }
-            }}
-            jumpToTime={t => {
-              if (autoRef.current) {
-                doVideo(video => {
-                  video.currentTime = (t + delayRef.current) / 1000
-                })
-              }
-            }}
-          />
-        ))}
-      </div>
-    )
-  }
+  const fontSizes = {
+    '--subtitle-text': `${Math.max(subtitleFontSize, 5)}px`,
+    '--subtitle-counter': `${Math.max(subtitleFontSize - 2, 5)}px`,
+    '--subtitle-time': `${Math.max(subtitleFontSize - 7, 5)}px`,
+  } as any
+  return (
+    <div
+      id={SUBTITLE_CONTAINER_ID}
+      ref={divRef}
+      className={cn(styles['subtitle'], {
+        [styles['ready']]: ready,
+        [styles['listening-mode']]: subtitleListeningMode,
+      })}
+      lang={lang}
+      style={{ ...fontSizes }}
+    >
+      {nodes.map(n => (
+        <SubtitleNode
+          {...n}
+          key={n.counter}
+          onClick={h => {
+            if (!autoRef.current) {
+              highlight(h)
+            }
+          }}
+          setDelay={start => {
+            if (autoRef.current) {
+              doVideo(video => {
+                dispath(
+                  updateSubtitleDelay({
+                    file,
+                    delay: Math.round(video.currentTime * 1000 - start),
+                  }),
+                )
+              })
+            }
+          }}
+          jumpToTime={t => {
+            if (autoRef.current) {
+              doVideo(video => {
+                video.currentTime = (t + delayRef.current) / 1000
+              })
+            }
+          }}
+        />
+      ))}
+    </div>
+  )
 }
 
 interface SubtitleNodeProps extends Node {
@@ -194,14 +184,14 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
   () => true,
 )
 
-const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay: number) => {
+const useShortcuts = (nodes: Node[], subtitleAuto: boolean, subtitleDelay: number) => {
   const dispath = useDispatch()
   const divRef = useRef<HTMLDivElement>(null)
   const autoRef = useRef<boolean>(subtitleAuto)
   const timerRef = useRef<number | null>(null)
   const delayRef = useRef<number>(subtitleDelay)
   useEffect(() => {
-    if (!nodes || nodes.length === 0) return
+    if (nodes.length === 0) return
     function scroll(e: KeyboardEvent) {
       if (!divRef.current || !window.__SRT_ENABLE_SHORTCUTS__) return
       const step = divRef.current.offsetHeight / 2
@@ -233,25 +223,8 @@ const useShortcuts = (nodes: Node[] | null, subtitleAuto: boolean, subtitleDelay
       window.removeEventListener('keydown', scroll)
       window.removeEventListener('keydown', fontSize)
     }
-  }, [nodes])
+  }, [])
   return { divRef, autoRef, timerRef, delayRef }
-}
-
-const useNodes = () => {
-  const fileName = useSelector(state => state.files.selected)
-  const [nodes, setNodes] = useState<null | Node[]>(null)
-  useEffect(() => {
-    if (fileName) {
-      getSubtitle(fileName)
-        .then(nodes => {
-          setNodes(nodes)
-        })
-        .catch(e => {
-          message(e + '')
-        })
-    }
-  }, [fileName])
-  return nodes
 }
 
 const scrollToNthChild = (() => {
