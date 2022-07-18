@@ -1,7 +1,7 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected, getList } from '../state'
-import { getWatchHistory, WatchHistories, WatchHistory, useI18n, saveVideoSubPair } from '../utils'
+import { getWatchHistory, WatchHistories, WatchHistory, useI18n, saveVideoSubPair, trackOpenFile } from '../utils'
 import styles from './List.module.less'
 
 export const List = () => {
@@ -24,6 +24,7 @@ export const List = () => {
                 className={styles['file-name']}
                 onClick={() => {
                   dispatch(setSelected(i))
+                  trackOpenFile(i)
                 }}
               >
                 {i}

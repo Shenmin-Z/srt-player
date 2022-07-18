@@ -4,7 +4,7 @@ import { supported, fileOpen, FileWithHandle } from 'browser-fs-access'
 import styles from './Uploader.module.less'
 import { useDispatch, getList, globalStore } from '../state'
 import { confirm } from './Modal'
-import { useI18n, saveVideoSubPairs, getFileList, IS_MOBILE } from '../utils'
+import { useI18n, saveVideoSubPairs, getFileList, IS_MOBILE, trackImportFiles } from '../utils'
 import { DownloadExample } from './List'
 import cn from 'classnames'
 
@@ -31,6 +31,7 @@ export const Uploader = () => {
         return
       }
     }
+    trackImportFiles(vs.length, ss.length)
     await saveVideoSubPairs(vs, ss, saveCache)
     videoHandles.current = []
     subtitleHandles.current = []

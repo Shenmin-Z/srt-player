@@ -8,6 +8,7 @@ import {
   EnableWaveForm,
   StageEnum,
   getVideo,
+  trackCreateWaveform,
 } from '../../utils'
 import { Modal, message } from '../Modal'
 import styles from './Nav.module.less'
@@ -62,6 +63,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
         setStage(StageEnum.decoding)
         const videoArrayBuffer = await (await getVideo(file))?.file.arrayBuffer()
         await createSampling(videoArrayBuffer as ArrayBuffer)
+        trackCreateWaveform('video')
       }
       break
     }
@@ -86,6 +88,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
         const audioDuration = await getMediaDuration(file)
         const audioArrayBuffer = await file.arrayBuffer()
         await createSampling(audioArrayBuffer, audioDuration)
+        trackCreateWaveform('audio')
       }
       break
     }
