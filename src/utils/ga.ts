@@ -5,23 +5,23 @@ function track(name: string, params: any) {
   }
 }
 
-export function trackImportFiles(num_of_videos: number, numb_of_subtitles: number) {
+export function trackImportFiles(num_of_videos: number, num_of_subtitles: number) {
   track('import_files', {
     num_of_videos,
-    numb_of_subtitles,
+    num_of_subtitles,
   })
 }
 
 export function trackOpenFile(file: string) {
   track('open_file', {
-    type: file.split('.').pop(), // just extension
+    open_file_type: file.split('.').pop(), // just extension
   })
 }
 
 export function trackGoBack() {
-  track('go_back', {})
+  track('go_back', { click_go_back: 'back to main page' })
 }
 
 export function trackCreateWaveform(type: 'video' | 'audio') {
-  track('create_waveform', { type })
+  track('create_waveform', { create_waveform_type: type })
 }
