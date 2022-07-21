@@ -25,6 +25,12 @@
   }
 }
 
+:global(.no-subtitle) {
+  .icon:global(.closed_caption_off) {
+    display: none;
+  }
+}
+
 .name {
   height: 100%;
   line-height: var(--nav-height);
@@ -123,6 +129,14 @@
       line-height: 30px;
       font-size: 18px;
       margin-bottom: 10px;
+    }
+  }
+}
+
+:global(.no-subtitle) {
+  .3cols {
+    :global(.column):global(.subtitle) {
+      display: none;
     }
   }
 }

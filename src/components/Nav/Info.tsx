@@ -9,7 +9,7 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
   return (
     <Modal {...props} title={i18n('nav.info.name')}>
       <div className={styles['3cols']}>
-        <div className="column">
+        <div className="column video">
           <div className="column-title">{i18n('nav.info.video.name')}</div>
           <div className={styles['info']}>
             <div className={styles['title']}>
@@ -48,7 +48,7 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             <div className={styles['body']}>{i18n('nav.info.video.fullscreen')}</div>
           </div>
         </div>
-        <div className="column">
+        <div className="column subtitle">
           <div className="column-title">{i18n('nav.info.subtitle.name')}</div>
           <div className={styles['info']}>
             <div className={styles['title']}>
@@ -92,7 +92,7 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             <div className={styles['body']}>{i18n('nav.info.subtitle.adjust_delay')}</div>
           </div>
         </div>
-        <div className="column">
+        <div className="column waveform">
           <div className="column-title">{i18n('nav.info.waveform.name')}</div>
           <div className={styles['info']}>
             <div className={styles['title']}>

@@ -116,7 +116,7 @@ interface IconProps {
 
 const Icon: FC<IconProps> = ({ type, onClick, disabled, children }) => {
   return (
-    <div className={cn(styles['icon'], { disabled: disabled })} onClick={onClick}>
+    <div className={cn(styles['icon'], type, { disabled: disabled })} onClick={onClick}>
       <span className="material-icons">{type}</span>
       {children && <span className={styles['delay']}>{children}</span>}
     </div>

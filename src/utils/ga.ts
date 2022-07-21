@@ -1,8 +1,25 @@
-function track(name: string, params: any) {
-  const gtag = (window as any).gtag
-  if (gtag) {
-    gtag('event', name, params)
+declare global {
+  interface Window {
+    dataLayer: any
+    'ga-disable-G-STHJFZ79XM': boolean
   }
+}
+
+const GA_MEASUREMENT_ID = 'G-STHJFZ79XM'
+if (location.hostname !== 'shenmin-z.github.io') {
+  // disable if not prod env
+  window['ga-disable-G-STHJFZ79XM'] = true
+}
+
+window.dataLayer = window.dataLayer || []
+function gtag(..._: any[]) {
+  window.dataLayer.push(arguments)
+}
+gtag('js', new Date())
+gtag('config', GA_MEASUREMENT_ID)
+
+function track(name: string, params: any) {
+  gtag('event', name, params)
 }
 
 export function trackImportFiles(num_of_videos: number, num_of_subtitles: number) {

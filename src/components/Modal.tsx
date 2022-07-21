@@ -71,7 +71,7 @@ export const Message: FC = () => {
   return (
     <Modal show={show} onClose={onClose} hideHeader>
       <div className={styles['message']}>
-        <div className={styles['text']}>{text}</div>
+        <div className={styles['text']} dangerouslySetInnerHTML={{ __html: text }} />
         <div className={styles['buttons']}>
           <button className={styles['ok']} onClick={onClose}>
             {i18n('message.ok')}

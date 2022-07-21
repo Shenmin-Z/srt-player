@@ -3,7 +3,7 @@ import styles from './Video.module.less'
 import { setVideo, useDispatch, useSelector, setSelected, LoadWaveFormPreference, deleteFile } from '../state'
 import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo } from '../utils'
 import { WaveForm } from './WaveForm'
-import { confirm } from './Modal'
+import { confirm, message } from './Modal'
 import cn from 'classnames'
 
 export const Video: FC = () => {
@@ -96,6 +96,7 @@ export const Video: FC = () => {
               await restoreVideo()
               dispatch(setVideo(true))
             }}
+            onError={onVideoError(i18n)}
           />
         </div>
       </div>
@@ -107,10 +108,23 @@ export const Video: FC = () => {
 function togglePlay() {
   doVideo(video => {
     video.blur()
-    if (video.paused) {
+    if (video.paused || video.ended) {
       video.play()
     } else {
       video.pause()
     }
   })
+}
+
+function onVideoError(i18n: ReturnType<typeof useI18n>) {
+  return () => {
+    doVideo(video => {
+      const error = video.error!
+      if (error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+        message(i18n('error.video_src_not_supported'))
+      } else {
+        message(error.message)
+      }
+    })
+  }
 }
