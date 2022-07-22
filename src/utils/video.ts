@@ -22,7 +22,7 @@ interface VideoEvents {
 }
 
 export const useVideoEvents = (cbs: VideoEvents) => {
-  const { hasVideo } = useSelector(s => s.video)
+  const hasVideo = useSelector(s => s.video.hasVideo)
   useEffect(() => {
     if (!hasVideo) return
     return doVideo(video => {
