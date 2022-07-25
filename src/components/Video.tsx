@@ -10,7 +10,7 @@ import {
   updateVideoTime,
   setVideoStatus,
 } from '../state'
-import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo } from '../utils'
+import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo, IS_MOBILE } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm, message } from './Modal'
 import cn from 'classnames'
@@ -22,7 +22,7 @@ export const Video: FC = () => {
   const dispatch = useDispatch()
   const enableStatus = useSelector(s => s.settings.waveform)
   const file = useSelector(s => s.files.selected) as string
-  const [showControls, setShowControls] = useState(true)
+  const { controlsShow, showForAWhile, showControls, hideControls } = useShowControls()
 
   useEffect(() => {
     dispatch(LoadWaveFormPreference(file))
@@ -56,6 +56,7 @@ export const Video: FC = () => {
       if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'Space') {
         e.preventDefault()
+        showForAWhile()
         togglePlay()
       }
       if (e.code === 'ArrowLeft') {
@@ -96,10 +97,22 @@ export const Video: FC = () => {
           <video
             id={VIDEO_ID}
             src={videoUrl}
-            onClick={togglePlay}
+            onClick={() => {
+              if (IS_MOBILE) {
+                if (controlsShow) {
+                  hideControls()
+                } else {
+                  showControls()
+                }
+              } else {
+                togglePlay()
+                showForAWhile()
+              }
+            }}
             onLoadedData={async () => {
               await restoreVideo()
               dispatch(setVideo({ hasVideo: true, total: doVideo(v => v.duration) }))
+              showForAWhile()
             }}
             onPlay={() => {
               dispatch(setVideoStatus(true))
@@ -114,8 +127,14 @@ export const Video: FC = () => {
               dispatch(updateVideoTime(doVideo(v => v.currentTime) as number))
             }}
             onError={onVideoError(i18n)}
+            onMouseMove={showForAWhile}
           />
-          <VideoControls show hasWaveform={enableStatus !== EnableWaveForm.disable} />
+          <VideoControls
+            shown={controlsShow}
+            show={showControls}
+            hide={hideControls}
+            hasWaveform={enableStatus !== EnableWaveForm.disable}
+          />
         </div>
       </div>
     )
@@ -157,17 +176,24 @@ function onVideoError(i18n: ReturnType<typeof useI18n>) {
 }
 
 interface VideoControlsProps {
-  show: boolean
+  shown: boolean
+  show(): void
+  hide(): void
   hasWaveform: boolean
 }
 
-const VideoControls: FC<VideoControlsProps> = ({ show, hasWaveform }) => {
+const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform }) => {
   const { hasVideo, playing, total, current } = useSelector(s => s.video)
 
   if (!hasVideo) return null
 
   return (
-    <div className={styles['video-controls']} style={{ visibility: show ? 'visible' : 'hidden' }}>
+    <div
+      className={styles['video-controls']}
+      style={{ visibility: shown ? 'visible' : 'hidden' }}
+      onMouseOver={show}
+      onMouseLeave={hide}
+    >
       <div className={styles['controls']}>
         <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} />
         <PlayTime total={total} current={current} />
@@ -269,7 +295,6 @@ const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
 
   return (
     <div
-      draggable={false}
       className={styles['progress']}
       onClick={e => {
         const progress = getProgressByMouse(e)
@@ -306,4 +331,37 @@ const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
       </div>
     </div>
   )
+}
+
+const useShowControls = () => {
+  const [controlsShow, setControlsShow] = useState(false)
+  const timerRef = useRef(0)
+
+  const showForAWhile = () => {
+    setControlsShow(true)
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      doVideo(video => {
+        if (!video.paused && !video.ended) {
+          setControlsShow(false)
+        }
+      })
+    }, 2000)
+  }
+
+  const showControls = () => {
+    clearTimeout(timerRef.current)
+    setControlsShow(true)
+  }
+  const hideControls = () => {
+    clearTimeout(timerRef.current)
+    setControlsShow(false)
+  }
+
+  return {
+    controlsShow,
+    showForAWhile,
+    showControls,
+    hideControls,
+  }
 }
