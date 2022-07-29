@@ -10,13 +10,15 @@
     border-radius: 10px;
     cursor: pointer;
     box-shadow: var(--bs-sm);
-    &:hover,
-    &:global(.drag-over) {
-      box-shadow: var(--bs-md);
-    }
-    &:hover,
-    &:global(.drag-over) {
-      background: var(--black-025);
+    @media (hover: hover) {
+      &:hover,
+      &:global(.drag-over) {
+        box-shadow: var(--bs-md);
+      }
+      &:hover,
+      &:global(.drag-over) {
+        background: var(--black-025);
+      }
     }
 
     display: flex;
@@ -114,8 +116,10 @@
           border-radius: 8px;
           background-color: var(--black-200);
           color: var(--white);
-          &:hover {
-            background-color: var(--black-500);
+          @media (hover: hover) {
+            &:hover {
+              background-color: var(--black-500);
+            }
           }
         }
       }

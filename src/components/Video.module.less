@@ -15,12 +15,42 @@
       &:focus {
         outline: none;
       }
+      &.hide-cursor {
+        cursor: none;
+      }
     }
   }
   &.has-waveform {
     .responsive({
     grid-template-rows: @height + @scrollbar-height minmax(0, 1fr);
     });
+  }
+}
+
+.play-button {
+  display: none;
+}
+
+:global(.is-mobile) {
+  .play-button {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    pointer-events: none;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 48px;
+    text-shadow: var(--bs-lg);
+  }
+  .play-time {
+    margin-left: 10px;
+  }
+  :global(.hide-when-mobile) {
+    display: none;
   }
 }
 
@@ -41,6 +71,8 @@
   font-size: 14px;
   line-height: @x;
   user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
 
   .icon {
     &:global(.material-icons) {
@@ -52,9 +84,11 @@
     height: @x;
     margin: 0 4px;
     text-align: center;
-    &:hover {
-      border-radius: 50%;
-      background-color: rgb(51, 51, 54);
+    @media (hover: hover) {
+      &:hover {
+        border-radius: 50%;
+        background-color: rgb(51, 51, 54);
+      }
     }
   }
 }

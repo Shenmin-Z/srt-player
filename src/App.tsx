@@ -104,4 +104,14 @@ const ResizeBar: FC = () => {
   )
 }
 
+if (IS_MOBILE) {
+  document.documentElement.classList.add('is-mobile')
+  document.documentElement.style.setProperty('--100vh', `${window.innerHeight}px`)
+  window.addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--100vh', `${window.innerHeight}px`)
+  })
+} else {
+  document.documentElement.style.setProperty('--100vh', '100vh')
+}
+
 export default App

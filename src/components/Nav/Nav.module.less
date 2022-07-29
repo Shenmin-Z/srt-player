@@ -19,9 +19,11 @@
   &:global(.disabled) {
     color: #ebebeb;
   }
-  &:hover {
-    background: var(--bc-lighter);
-    color: #000;
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bc-lighter);
+      color: #000;
+    }
   }
 }
 
@@ -100,8 +102,10 @@
       bottom: 2px;
       font-size: 17px;
       color: var(--black-300);
-      &:hover {
-        color: var(--black-800);
+      @media (hover: hover) {
+        &:hover {
+          color: var(--black-800);
+        }
       }
     }
   }

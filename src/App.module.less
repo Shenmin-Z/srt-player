@@ -1,14 +1,15 @@
 .home {
   max-width: 1080px;
-  min-height: 100vh;
+  min-height: var(--100vh);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  background-color: #fff;
 }
 
 .play {
   --nav-height: 40px;
-  height: 100vh;
+  height: var(--100vh);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 3px var(--subtitle-width);
   grid-template-rows: var(--nav-height) minmax(0, 1fr);
@@ -26,7 +27,9 @@
   cursor: col-resize;
   background: var(--bc-lighter);
   &:hover {
-    background: var(--black-400);
+    @media (hover: hover) {
+      background: var(--black-400);
+    }
   }
   z-index: 1;
   overflow: visible;

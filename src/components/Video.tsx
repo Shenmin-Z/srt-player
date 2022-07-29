@@ -56,7 +56,6 @@ export const Video: FC = () => {
       if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'Space') {
         e.preventDefault()
-        showForAWhile()
         togglePlay()
       }
       if (e.code === 'ArrowLeft') {
@@ -97,37 +96,34 @@ export const Video: FC = () => {
           <video
             id={VIDEO_ID}
             src={videoUrl}
-            onClick={() => {
-              if (IS_MOBILE) {
-                if (controlsShow) {
-                  hideControls()
-                } else {
-                  showControls()
-                }
-              } else {
-                togglePlay()
-                showForAWhile()
-              }
-            }}
+            onClick={togglePlay}
             onLoadedData={async () => {
               await restoreVideo()
               dispatch(setVideo({ hasVideo: true, total: doVideo(v => v.duration) }))
-              showForAWhile()
+              showControls()
             }}
             onPlay={() => {
               dispatch(setVideoStatus(true))
+              if (IS_MOBILE) {
+                hideControls()
+              } else {
+                showForAWhile()
+              }
             }}
             onPause={() => {
               dispatch(setVideoStatus(false))
+              showControls()
             }}
             onEnded={() => {
               dispatch(setVideoStatus(false))
+              showControls()
             }}
             onTimeUpdate={() => {
               dispatch(updateVideoTime(doVideo(v => v.currentTime) as number))
             }}
             onError={onVideoError(i18n)}
             onMouseMove={showForAWhile}
+            className={cn({ [styles['hide-cursor']]: !controlsShow })}
           />
           <VideoControls
             shown={controlsShow}
@@ -188,43 +184,52 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
   if (!hasVideo) return null
 
   return (
-    <div
-      className={styles['video-controls']}
-      style={{ visibility: shown ? 'visible' : 'hidden' }}
-      onMouseOver={show}
-      onMouseLeave={hide}
-    >
-      <div className={styles['controls']}>
-        <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} />
-        <PlayTime total={total} current={current} />
-        {hasWaveform && (
+    <>
+      <div
+        className={cn(styles['play-button'], 'material-icons-outlined')}
+        style={{ display: playing ? 'none' : undefined }}
+      >
+        play_circle
+      </div>
+      <div
+        className={styles['video-controls']}
+        style={{ visibility: shown ? 'visible' : 'hidden' }}
+        onMouseOver={show}
+        onMouseLeave={hide}
+      >
+        <div className={styles['controls']}>
+          <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} className="hide-when-mobile" />
+          <PlayTime total={total} current={current} />
+          {hasWaveform && (
+            <Icon
+              type="replay"
+              onClick={() => {
+                window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }))
+              }}
+            />
+          )}
           <Icon
-            type="replay"
+            type="fullscreen"
             onClick={() => {
-              window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }))
+              window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyF' }))
             }}
           />
-        )}
-        <Icon
-          type="fullscreen"
-          onClick={() => {
-            window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyF' }))
-          }}
-        />
+        </div>
+        <ProgressBar value={current / total} />
       </div>
-      <ProgressBar value={current / total} />
-    </div>
+    </>
   )
 }
 
 interface IconProps {
   type: string
   onClick: () => void
+  className?: string
 }
 
-const Icon: FC<IconProps> = ({ type, onClick }) => {
+const Icon: FC<IconProps> = ({ type, onClick, className }) => {
   return (
-    <div className={cn(styles['icon'], 'material-icons')} onClick={onClick}>
+    <div className={cn(styles['icon'], 'material-icons', className)} onClick={onClick}>
       {type}
     </div>
   )
