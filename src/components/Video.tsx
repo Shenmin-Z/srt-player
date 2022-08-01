@@ -180,6 +180,17 @@ interface VideoControlsProps {
 
 const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform }) => {
   const { hasVideo, playing, total, current } = useSelector(s => s.video)
+  const [fullscreen, setFullscreen] = useState(false)
+
+  useEffect(() => {
+    const listener = () => {
+      setFullscreen(!!document.fullscreenElement)
+    }
+    document.addEventListener('fullscreenchange', listener)
+    return () => {
+      document.removeEventListener('fullscreenchange', listener)
+    }
+  }, [])
 
   if (!hasVideo) return null
 
@@ -209,7 +220,7 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
             />
           )}
           <Icon
-            type="fullscreen"
+            type={fullscreen ? 'fullscreen_exit' : 'fullscreen'}
             onClick={() => {
               window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyF' }))
             }}
