@@ -64,8 +64,16 @@
   .play-time {
     margin-left: 10px;
   }
-  :global(.hide-when-mobile) {
+  .play-icon {
     display: none;
+  }
+  :global(.no-video) {
+    .play-button {
+      display: none;
+    }
+    .play-icon {
+      display: block;
+    }
   }
 }
 

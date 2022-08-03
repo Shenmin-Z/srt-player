@@ -208,7 +208,7 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
         onMouseLeave={hide}
       >
         <div className={styles['controls']}>
-          <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} className="hide-when-mobile" />
+          <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} className={styles['play-icon']} />
           <PlayTime total={total} current={current} />
           {hasWaveform && (
             <Icon
