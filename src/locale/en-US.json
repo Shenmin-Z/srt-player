@@ -1,6 +1,6 @@
 {
   "import_video_and_subtitle": {
-    "click_drop": "Click or drop files here",
+    "click_drop": "Click or drop <b>video</b> and <b>subtitle</b> files here",
     "save": "Save",
     "save_cache": "Copy file(s) to cache"
   },

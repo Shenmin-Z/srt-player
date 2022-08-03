@@ -1,6 +1,6 @@
 {
   "import_video_and_subtitle": {
-    "click_drop": "点击或拖拽文件",
+    "click_drop": "点击或拖拽<b>视频</b>与<b>字幕</b>文件",
     "save": "保存",
     "save_cache": "复制文件到缓存"
   },

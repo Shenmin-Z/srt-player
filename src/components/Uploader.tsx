@@ -134,7 +134,7 @@ export const Uploader = () => {
         }}
       >
         <span className="material-icons">upload_file</span>
-        {i18n('import_video_and_subtitle.click_drop')}
+        <span dangerouslySetInnerHTML={{ __html: i18n('import_video_and_subtitle.click_drop') }}></span>
       </div>
       <div className={styles['buffer-container']}>
         <div className={styles['buffer']} style={uploadStyle}>

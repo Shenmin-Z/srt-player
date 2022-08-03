@@ -27,6 +27,21 @@
   }
 }
 
+:global(.no-video) {
+  .video-container {
+    background: transparent;
+    position: fixed;
+    width: 100vw;
+    height: 80px;
+    bottom: 0;
+  }
+  .video-controls {
+    &.hidden {
+      visibility: visible;
+    }
+  }
+}
+
 .play-button {
   display: none;
 }
@@ -60,6 +75,9 @@
   left: 0;
   right: 0;
   background: linear-gradient(0, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  &.hidden {
+    visibility: hidden;
+  }
 }
 
 .controls {

@@ -17,6 +17,10 @@
   &:global(.no-subtitle) {
     grid-template-columns: 1fr 0 0;
   }
+  &:global(.no-video) {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--nav-height) 0 minmax(0, 1fr);
+  }
 
   @media all and (display-mode: fullscreen) {
     --nav-height: 0;

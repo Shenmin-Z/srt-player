@@ -203,8 +203,7 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
         play_circle
       </div>
       <div
-        className={styles['video-controls']}
-        style={{ visibility: shown ? 'visible' : 'hidden' }}
+        className={cn(styles['video-controls'], { [styles['hidden']]: IS_MOBILE && hasWaveform ? false : !shown })}
         onMouseOver={show}
         onMouseLeave={hide}
       >

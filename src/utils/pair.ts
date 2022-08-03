@@ -1,6 +1,9 @@
 import { FileWithHandle, supported } from 'browser-fs-access'
 import { parseSubtitle, SSA, Node } from './subtitle'
 import { db, VideoSubPair } from './idb'
+import { createSilentAudio } from './createEmptyAudio'
+import { deleteHistory } from './history'
+import { deleteSampling } from './audioSampling'
 
 async function getPair(file: string) {
   return db.get('files', file)
@@ -19,7 +22,7 @@ export async function deletePair(file: string) {
 
 export async function getSubtitle(file: string): Promise<Node[]> {
   const pair = await getPair(file)
-  if (!supported && !pair) {
+  if ((!supported || /\.(srt|ass|ssa)$/i.test(file)) && !pair) {
     return subtitleFileCache.get(file)
   }
   if (!pair) return []
@@ -118,6 +121,21 @@ export async function saveVideoSubPairs(vs: FileWithHandle[], ss: FileWithHandle
       }
     }),
   )
+  if (ss.length > vs.length) {
+    await Promise.all(ss.slice(vs.length).map(s => saveSubtitleOnly(s)))
+  }
+
+  // clear previous generated on unsupported browsers
+  vs.forEach(v => {
+    deleteHistory(v.name)
+    deleteSampling(v.name)
+  })
+  if (ss.length > vs.length) {
+    ss.slice(vs.length).forEach(s => {
+      deleteHistory(s.name)
+      deleteSampling(s.name)
+    })
+  }
 }
 
 async function saveVideoOnly(video: FileWithHandle, saveCache: boolean) {
@@ -131,13 +149,22 @@ async function saveVideoOnly(video: FileWithHandle, saveCache: boolean) {
   videoFileCache.add(video.name, video)
 }
 
+// will not be saved to idb
+async function saveSubtitleOnly(subtitle: FileWithHandle) {
+  const subtitleText = await getSubtitleText(subtitle)
+  const nodes = parseSubtitle(subtitleText)
+  let duration = 0
+  if (nodes.length) {
+    duration = Math.ceil(nodes[nodes.length - 1].end.timestamp / 1000)
+  }
+  const wav = await createSilentAudio(duration, subtitle.name)
+  videoFileCache.add(subtitle.name, wav)
+  subtitleFileCache.add(subtitle.name, subtitleText)
+}
+
 export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], saveCache = false) {
   const [video, subtitle] = pair
-  let subtitleText = await getFileText(subtitle)
-  // add format at the beginning if not srt
-  if (/.(ssa|ass)$/i.test(subtitle.name)) {
-    subtitleText = SSA + subtitleText
-  }
+  let subtitleText = await getSubtitleText(subtitle)
   await setPair(
     video.name,
     {
@@ -150,6 +177,15 @@ export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], s
   if (!supported) {
     subtitleFileCache.add(video.name, subtitleText)
   }
+}
+
+async function getSubtitleText(subtitle: FileWithHandle) {
+  let subtitleText = await getFileText(subtitle)
+  // add format at the beginning if not srt
+  if (/.(ssa|ass)$/i.test(subtitle.name)) {
+    subtitleText = SSA + subtitleText
+  }
+  return subtitleText
 }
 
 async function getFileText(file: File) {

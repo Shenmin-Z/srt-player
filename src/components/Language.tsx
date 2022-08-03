@@ -37,6 +37,7 @@ export const Language: FC = () => {
                 className={language === i.type ? 'active' : ''}
                 onClick={() => {
                   dispath(updateLanguage(i.type))
+                  setShow(false)
                 }}
               >
                 <span className="material-icons">check_circle</span>

@@ -16,6 +16,7 @@ const App: FC = migrate(() => {
   const dispatch = useDispatch()
   const subtitleNoes = useSelector(state => state.files.subtitleNoes)
   const locale = useSelector(state => state.settings.locale)
+  const selected = useSelector(state => state.files.selected)
 
   useEffect(() => {
     dispatch(getList())
@@ -23,7 +24,11 @@ const App: FC = migrate(() => {
   }, [])
 
   if (locale === '') return null
-  return subtitleNoes === null ? <Home /> : <Play hasSubtitle={subtitleNoes.length > 0} />
+  return subtitleNoes === null ? (
+    <Home />
+  ) : (
+    <Play hasSubtitle={subtitleNoes.length > 0} hasVideo={!/\.(srt|ass|ssa)$/i.test(selected || '')} />
+  )
 })
 
 const Home: FC = () => {
@@ -39,7 +44,12 @@ const Home: FC = () => {
   )
 }
 
-const Play: FC<{ hasSubtitle: boolean }> = ({ hasSubtitle }) => {
+interface PlayProps {
+  hasSubtitle: boolean
+  hasVideo: boolean
+}
+
+const Play: FC<PlayProps> = ({ hasSubtitle, hasVideo }) => {
   const saveHistory = useSaveHistory(5000)
 
   useEffect(() => {
@@ -51,7 +61,7 @@ const Play: FC<{ hasSubtitle: boolean }> = ({ hasSubtitle }) => {
 
   return (
     <>
-      <div className={cn(styles['play'], { 'no-subtitle': !hasSubtitle })}>
+      <div className={cn(styles['play'], { 'no-subtitle': !hasSubtitle, 'no-video': !hasVideo })}>
         <Nav />
         <Video />
         <ResizeBar />
