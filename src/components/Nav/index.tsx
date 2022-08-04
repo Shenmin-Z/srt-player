@@ -2,7 +2,7 @@ import { FC, ReactNode, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
 import { useDispatch, useSelector, setSelected, updateSubtitleAuto, updateSubtitleListeningMode } from '../../state'
-import { useSaveHistory, IS_MOBILE, trackGoBack } from '../../utils'
+import { useSaveHistory, IS_MOBILE, trackGoBack, displayFileName } from '../../utils'
 import { SubtitleSetting } from './SubtitleSetting'
 import { Info } from './Info'
 import { WaveForm } from './WaveFormSetting'
@@ -55,7 +55,7 @@ export const Nav = () => {
             trackGoBack()
           }}
         />
-        <div className={styles['name']}>{file}</div>
+        <div className={styles['name']}>{displayFileName(file)}</div>
         <div className={styles['right']}>
           <Icon
             disabled={!enableWaveForm}

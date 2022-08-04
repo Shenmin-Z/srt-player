@@ -10,7 +10,7 @@ import { Video } from './components/Video'
 import { Message, Confirm } from './components/Modal'
 import { useDispatch, useSelector, getList, LoadSettingsFromLocal, updateSubtitleWidth } from './state'
 import styles from './App.module.less'
-import { useSaveHistory, migrate, IS_MOBILE } from './utils'
+import { useSaveHistory, migrate, IS_MOBILE, isSubtitleOnly } from './utils'
 
 const App: FC = migrate(() => {
   const dispatch = useDispatch()
@@ -27,7 +27,7 @@ const App: FC = migrate(() => {
   return subtitleNoes === null ? (
     <Home />
   ) : (
-    <Play hasSubtitle={subtitleNoes.length > 0} hasVideo={!/\.(srt|ass|ssa)$/i.test(selected || '')} />
+    <Play hasSubtitle={subtitleNoes.length > 0} hasVideo={!isSubtitleOnly(selected || '')} />
   )
 })
 

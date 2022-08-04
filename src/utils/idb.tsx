@@ -2,7 +2,7 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb'
 import { Node } from './subtitle'
 
 export interface VideoSubPair {
-  video: FileSystemFileHandle | File
+  video: FileSystemFileHandle | File | number
   subtitle?: string | Node[]
 }
 

@@ -32,6 +32,6 @@ export async function createSilentAudio(seconds: number, name: string) {
     view.setUint8(offset, 128)
   }
 
-  const blob = new Blob([view], { type: 'audio/wav' })
-  return new File([blob], name)
+  const blob = new Blob([view])
+  return new File([blob], name, { type: 'audio/wav' })
 }

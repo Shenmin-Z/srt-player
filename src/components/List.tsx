@@ -1,7 +1,15 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useSelector, useDispatch, deleteFile, setSelected, getList } from '../state'
-import { getWatchHistory, WatchHistories, WatchHistory, useI18n, saveVideoSubPair, trackOpenFile } from '../utils'
+import {
+  getWatchHistory,
+  WatchHistories,
+  WatchHistory,
+  useI18n,
+  saveVideoSubPair,
+  trackOpenFile,
+  displayFileName,
+} from '../utils'
 import styles from './List.module.less'
 
 export const List = () => {
@@ -27,7 +35,7 @@ export const List = () => {
                   trackOpenFile(i)
                 }}
               >
-                {i}
+                {displayFileName(i)}
               </span>
               <Label history={hs} file={i} />
               <span

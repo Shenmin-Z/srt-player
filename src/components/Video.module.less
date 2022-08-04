@@ -37,7 +37,7 @@
   }
   .video-controls {
     &.hidden {
-      visibility: visible;
+      opacity: 1;
     }
   }
 }
@@ -83,8 +83,9 @@
   left: 0;
   right: 0;
   background: linear-gradient(0, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  transition: opacity 0.16s;
   &.hidden {
-    visibility: hidden;
+    opacity: 0;
   }
 }
 

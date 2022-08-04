@@ -22,7 +22,7 @@ export async function deletePair(file: string) {
 
 export async function getSubtitle(file: string): Promise<Node[]> {
   const pair = await getPair(file)
-  if ((!supported || /\.(srt|ass|ssa)$/i.test(file)) && !pair) {
+  if (!supported && !pair) {
     return subtitleFileCache.get(file)
   }
   if (!pair) return []
@@ -43,7 +43,9 @@ export async function getVideo(file: string): Promise<Video | undefined> {
   const pair = await getPair(file)
   let videoFile: File
   if (!pair) return undefined
-  if (pair.video instanceof File) {
+  if (typeof pair.video === 'number') {
+    videoFile = await createSilentAudio(pair.video, file)
+  } else if (pair.video instanceof File) {
     videoFile = pair.video
   } else {
     if ((await pair.video.queryPermission({ mode: 'read' })) !== 'granted') {
@@ -149,7 +151,16 @@ async function saveVideoOnly(video: FileWithHandle, saveCache: boolean) {
   videoFileCache.add(video.name, video)
 }
 
-// will not be saved to idb
+const SUBTITLE_ONLY = ' [SUBTITLE_ONLY]'
+export const isSubtitleOnly = (s: string) => s.endsWith(SUBTITLE_ONLY)
+export const displayFileName = (s: string) => {
+  if (isSubtitleOnly(s)) {
+    return s.substring(0, s.length - SUBTITLE_ONLY.length)
+  } else {
+    return s
+  }
+}
+
 async function saveSubtitleOnly(subtitle: FileWithHandle) {
   const subtitleText = await getSubtitleText(subtitle)
   const nodes = parseSubtitle(subtitleText)
@@ -157,9 +168,14 @@ async function saveSubtitleOnly(subtitle: FileWithHandle) {
   if (nodes.length) {
     duration = Math.ceil(nodes[nodes.length - 1].end.timestamp / 1000)
   }
-  const wav = await createSilentAudio(duration, subtitle.name)
-  videoFileCache.add(subtitle.name, wav)
-  subtitleFileCache.add(subtitle.name, subtitleText)
+  await setPair(
+    subtitle.name + SUBTITLE_ONLY,
+    {
+      video: duration,
+      subtitle: subtitleText,
+    },
+    true,
+  )
 }
 
 export async function saveVideoSubPair(pair: [FileWithHandle, FileWithHandle], saveCache = false) {

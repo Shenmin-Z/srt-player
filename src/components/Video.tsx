@@ -361,7 +361,7 @@ const useShowControls = () => {
           setControlsShow(false)
         }
       })
-    }, 2000)
+    }, 1200)
   }
 
   const showControls = () => {
