@@ -141,56 +141,19 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
         <WaveFormOption {...commonProps} type={EnableWaveForm.video} />
         <WaveFormOption {...commonProps} type={EnableWaveForm.audio} />
       </div>
-      <div className={styles['progress-container']}>
-        <Progress stage={stage} />
-      </div>
+      <Progress stage={stage} />
     </Modal>
   )
 }
 
-const DISTANCE = 14
-
 const Progress: FC<{ stage?: StageEnum }> = ({ stage = StageEnum.stopped }) => {
   const text = useI18n()('nav.waveform.stages').split(',')?.[stage - 1] || '-'
+  const percentage = Math.ceil((stage / StageEnum.done) * 100)
   if (stage === StageEnum.stopped) return null
   return (
-    <div className={cn(styles['progress'], styles[`stage-${stage}`])}>
-      <svg viewBox={`0 0 ${10 * (2 * DISTANCE + 2)} 20`} xmlns="http://www.w3.org/2000/svg">
-        <line
-          x1="10"
-          y1="10"
-          x2={(1 + DISTANCE) * 10}
-          y2="10"
-          className={cn({ done: stage > StageEnum.resampling, current: stage === StageEnum.resampling })}
-        />
-        <line
-          x1={(1 + DISTANCE) * 10}
-          y1="10"
-          x2={(1 + DISTANCE * 2) * 10}
-          y2="10"
-          className={cn({ done: stage > StageEnum.imageGeneration, current: stage === StageEnum.imageGeneration })}
-        />
-
-        <circle
-          cx="10"
-          cy="10"
-          r="10"
-          className={cn({ done: stage > StageEnum.decoding, current: stage === StageEnum.decoding })}
-        />
-        <circle
-          cx={(1 + DISTANCE) * 10}
-          cy="10"
-          r="10"
-          className={cn({ done: stage > StageEnum.resampling, current: stage === StageEnum.resampling })}
-        />
-        <circle
-          cx={(1 + DISTANCE * 2) * 10}
-          cy="10"
-          r="10"
-          className={cn({ done: stage > StageEnum.imageGeneration, current: stage === StageEnum.imageGeneration })}
-        />
-      </svg>
-      <div>{text}</div>
+    <div className={styles['progress']}>
+      <div className={styles['percentage']}>{percentage}%</div>
+      <div className={styles['stage']}>{text}</div>
     </div>
   )
 }

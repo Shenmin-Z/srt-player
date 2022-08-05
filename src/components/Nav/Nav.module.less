@@ -236,45 +236,17 @@
   }
 }
 
-.progress-container {
-  display: flex;
-  justify-content: center;
-}
-
 .progress {
-  width: 60%;
-  text-align: center;
   font-size: 14px;
-  &.stage-0,
-  &.stage-1,
-  &.stage-2,
-  &.stage-3 {
-    color: var(--green-200);
+  color: var(--black-800);
+  position: relative;
+  .percentage {
+    text-align: center;
   }
-  &.stage-4 {
-    color: var(--green-500);
-  }
-  svg {
-    margin: 10px 0;
-    line {
-      stroke: var(--green-100);
-      stroke-width: 2;
-      &:global(.done) {
-        stroke: var(--green-500);
-      }
-      &:global(.current) {
-        stroke: var(--green-200);
-      }
-    }
-    circle {
-      fill: var(--green-100);
-      stroke-width: 0;
-      &:global(.done) {
-        fill: var(--green-500);
-      }
-      &:global(.current) {
-        fill: var(--green-200);
-      }
-    }
+  .stage {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
   }
 }
