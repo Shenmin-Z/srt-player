@@ -172,7 +172,7 @@ async function saveSubtitleOnly(subtitle: FileWithHandle) {
     subtitle.name + SUBTITLE_ONLY,
     {
       video: duration,
-      subtitle: subtitleText,
+      subtitle: nodes,
     },
     true,
   )

@@ -4,36 +4,54 @@
 
   .upload-area {
     max-width: 600px;
-    height: 120px;
     margin: 0 auto;
-    background: var(--bc-lighter);
+    padding: 24px;
+    background: var(--black-025);
     border-radius: 10px;
-    cursor: pointer;
-    box-shadow: var(--bs-sm);
-    @media (hover: hover) {
-      &:hover,
-      &:global(.drag-over) {
-        box-shadow: var(--bs-md);
-      }
-      &:hover,
-      &:global(.drag-over) {
-        background: var(--black-025);
-      }
+    border: 2px dashed var(--black-150);
+    font-size: 16px;
+    &:global(.drag-over) {
+      box-shadow: var(--bs-md);
+      background: var(--blue-050);
     }
 
     display: flex;
+    gap: 12px;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    color: var(--black-600);
-    font-size: 22px;
 
-    :global(.material-icons) {
+    :global(.material-icons-outlined) {
       font-size: 40px;
-      margin-right: 10px;
+      color: var(--blue-600);
     }
+    .upload-main {
+      color: var(--black-600);
+    }
+    .separate {
+      display: flex;
+      padding: 0 24px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
 
-    b {
-      font-weight: bold;
+      .separate-line {
+        border-top: 1px solid var(--black-200);
+        flex: 1;
+        max-width: 80px;
+      }
+      .separate-or {
+        color: var(--black-200);
+        margin: 0 8px;
+      }
+    }
+    .browse-files {
+      background-color: var(--blue-600);
+      padding: 4px 12px;
+      color: #fff;
+      cursor: pointer;
+      border-width: 0;
+      border-radius: 4px;
+      box-shadow: var(--bs-sm);
     }
   }
 
@@ -146,14 +164,14 @@
     display: flex;
     justify-content: center;
     button {
-      border: 1px solid var(--blue-600);
-      border-radius: 5px;
+      border-width: 0;
+      border-radius: 4px;
       background: var(--blue-600);
       color: #fff;
-      padding: 5px 10px;
+      padding: 4px 12px;
       font-size: 16px;
       cursor: pointer;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--bs-sm);
     }
   }
 }

@@ -32,7 +32,7 @@ export const List = () => {
                 className={styles['file-name']}
                 onClick={() => {
                   dispatch(setSelected(i))
-                  trackOpenFile(i)
+                  trackOpenFile(displayFileName(i))
                 }}
               >
                 {displayFileName(i)}

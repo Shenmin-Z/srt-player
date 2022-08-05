@@ -10,11 +10,18 @@ interface ModalProps {
   show: boolean
   onClose: () => void
   children?: ReactNode
+  className?: string
 }
 
-export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader, children }) => {
+export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader, children, className }) => {
   return (
-    <div className={styles['modal-container']} style={{ display: show ? undefined : 'none' }}>
+    <div
+      className={cn(styles['modal-container'], className)}
+      style={{ display: show ? undefined : 'none' }}
+      onClick={e => {
+        e.stopPropagation()
+      }}
+    >
       <div className={styles['mask']} onClick={onClose} />
       <div className={styles['modal']} style={{ width }}>
         {hideHeader !== true && (

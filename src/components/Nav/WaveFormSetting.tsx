@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState } from 'react'
 import { useSelector, useDispatch, updateEnableWaveForm } from '../../state'
 import {
   computeAudioSampling,
@@ -19,24 +19,19 @@ interface WaveFormOptionProps {
   type: EnableWaveForm
   disabled: boolean
   setDisabled: (d: boolean) => void
+  setStage: (s: StageEnum) => void
 }
 
-const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }) => {
+const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, setStage }) => {
   const dispatch = useDispatch()
   const i18n = useI18n()
   const enableStatus = useSelector(s => s.settings.waveform)
   const file = useSelector(s => s.files.selected) as string
   const videoDuration = doVideoWithDefault(video => video.duration, 0)
-  const [stage, setStage] = useState(StageEnum.stopped)
-
-  useEffect(() => {
-    if (type !== enableStatus) {
-      setStage(StageEnum.stopped)
-    }
-  }, [type, enableStatus])
 
   let icon = ''
-  let text = ''
+  let mainText = ''
+  let subText = ''
   let cb = async () => {}
   const createSampling = async (ab: ArrayBuffer, duration?: number) => {
     if (!ab) return
@@ -52,12 +47,13 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
   switch (type) {
     case EnableWaveForm.disable: {
       icon = 'hide_source'
-      text = i18n('nav.waveform.disable')
+      mainText = i18n('nav.waveform.disable')
       break
     }
     case EnableWaveForm.video: {
       icon = 'video_file'
-      text = i18n('nav.waveform.enable_with_video')
+      mainText = i18n('nav.waveform.enable')
+      subText = i18n('nav.waveform.with_video')
 
       cb = async () => {
         setStage(StageEnum.decoding)
@@ -69,7 +65,8 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
     }
     case EnableWaveForm.audio: {
       icon = 'audio_file'
-      text = i18n('nav.waveform.enable_with_audio')
+      mainText = i18n('nav.waveform.enable')
+      subText = i18n('nav.waveform.with_audio')
 
       cb = async () => {
         const handles = await showOpenFilePicker({
@@ -106,6 +103,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
         if (disabled) return
         setDisabled(true)
         try {
+          setStage(StageEnum.stopped)
           await cb()
           setStatus(type)
         } catch (e) {
@@ -117,9 +115,11 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
         }
       }}
     >
-      <span className="material-icons-outlined">{icon}</span>
-      <span className={styles['waveform-text']}>{text}</span>
-      <Progress stage={stage} />
+      <div className="material-icons-outlined">{icon}</div>
+      <div className={styles['waveform-text']}>
+        <div className={styles['main']}>{mainText}</div>
+        <div className={styles['sub']}>{subText}</div>
+      </div>
     </div>
   )
 }
@@ -127,13 +127,22 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled }
 export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
   const i18n = useI18n()
   const [disabled, setDisabled] = useState(false)
+  const [stage, setStage] = useState(StageEnum.stopped)
 
+  const commonProps = {
+    disabled,
+    setDisabled,
+    setStage,
+  }
   return (
     <Modal {...props} title={i18n('nav.waveform.name')}>
       <div className={styles['waveform']}>
-        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.disable} />
-        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.video} />
-        <WaveFormOption disabled={disabled} setDisabled={setDisabled} type={EnableWaveForm.audio} />
+        <WaveFormOption {...commonProps} type={EnableWaveForm.disable} />
+        <WaveFormOption {...commonProps} type={EnableWaveForm.video} />
+        <WaveFormOption {...commonProps} type={EnableWaveForm.audio} />
+      </div>
+      <div className={styles['progress-container']}>
+        <Progress stage={stage} />
       </div>
     </Modal>
   )
@@ -143,8 +152,9 @@ const DISTANCE = 14
 
 const Progress: FC<{ stage?: StageEnum }> = ({ stage = StageEnum.stopped }) => {
   const text = useI18n()('nav.waveform.stages').split(',')?.[stage - 1] || '-'
+  if (stage === StageEnum.stopped) return null
   return (
-    <div className={styles['progress']} style={{ visibility: stage === StageEnum.stopped ? 'hidden' : undefined }}>
+    <div className={cn(styles['progress'], styles[`stage-${stage}`])}>
       <svg viewBox={`0 0 ${10 * (2 * DISTANCE + 2)} 20`} xmlns="http://www.w3.org/2000/svg">
         <line
           x1="10"

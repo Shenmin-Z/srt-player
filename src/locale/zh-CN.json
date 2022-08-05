@@ -1,6 +1,8 @@
 {
   "import_video_and_subtitle": {
-    "click_drop": "点击或拖拽<b>视频</b>与<b>字幕</b>文件",
+    "drag": "拖拽视频与字幕文件到这里",
+    "browse": "浏览文件",
+    "or": "或",
     "save": "保存",
     "save_cache": "复制文件到缓存"
   },
@@ -11,7 +13,11 @@
   },
   "footer": {
     "current_version": "当前版本",
-    "update": "升级"
+    "update": "升级",
+    "feedback": "反馈",
+    "feedback_email": "如果你有遇到bug，有使用上的建议或者任何问题，都可以通过下面的邮箱反馈给我：",
+    "feedback_video": "也可以在这个视频下面的评论区留言：",
+    "video_url": "https://www.bilibili.com/video/BV1Ci4y1d7iA/"
   },
   "nav": {
     "info": {
@@ -59,8 +65,9 @@
     "waveform": {
       "name": "波形图",
       "disable": "关闭",
-      "enable_with_video": "启用（从现有视频提取）",
-      "enable_with_audio": "启用（单独上传音频文件）",
+      "enable":"启用",
+      "with_video": "从现有视频提取",
+      "with_audio": "单独上传音频文件",
       "stages": "解码中...,采样中...,生成图片中...,完成"
     }
   },

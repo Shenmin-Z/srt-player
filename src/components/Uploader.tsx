@@ -105,10 +105,6 @@ export const Uploader = () => {
     <div className={styles['container']}>
       <div
         className={cn(styles['upload-area'], { 'drag-over': dragOver })}
-        onClick={async () => {
-          const { videos, subtitles } = await pickFiles()
-          addToBuf(videos, subtitles)
-        }}
         onDragOver={event => {
           event.preventDefault()
           setDragOver(true)
@@ -133,8 +129,22 @@ export const Uploader = () => {
           addToBuf(videos, subtitles)
         }}
       >
-        <span className="material-icons">upload_file</span>
-        <span dangerouslySetInnerHTML={{ __html: i18n('import_video_and_subtitle.click_drop') }}></span>
+        <div className="material-icons-outlined">folder_open</div>
+        <div className={styles['upload-main']}>{i18n('import_video_and_subtitle.drag')}</div>
+        <div className={styles['separate']}>
+          <div className={styles['separate-line']} />
+          <div className={styles['separate-or']}>{i18n('import_video_and_subtitle.or')}</div>
+          <div className={styles['separate-line']} />
+        </div>
+        <button
+          className={styles['browse-files']}
+          onClick={async () => {
+            const { videos, subtitles } = await pickFiles()
+            addToBuf(videos, subtitles)
+          }}
+        >
+          {i18n('import_video_and_subtitle.browse')}
+        </button>
       </div>
       <div className={styles['buffer-container']}>
         <div className={styles['buffer']} style={uploadStyle}>

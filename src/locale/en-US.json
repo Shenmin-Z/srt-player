@@ -1,6 +1,8 @@
 {
   "import_video_and_subtitle": {
-    "click_drop": "Click or drop <b>video</b> and <b>subtitle</b> files here",
+    "drag": "Drag video and subtitle files here",
+    "browse": "Browe files",
+    "or": "OR",
     "save": "Save",
     "save_cache": "Copy file(s) to cache"
   },
@@ -11,7 +13,11 @@
   },
   "footer": {
     "current_version": "Current version",
-    "update": "Update"
+    "update": "Update",
+    "feedback": "Feedback",
+    "feedback_email": "Encountered bugs? Having suggestions? Or if you have any question regarding this app, you can send your feedback via email here:",
+    "feedback_video": "Or you can comment here:",
+    "video_url": "https://youtu.be/ZPnu17pJsIo"
   },
   "nav": {
     "info": {
@@ -59,8 +65,9 @@
     "waveform": {
       "name": "Waveform",
       "disable": "Disable",
-      "enable_with_video": "Enable using existing video file",
-      "enable_with_audio": "Enable using extra audio file",
+      "enable": "Enable",
+      "with_video": "Using existing video file",
+      "with_audio": "Using extra audio file",
       "stages": "Decoding...,Re-sampling...,Generating images...,Done"
     }
   },

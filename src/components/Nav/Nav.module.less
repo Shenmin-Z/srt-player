@@ -189,10 +189,10 @@
 .waveform {
   padding: 16px 0;
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(3, minmax(80px, auto));
   column-gap: 10px;
   .waveform-option {
-    padding: 20px;
+    padding: 12px;
     cursor: pointer;
     box-shadow: var(--bs-sm);
     &:global(.active) {
@@ -211,44 +211,69 @@
       }
     }
     border-radius: 10px;
-    width: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
     color: var(--black-200);
     :global(.material-icons-outlined) {
-      font-size: 40px;
-      margin: 32px 0 16px 0;
+      font-size: 28px;
+      margin: 8px 0;
     }
     .waveform-text {
-      text-align: center;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      .main {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+      .sub {
+        font-size: 12px;
+      }
     }
   }
 }
 
+.progress-container {
+  display: flex;
+  justify-content: center;
+}
+
 .progress {
-  width: 100%;
+  width: 60%;
   text-align: center;
+  font-size: 14px;
+  &.stage-0,
+  &.stage-1,
+  &.stage-2,
+  &.stage-3 {
+    color: var(--green-200);
+  }
+  &.stage-4 {
+    color: var(--green-500);
+  }
   svg {
-    margin: 20px 0 10px 0;
+    margin: 10px 0;
     line {
-      stroke: var(--black-100);
+      stroke: var(--green-100);
       stroke-width: 2;
       &:global(.done) {
-        stroke: var(--black-700);
+        stroke: var(--green-500);
       }
       &:global(.current) {
-        stroke: var(--black-200);
+        stroke: var(--green-200);
       }
     }
     circle {
-      fill: var(--black-100);
+      fill: var(--green-100);
       stroke-width: 0;
       &:global(.done) {
-        fill: var(--black-700);
+        fill: var(--green-500);
       }
       &:global(.current) {
-        fill: var(--black-200);
+        fill: var(--green-200);
       }
     }
   }
