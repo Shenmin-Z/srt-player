@@ -1,7 +1,7 @@
 {
   "import_video_and_subtitle": {
     "drag": "Drag video and subtitle files here",
-    "browse": "Browe files",
+    "browse": "Browse files",
     "or": "OR",
     "save": "Save",
     "save_cache": "Copy file(s) to cache"
