@@ -29,7 +29,7 @@
         "back_3_seconds": "-3 s",
         "forward_10_seconds": "+10 s",
         "forward_3_seconds": "+3 s",
-        "fullscreen": "全屏"
+        "fullscreen": "Fullscreen"
       },
       "subtitle": {
         "name": "Subtitle",
@@ -68,7 +68,8 @@
       "enable": "Enable",
       "with_video": "Using existing video file",
       "with_audio": "Using extra audio file",
-      "stages": "Decoding...,Re-sampling...,Generating images...,Done"
+      "generating": "Generating waveform, this might take a while...",
+      "done": "Done"
     }
   },
   "confirm": {

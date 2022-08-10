@@ -26,10 +26,10 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
   const dispatch = useDispatch()
   const i18n = useI18n()
   const enableStatus = useSelector(s => s.settings.waveform)
+  const active = type === enableStatus
   const file = useSelector(s => s.files.selected) as string
   const videoDuration = doVideoWithDefault(video => video.duration, 0)
 
-  let icon = ''
   let mainText = ''
   let subText = ''
   let cb = async () => {}
@@ -46,12 +46,10 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
   }
   switch (type) {
     case EnableWaveForm.disable: {
-      icon = 'hide_source'
       mainText = i18n('nav.waveform.disable')
       break
     }
     case EnableWaveForm.video: {
-      icon = 'video_file'
       mainText = i18n('nav.waveform.enable')
       subText = i18n('nav.waveform.with_video')
 
@@ -64,7 +62,6 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
       break
     }
     case EnableWaveForm.audio: {
-      icon = 'audio_file'
       mainText = i18n('nav.waveform.enable')
       subText = i18n('nav.waveform.with_audio')
 
@@ -97,7 +94,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
 
   return (
     <div
-      className={cn(styles['waveform-option'], { active: enableStatus === type })}
+      className={cn(styles['waveform-option'], { [styles['active']]: active })}
       onClick={async () => {
         if (enableStatus === type) return
         if (disabled) return
@@ -115,11 +112,9 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
         }
       }}
     >
-      <div className="material-icons-outlined">{icon}</div>
-      <div className={styles['waveform-text']}>
-        <div className={styles['main']}>{mainText}</div>
-        <div className={styles['sub']}>{subText}</div>
-      </div>
+      <div className="material-icons">{active ? 'radio_button_checked' : 'radio_button_unchecked'}</div>
+      <div className={styles['main']}>{mainText}</div>
+      {subText && <div className={styles['sub']}>({subText})</div>}
     </div>
   )
 }
@@ -147,13 +142,15 @@ export const WaveForm: FC<{ show: boolean; onClose: () => void }> = props => {
 }
 
 const Progress: FC<{ stage?: StageEnum }> = ({ stage = StageEnum.stopped }) => {
-  const text = useI18n()('nav.waveform.stages').split(',')?.[stage - 1] || '-'
-  const percentage = Math.ceil((stage / StageEnum.done) * 100)
+  const i18n = useI18n()
+  const text = stage === StageEnum.done ? i18n('nav.waveform.done') : i18n('nav.waveform.generating')
+  const progress = Math.ceil((100 * stage) / StageEnum.done) + '%'
+
   if (stage === StageEnum.stopped) return null
   return (
     <div className={styles['progress']}>
-      <div className={styles['percentage']}>{percentage}%</div>
-      <div className={styles['stage']}>{text}</div>
+      {text}
+      <div className={styles['progress-bar']} style={{ width: progress }} />
     </div>
   )
 }

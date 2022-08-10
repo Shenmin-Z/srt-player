@@ -1,4 +1,5 @@
 import { FC, useEffect } from 'react'
+import cn from 'classnames'
 import {
   useSelector,
   useDispatch,
@@ -49,18 +50,24 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
             }}
           />
         </div>
-        <label htmlFor="subtitle-settings-auto" className={styles['title']} style={{ cursor: 'pointer' }}>
+        <label
+          className={styles['title']}
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            dispatch(updateSubtitleAuto({ file }))
+          }}
+        >
           {i18n('nav.subtitle.auto')}
         </label>
         <div className={styles['body']}>
-          <input
-            id="subtitle-settings-auto"
-            type="checkbox"
-            checked={subtitleAuto}
-            onChange={() => {
+          <span
+            className={cn('material-icons', 'checkbox', { checked: subtitleAuto })}
+            onClick={() => {
               dispatch(updateSubtitleAuto({ file }))
             }}
-          />
+          >
+            {subtitleAuto ? 'check_box' : 'check_box_outline_blank'}
+          </span>
         </div>
         <div className={styles['title']}>{i18n('nav.subtitle.delay')}</div>
         <div className={styles['body']}>
@@ -80,18 +87,24 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
             cancel
           </span>
         </div>
-        <label htmlFor="subtitle-settings-listening-mode" className={styles['title']} style={{ cursor: 'pointer' }}>
+        <label
+          className={styles['title']}
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            dispatch(updateSubtitleListeningMode({ file }))
+          }}
+        >
           {i18n('nav.subtitle.listening_mode')}
         </label>
         <div className={styles['body']}>
-          <input
-            id="subtitle-settings-listening-mode"
-            type="checkbox"
-            checked={subtitleListeningMode}
-            onChange={() => {
+          <span
+            className={cn('material-icons', 'checkbox', { checked: subtitleListeningMode })}
+            onClick={() => {
               dispatch(updateSubtitleListeningMode({ file }))
             }}
-          />
+          >
+            {subtitleListeningMode ? 'check_box' : 'check_box_outline_blank'}
+          </span>
         </div>
       </div>
     </Modal>

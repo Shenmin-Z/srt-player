@@ -65,10 +65,11 @@
     "waveform": {
       "name": "波形图",
       "disable": "关闭",
-      "enable":"启用",
+      "enable": "启用",
       "with_video": "从现有视频提取",
-      "with_audio": "单独上传音频文件",
-      "stages": "解码中...,采样中...,生成图片中...,完成"
+      "with_audio": "其他视频/音频源",
+      "generating": "波形图生成中，请稍等...",
+      "done": "完成"
     }
   },
   "confirm": {
@@ -83,6 +84,6 @@
   },
   "error": {
     "database_initialize": "数据库初始化错误",
-    "video_src_not_supported": "大変！😭<br />你的浏览器不支持这个视频格式。需要先用其他软件转码。<br />比如视频用h264(avc)，音频用mp3，容器用mp4。"
+    "video_src_not_supported": "大变！😭<br />你的浏览器不支持这个视频格式。需要先用其他软件转码。<br />比如视频用h264(avc)，音频用mp3，容器用mp4。"
   }
 }

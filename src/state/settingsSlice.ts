@@ -86,6 +86,7 @@ export const LoadWaveFormPreference = createAsyncThunk('settings/waveFormPrefere
 })
 
 export const updateSubtitleWidth = createAsyncThunk<number, number>('settings/updateSubtitleWidth', async v => {
+  v = parseInt(v + '')
   setWidth({ '--subtitle-width': v })
   await db.put('global', v, 'subtitleWidth')
   return v
