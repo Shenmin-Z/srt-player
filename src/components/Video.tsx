@@ -10,13 +10,14 @@ import {
   updateVideoTime,
   setVideoStatus,
 } from '../state'
-import { useRestoreVideo, doVideo, VIDEO_ID, useI18n, EnableWaveForm, getVideo, IS_MOBILE } from '../utils'
+import { useRestoreVideo, doVideo, isAudioOnly, VIDEO_ID, useI18n, EnableWaveForm, getVideo, IS_MOBILE } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm, message } from './Modal'
 import cn from 'classnames'
 
 export const Video: FC = () => {
   const [videoUrl, setVideoUrl] = useState('')
+  const [audioOnly, setAudioOnly] = useState(false)
   const restoreVideo = useRestoreVideo()
   const i18n = useI18n()
   const dispatch = useDispatch()
@@ -90,7 +91,9 @@ export const Video: FC = () => {
 
   if (videoUrl) {
     return (
-      <div className={cn(styles['video-container'], { [styles['has-waveform']]: enableStatus })}>
+      <div
+        className={cn(styles['video-container'], { [styles['has-waveform']]: enableStatus, 'audio-only': audioOnly })}
+      >
         {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
         <div className={styles['inner']}>
           <video
@@ -101,6 +104,9 @@ export const Video: FC = () => {
               await restoreVideo()
               dispatch(setVideo({ hasVideo: true, total: doVideo(v => v.duration) }))
               showControls()
+              setTimeout(() => {
+                setAudioOnly(isAudioOnly())
+              }, 1000)
             }}
             onPlay={() => {
               dispatch(setVideoStatus(true))

@@ -15,6 +15,15 @@ export function doVideoWithDefault<T>(cb: (v: HTMLVideoElement) => T, defaultVal
   return cb(videoElement)
 }
 
+export function isAudioOnly() {
+  return doVideoWithDefault(v => {
+    const video = v as any
+    if (video.webkitVideoDecodedByteCount === 0) return true
+    if (video.mozDecodedFrames === 0) return true
+    return false
+  }, false)
+}
+
 interface VideoEvents {
   play?(): void
   pause?(): void
