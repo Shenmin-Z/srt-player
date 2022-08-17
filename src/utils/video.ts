@@ -15,13 +15,20 @@ export function doVideoWithDefault<T>(cb: (v: HTMLVideoElement) => T, defaultVal
   return cb(videoElement)
 }
 
-export function isAudioOnly() {
-  return doVideoWithDefault(v => {
-    const video = v as any
-    if (video.webkitVideoDecodedByteCount === 0) return true
-    if (video.mozDecodedFrames === 0) return true
-    return false
-  }, false)
+export function isAudioOnly(fileName: string, cb: (r: boolean) => void) {
+  if (/\.(m4a|flac|alac|mp3|wav|wma|aac|ogg)$/i.test(fileName)) {
+    cb(true)
+    return
+  }
+  setTimeout(() => {
+    const audioOnly = doVideoWithDefault(v => {
+      const video = v as any
+      if (video.webkitVideoDecodedByteCount === 0) return true
+      if (video.mozDecodedFrames === 0) return true
+      return false
+    }, false)
+    cb(audioOnly)
+  }, 1000)
 }
 
 interface VideoEvents {

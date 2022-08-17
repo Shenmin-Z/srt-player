@@ -89,10 +89,10 @@ export const useSaveHistory = (cooldown?: number) => {
     await writeHelper(file, h => {
       const subtitle = getSubtitleElm()
       if (subtitle) {
-        h.subtitleTop = Math.floor(subtitle.scrollTop)
+        h.subtitleTop = subtitle.scrollTop
       }
       doVideo(video => {
-        h.currentTime = Math.floor(video.currentTime)
+        h.currentTime = video.currentTime
         h.duration = video.duration
       })
       h.subtitleLastActive = previousHighlighted

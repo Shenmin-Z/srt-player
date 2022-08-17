@@ -104,9 +104,7 @@ export const Video: FC = () => {
               await restoreVideo()
               dispatch(setVideo({ hasVideo: true, total: doVideo(v => v.duration) }))
               showControls()
-              setTimeout(() => {
-                setAudioOnly(isAudioOnly())
-              }, 1000)
+              isAudioOnly(file, setAudioOnly)
             }}
             onPlay={() => {
               dispatch(setVideoStatus(true))
