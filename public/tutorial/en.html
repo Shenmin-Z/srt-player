@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/srt-player.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SRT Player Tutorial</title>
+    <meta name="description" content="Video player for language learners" />
+    <meta name="keywords" content="video player, srt, learning laguage" />
+    <link rel="stylesheet" href="/tutorial/tutorial.css" />
+  </head>
+  <body>
+    <h1>SRT Player Tutorial</h1>
+
+    <h2>0. What's this tool for</h2>
+    <p>
+      This tool is designed for language learners. Its has 2 main features:
+      <span class="text-blue">separate subtitle</span> and <span class="text-blue">waveform</span>.
+    </p>
+    <p>Separate subtitle means you can copy and paste to look up new words.</p>
+    <p>Waveform helps practising listening.</p>
+
+    <h2>1. Import files</h2>
+    <img src="/tutorial/import.webp" id="demo-import" />
+    <ul>
+      <li>
+        What to import
+        <ul>
+          <li>video/audio files (appears on left)</li>
+          <li>subtitle files (appears on right)</li>
+        </ul>
+      </li>
+      <li>
+        Supported format
+        <ul>
+          <li>
+            Video and audio depends on your browser, you can check it
+            <a href="https://videojs.com/html5-video-support/" target="_blank">here</a>.
+          </li>
+          <li>Subtitle: <span class="text-blue">srt, ssa, ass</span></li>
+        </ul>
+      </li>
+      <li>If you import multiple videos and subtitles, their orders need to match. You can drag items to reorder.</li>
+      <li>It's OK to import only one video/audio</li>
+    </ul>
+
+    <h2>2. Subtitle</h2>
+    <p>Check the subtitle settings panel. (press <b class="text-blue">B</b> and it will show up)</p>
+    <p>
+      Videos and subtitles found on Internet may not match time-wise, and you'll have to adjust subtitle delay. This can
+      be easily done by clicking on the timestamp like <span style="color: #a6e22e">00:00:44,478</span> or
+      <span style="color: #f92672">00:00:46,713</span>, and delay will be adjusted to the current video time. If delay
+      is set, it will be shown under the cc icon in red on top right.
+    </p>
+
+    <h2>3. Waveform</h2>
+    <h3>Generating waveform</h3>
+    <p>Press <b class="text-blue">S</b> to bring up waveform control.</p>
+    <p>By default waveform is disabled. To enable waveform, there are 2 options:</p>
+    <ol>
+      <li>Generate from the current video/audio file</li>
+      <li>Generate from a separate file</li>
+    </ol>
+    <p>
+      Most of the time option 1 is enough. But for technical reasons, the generated waveform might not be accurate, in
+      which case you'll have to choose option 2 and feed browser a separate file with format that's easier to digest.
+    </p>
+    <p>For example, you can convert the video file to a mp3 file, and use that mp3 file to generate waveform.</p>
+    <h3>Interact with waveform</h3>
+    <p>Click on the waveform will:</p>
+    <ol>
+      <li>set video to the corresponding time</li>
+      <li>set a replay location, indicated by a <span style="color: #e6d874">yellow</span> line</li>
+    </ol>
+    <p>
+      Press <b class="text-blue">R</b> or click the replay icon(bottom right of video) to replay from the previously set
+      location
+    </p>
+  </body>
+</html>
