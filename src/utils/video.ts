@@ -43,6 +43,7 @@ export const useVideoEvents = (cbs: VideoEvents) => {
     if (!hasVideo) return
     return doVideo(video => {
       if (cbs.play) {
+        if (!video.paused && !video.ended) cbs.play()
         video.addEventListener('play', cbs.play)
       }
       if (cbs.pause) {
