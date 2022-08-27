@@ -318,6 +318,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
       onClick={e => {
         const progress = getProgressByMouse(e)
         setNobPosition(progress)
+        previousProgress.current = progress
         doVideo(video => {
           video.currentTime = progress * video.duration
         })
