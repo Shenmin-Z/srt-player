@@ -227,6 +227,7 @@ const useShortcuts = (nodes: Node[], subtitleAuto: boolean, subtitleDelay: numbe
   return { divRef, autoRef, timerRef, delayRef }
 }
 
+// n: starts from 0
 const scrollToNthChild = (() => {
   let prevN: number
   return (n: number, div: HTMLDivElement | null, setHighlight: { (s: number): void }) => {

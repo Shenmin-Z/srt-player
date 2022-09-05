@@ -9,6 +9,7 @@ export const SUBTITLE_CONTAINER_ID = 'srt-player-subtitle'
 export let previousHighlighted: number
 
 // manual update for better performance
+// counter: starts from 1
 export function highlight(counter: number) {
   const container = document.querySelector(`#${SUBTITLE_CONTAINER_ID}`)
   if (!container) return

@@ -57,6 +57,7 @@ export const Video: FC = () => {
       if (!window.__SRT_ENABLE_SHORTCUTS__) return
       if (e.code === 'Space') {
         e.preventDefault()
+        e.stopPropagation() // space may interrupt subtitle's smooth scroll
         togglePlay()
       }
       if (e.code === 'ArrowLeft') {
@@ -83,9 +84,9 @@ export const Video: FC = () => {
         }
       }
     }
-    window.addEventListener('keydown', keyListener)
+    window.addEventListener('keydown', keyListener, true)
     return () => {
-      window.removeEventListener('keydown', keyListener)
+      window.removeEventListener('keydown', keyListener, true)
     }
   }, [])
 

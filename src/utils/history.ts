@@ -12,9 +12,8 @@ function getSubtitleElm() {
 }
 
 export const useRestoreSubtitle = () => {
-  const file = useSelector(s => s.files.selected)
+  const file = useSelector(s => s.files.selected!)
   return async (): Promise<number | null> => {
-    if (!file) return null
     const h = await getHistoryByFileName(file)
     const subtitleTop = h?.subtitleTop ?? 0
     const subtitle = getSubtitleElm()
@@ -26,9 +25,8 @@ export const useRestoreSubtitle = () => {
 }
 
 export const useRestoreVideo = () => {
-  const file = useSelector(s => s.files.selected)
+  const file = useSelector(s => s.files.selected!)
   return async () => {
-    if (!file) return
     const h = await getHistoryByFileName(file)
     const currentTime = h?.currentTime ?? 0
     doVideo(video => {
