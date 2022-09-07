@@ -63,7 +63,15 @@ export const WaveForm: FC<Props> = () => {
   }, [])
 
   return (
-    <div className={cn(styles['waveform'], { [styles['ready']]: ready })}>
+    <div
+      className={cn(styles['waveform'], { [styles['ready']]: ready })}
+      onWheel={e => {
+        const container = e.currentTarget
+        const halfWidth = container.clientWidth / 2
+        const left = (e.deltaY < 0 ? -1 : 1) * halfWidth
+        container.scrollBy({ left })
+      }}
+    >
       <div
         id={WAVEFORM_ID}
         ref={waveformDivRef}
