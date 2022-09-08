@@ -44,15 +44,15 @@ const SWPlugin = (): Plugin => {
       //     watch: {},
       //   },
       // })
-      middlewares.use((req, res, next) => {
-        if (req.originalUrl === config.base + 'sw.js') {
-          const sw = readFileSync(resolve(__dirname, 'dist/sw.js'))
-          res.setHeader('Content-Type', 'text/javascript')
-          res.end(sw)
-        } else {
-          next()
-        }
-      })
+      // middlewares.use((req, res, next) => {
+      //   if (req.originalUrl === config.base + 'sw.js') {
+      //     const sw = readFileSync(resolve(__dirname, 'dist/sw.js'))
+      //     res.setHeader('Content-Type', 'text/javascript')
+      //     res.end(sw)
+      //   } else {
+      //     next()
+      //   }
+      // })
     },
   }
 }

@@ -19,6 +19,8 @@ import {
   EnableWaveForm,
   getVideo,
   IS_MOBILE,
+  IS_IOS,
+  isFullscreen,
   toggleFullScreen,
 } from '../utils'
 import { WaveForm } from './WaveForm'
@@ -104,11 +106,13 @@ export const Video: FC = () => {
         {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
         <div className={styles['inner']}>
           <video
+            autoPlay={IS_IOS} // loaddata does not fire on iPhone unless played
             playsInline
             id={VIDEO_ID}
             src={videoUrl}
             onClick={togglePlay}
-            onLoadedData={async () => {
+            onLoadedData={async e => {
+              e.currentTarget.pause()
               await restoreVideo()
               dispatch(setVideo({ hasVideo: true, total: doVideo(v => v.duration) }))
               showControls()
@@ -196,7 +200,7 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
 
   useEffect(() => {
     const listener = () => {
-      setFullscreen(!!document.fullscreenElement)
+      setFullscreen(isFullscreen())
     }
     document.addEventListener('fullscreenchange', listener)
     return () => {

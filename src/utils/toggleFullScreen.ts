@@ -1,8 +1,12 @@
 declare const document: any
 declare const Element: any
 
+export function isFullscreen() {
+  return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement)
+}
+
 export function toggleFullScreen() {
-  if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement) {
+  if (isFullscreen()) {
     // exit fullscreen
     if (document.cancelFullScreen) {
       document.cancelFullScreen()
@@ -30,6 +34,8 @@ export function toggleFullScreen() {
         }
       }
     }
-    document.body.classList.add('is-fullscreen')
+    if (isFullscreen()) {
+      document.body.classList.add('is-fullscreen')
+    }
   }
 }
