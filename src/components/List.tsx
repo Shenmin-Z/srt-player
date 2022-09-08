@@ -104,7 +104,10 @@ interface onProgress {
 async function downloadExample(e: Example, onProgress: onProgress) {
   const videoBlob = await download(e.videoUrl, onProgress)
   const subtitleBlob = await download(e.subtitleUrl, onProgress)
-  await saveVideoSubPair([new File([videoBlob], e.name), new File([subtitleBlob], 'example.srt')], true)
+  await saveVideoSubPair(
+    [new File([videoBlob], e.name, { type: 'video/mp4' }), new File([subtitleBlob], 'example.srt')],
+    true,
+  )
 }
 
 async function download(url: string, onProgress: onProgress) {

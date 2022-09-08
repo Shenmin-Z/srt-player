@@ -20,10 +20,10 @@
     grid-template-columns: 1fr;
     grid-template-rows: var(--nav-height) 0 minmax(0, 1fr);
   }
+}
 
-  @media all and (display-mode: fullscreen) {
-    --nav-height: 0;
-  }
+body:global(.is-fullscreen) .play {
+  --nav-height: 0;
 }
 
 .resize {

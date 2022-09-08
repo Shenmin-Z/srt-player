@@ -10,7 +10,17 @@ import {
   updateVideoTime,
   setVideoStatus,
 } from '../state'
-import { useRestoreVideo, doVideo, isAudioOnly, VIDEO_ID, useI18n, EnableWaveForm, getVideo, IS_MOBILE } from '../utils'
+import {
+  useRestoreVideo,
+  doVideo,
+  isAudioOnly,
+  VIDEO_ID,
+  useI18n,
+  EnableWaveForm,
+  getVideo,
+  IS_MOBILE,
+  toggleFullScreen,
+} from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm, message } from './Modal'
 import cn from 'classnames'
@@ -77,11 +87,7 @@ export const Video: FC = () => {
         }
       }
       if (e.code === 'KeyF') {
-        if (document.fullscreenElement) {
-          document.exitFullscreen()
-        } else {
-          document.body.requestFullscreen()
-        }
+        toggleFullScreen()
       }
     }
     window.addEventListener('keydown', keyListener, true)
@@ -98,6 +104,7 @@ export const Video: FC = () => {
         {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
         <div className={styles['inner']}>
           <video
+            playsInline
             id={VIDEO_ID}
             src={videoUrl}
             onClick={togglePlay}

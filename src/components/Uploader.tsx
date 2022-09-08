@@ -253,19 +253,10 @@ export const Uploader = () => {
 
 async function pickFiles() {
   try {
-    const option = supported
-      ? {
-          mimeTypes: ['audio/*', 'video/*', 'text/plain'],
-          extensions: ['.srt', '.ssa', '.ass'],
-        }
-      : {
-          extensions: ['.srt', '.ssa', '.ass', '.mp4', '.avi', '.mp3', '.aac'],
-        }
     const files = await fileOpen({
       description: 'Videos & Subtitles',
       multiple: true,
       id: 'video-and-subtitle',
-      ...option,
     })
     return filterFileHandles(files)
   } catch {
