@@ -19,7 +19,6 @@ export function toggleFullScreen() {
         }
       }
     }
-    document.body.classList.remove('is-fullscreen')
   } else {
     // enter fullscreen
     const element = document.body
@@ -33,9 +32,6 @@ export function toggleFullScreen() {
           element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT)
         }
       }
-    }
-    if (isFullscreen()) {
-      document.body.classList.add('is-fullscreen')
     }
   }
 }

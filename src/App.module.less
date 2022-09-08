@@ -22,8 +22,19 @@
   }
 }
 
-body:global(.is-fullscreen) .play {
-  --nav-height: 0;
+.hide() {
+  .play {
+    --nav-height: 0;
+  }
+}
+body:fullscreen {
+  .hide();
+}
+body:-moz-full-screen {
+  .hide();
+}
+body:-webkit-full-screen {
+  .hide();
 }
 
 .resize {
