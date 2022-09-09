@@ -148,6 +148,35 @@
     }
   }
 }
+
+.is-fullscreen() {
+  .icon.fullscreen-exit {
+    display: inline;
+  }
+  .icon.fullscreen {
+    display: none;
+  }
+}
+.is-not-fullscreen() {
+  .icon.fullscreen-exit {
+    display: none;
+  }
+  .icon.fullscreen {
+    display: inline;
+  }
+}
+
+.is-not-fullscreen();
+body:fullscreen {
+  .is-fullscreen();
+}
+body:-moz-full-screen {
+  .is-fullscreen();
+}
+body:-webkit-full-screen {
+  .is-fullscreen();
+}
+
 .play-time {
   margin-right: auto;
   font-variant-numeric: tabular-nums;

@@ -20,8 +20,8 @@ import {
   getVideo,
   IS_MOBILE,
   IS_IOS,
-  isFullscreen,
   toggleFullScreen,
+  FULLSCREEN_ENABLED,
 } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm, message } from './Modal'
@@ -196,17 +196,6 @@ interface VideoControlsProps {
 
 const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform }) => {
   const { hasVideo, playing, total, current } = useSelector(s => s.video)
-  const [fullscreen, setFullscreen] = useState(false)
-
-  useEffect(() => {
-    const listener = () => {
-      setFullscreen(isFullscreen())
-    }
-    document.addEventListener('fullscreenchange', listener)
-    return () => {
-      document.removeEventListener('fullscreenchange', listener)
-    }
-  }, [])
 
   if (!hasVideo) return null
 
@@ -234,15 +223,23 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
               }}
             />
           )}
-          <Icon
-            type={fullscreen ? 'fullscreen_exit' : 'fullscreen'}
-            onClick={() => {
-              window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyF' }))
-            }}
-          />
+          <FullscreenIcon />
         </div>
         <ProgressBar value={current / total} />
       </div>
+    </>
+  )
+}
+
+const FullscreenIcon = () => {
+  if (!FULLSCREEN_ENABLED) return null
+  const onClick = () => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyF' }))
+  }
+  return (
+    <>
+      <Icon type={'fullscreen_exit'} onClick={onClick} className={styles['fullscreen-exit']} />
+      <Icon type={'fullscreen'} onClick={onClick} className={styles['fullscreen']} />
     </>
   )
 }
