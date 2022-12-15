@@ -241,15 +241,5 @@ const scrollToNthChild = (() => {
     const top = offset - halfHeight + selfHeight / 2
     div.scroll({ top, behavior: 'smooth' })
     setHighlight(n + 1)
-    debug(top)
   }
 })()
-
-// debug purpose
-const debugArray: any[] = ((window as any).__debug__ = [])
-function debug(v: any) {
-  debugArray.push(v)
-  if (debugArray.length > 20) {
-    debugArray.splice(0, 10)
-  }
-}

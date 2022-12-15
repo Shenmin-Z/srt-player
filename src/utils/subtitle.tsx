@@ -24,10 +24,12 @@ export function highlight(counter: number) {
   }
 }
 
-function removeTags(s: string) {
-  return s.replace(/<[^>]*>/g, s => {
-    if (/^<\/?(i|b|u)>$/i.test(s)) return s
-    return ''
+function escapeHtmlTags(s: string) {
+  return s.replace(/&/g, '&amp;').replace(/<([^>]*)>/g, (match, s) => {
+    // keep <i>, <b>, <u>
+    if (/^\/?(i|b|u)$/i.test(s)) return match
+    // escape the rest
+    return `&lt;${s}&gt;`
   })
 }
 
@@ -72,7 +74,7 @@ function parseSRT(content: string): Node[] {
     const matched = i[1].match(timeReg)!
     const start = parseTime(matched[1], 'srt')
     const end = parseTime(matched[2], 'srt')
-    const text = i.slice(2).map(filterText).map(removeTags)
+    const text = i.slice(2).map(filterText).map(escapeHtmlTags)
     nodes.push({ counter, start, end, text })
   }
   return nodes
@@ -97,7 +99,7 @@ function parseSSA(content: string): Node[] {
     const counter = i + 1
     const start = parseTime(startRaw, 'ssa')
     const end = parseTime(endRaw, 'ssa')
-    const text = removeCurlyBrakets(filterText(textRaw)).split(/\\n/i)
+    const text = escapeHtmlTags(removeCurlyBrakets(filterText(textRaw))).split(/\\n/i)
     nodes.push({ counter, start, end, text })
   }
   return nodes
