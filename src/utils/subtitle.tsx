@@ -5,6 +5,10 @@ export interface Node {
   text: string[]
 }
 
+interface SSANode extends Node {
+  style: string
+}
+
 export const SUBTITLE_CONTAINER_ID = 'srt-player-subtitle'
 export let previousHighlighted: number
 
@@ -37,8 +41,17 @@ function filterText(s: string) {
   return s.replace(/&lrm;/gim, '')
 }
 
-function removeCurlyBrakets(s: string) {
-  return s.replace(/\{[^\}]*\}/g, '')
+function filterSSAText(s: string) {
+  if (/\{[^\}]*p[1-9][^\}]*\}/.test(s)) {
+    // https://aeg-dev.github.io/AegiSite/docs/3.2/ass_tags/#drawing-commands
+    // ignore drawing commands
+    return ''
+  }
+  return filterText(s)
+    .replace(/\{[^\}]*\}/g, '') // ssa styling
+    .replace(/&/g, '&amp;') // escape html
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
 }
 
 export const SSA = '[SSA]'
@@ -89,20 +102,46 @@ function parseSSA(content: string): Node[] {
       return section.trim()
     })
     .filter(Boolean)
-  const nodes: Node[] = []
+  const nodes: SSANode[] = []
   for (let i = 0; i < lines.length; i++) {
-    const tmp = /^[^,]*,(?<startRaw>[^,]*),(?<endRaw>[^,]*),[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,(?<textRaw>.*)$/.exec(
-      lines[i],
-    )
-    if (!tmp?.groups) throw new Error('SSA parer error in line: ' + lines[i])
-    const { startRaw, endRaw, textRaw } = tmp.groups
+    const tmp =
+      /^[^,]*,(?<startRaw>[^,]*),(?<endRaw>[^,]*),(?<style>[^,]*),[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,(?<textRaw>.*)$/.exec(
+        lines[i],
+      )
+    if (!tmp?.groups) continue
+    const { startRaw, endRaw, style, textRaw } = tmp.groups
     const counter = i + 1
     const start = parseTime(startRaw, 'ssa')
     const end = parseTime(endRaw, 'ssa')
-    const text = escapeHtmlTags(removeCurlyBrakets(filterText(textRaw))).split(/\\n/i)
-    nodes.push({ counter, start, end, text })
+    const text = filterSSAText(textRaw)
+    if (!text) continue
+    nodes.push({ counter, start, style, end, text: text.split(/\\n/i) })
   }
-  return nodes
+  return sortAndMerge(nodes)
+}
+
+function sortAndMerge(nodes: SSANode[]): Node[] {
+  nodes.sort((a, b) => {
+    if (a.start.timestamp === b.start.timestamp) {
+      return a.style.localeCompare(b.style)
+    }
+    return a.start.timestamp - b.start.timestamp
+  })
+  const merged: Node[] = []
+  let count = 0
+  nodes.forEach(n => {
+    if (merged.length === 0 || merged[merged.length - 1].end.timestamp <= n.start.timestamp) {
+      n.counter = ++count
+      merged.push(n)
+    } else {
+      const last = merged[merged.length - 1]
+      if (n.end.timestamp > last.end.timestamp) {
+        last.end = n.end
+      }
+      last.text = last.text.concat(n.text)
+    }
+  })
+  return merged
 }
 
 function parseTime(raw: string, type: 'srt' | 'ssa') {
