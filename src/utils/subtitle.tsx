@@ -82,13 +82,13 @@ function parseSRT(content: string): Node[] {
     }
   }
   const nodes: Node[] = []
+  let count = 0
   for (const i of group) {
-    const counter = parseInt(i[0])
     const matched = i[1].match(timeReg)!
     const start = parseTime(matched[1], 'srt')
     const end = parseTime(matched[2], 'srt')
     const text = i.slice(2).map(filterText).map(escapeHtmlTags)
-    nodes.push({ counter, start, end, text })
+    nodes.push({ counter: ++count, start, end, text })
   }
   return nodes
 }
