@@ -37,6 +37,7 @@
         "page_down": "下翻",
         "toggle_auto": "开关自动模式",
         "toggle_listening_mode": "开关听力模式",
+        "toggle_hide_chinese": "开关隐藏中文",
         "toggle_settings": "开关设置窗口",
         "adjust_delay": "调整延迟",
         "click_time": "点击开始或结束时间",
@@ -60,7 +61,8 @@
       "auto": "自动模式",
       "delay": "延迟（秒）",
       "font_size": "字体大小",
-      "listening_mode": "听力模式"
+      "listening_mode": "听力模式",
+      "hide_chinese": "隐藏中文"
     },
     "waveform": {
       "name": "波形图",

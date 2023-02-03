@@ -1,7 +1,14 @@
 import { FC, ReactNode, useEffect, useState } from 'react'
 import cn from 'classnames'
 import styles from './Nav.module.less'
-import { useDispatch, useSelector, setSelected, updateSubtitleAuto, updateSubtitleListeningMode } from '../../state'
+import {
+  useDispatch,
+  useSelector,
+  setSelected,
+  updateSubtitleAuto,
+  updateSubtitleListeningMode,
+  toggleSubtitleShowCN,
+} from '../../state'
 import { useSaveHistory, IS_MOBILE, trackGoBack, displayFileName } from '../../utils'
 import { SubtitleSetting } from './SubtitleSetting'
 import { Info } from './Info'
@@ -30,6 +37,9 @@ export const Nav = () => {
       }
       if (e.code === 'KeyL' && !e.repeat) {
         dispatch(updateSubtitleListeningMode({ file }))
+      }
+      if (e.code === 'KeyC' && !e.repeat) {
+        dispatch(toggleSubtitleShowCN({ file }))
       }
       if (e.code === 'KeyW' && !e.repeat) {
         setShowWaveForm(s => !s)

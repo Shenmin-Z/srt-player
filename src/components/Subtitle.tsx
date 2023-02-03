@@ -6,11 +6,14 @@ import {
   useRestoreSubtitle,
   Node,
   SUBTITLE_CONTAINER_ID,
+  Languages,
   isWithin,
   findNode,
   doVideo,
   highlight,
   useVideoEvents,
+  subtitleInJP,
+  lineInCN,
 } from '../utils'
 
 // subtitle_time + subtitle_delay = video_time
@@ -22,8 +25,10 @@ export const Subtitle: FC = () => {
   const subtitleDelay = useSelector(s => s.settings.subtitleDelay)
   const subtitleFontSize = useSelector(s => s.settings.subtitleFontSize)
   const subtitleListeningMode = useSelector(s => s.settings.subtitleListeningMode)
+  const subtitleLanguagesHided = useSelector(s => s.settings.subtitleLanguagesHided)
+  const isCNHided = subtitleLanguagesHided.includes(Languages.CN)
   const dispath = useDispatch()
-  const [lang, setLang] = useState<string>('')
+  const [lang, setLang] = useState('')
   const [ready, setReady] = useState(false)
   const { divRef, autoRef, timerRef, delayRef } = useShortcuts(nodes, subtitleAuto, subtitleDelay)
 
@@ -71,14 +76,8 @@ export const Subtitle: FC = () => {
       setReady(true)
     })
 
-    // detect language
-    for (let i = 0; i < Math.min(20, nodes.length); i++) {
-      const text = nodes[i].text.join('')
-      const jpCharacters = (text.match(/[ぁ-ゔ]+|[ァ-ヴー]+/gu) || []).join('')
-      if (jpCharacters.length >= 5) {
-        setLang('jp')
-        break
-      }
+    if (subtitleInJP(nodes)) {
+      setLang('jp')
     }
   }, [])
 
@@ -94,6 +93,7 @@ export const Subtitle: FC = () => {
       className={cn(styles['subtitle'], {
         [styles['ready']]: ready,
         [styles['listening-mode']]: subtitleListeningMode,
+        [styles['CN-hided']]: isCNHided,
       })}
       lang={lang}
       style={{ ...fontSizes }}
@@ -176,7 +176,13 @@ const SubtitleNode: FC<SubtitleNodeProps> = memo(
               {end.raw}
             </span>
           </div>
-          <p className={styles['text']} dangerouslySetInnerHTML={{ __html: text.join('\n') }} />
+          {text.map((line, idx) => (
+            <p
+              key={idx}
+              className={cn(styles['text'], { [styles['isCN']]: lineInCN(line) })}
+              dangerouslySetInnerHTML={{ __html: line }}
+            />
+          ))}
         </div>
       </div>
     )

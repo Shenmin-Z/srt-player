@@ -37,6 +37,7 @@
         "page_down": "Page down",
         "toggle_auto": "Toggle auto",
         "toggle_listening_mode": "Toggle listening mode",
+        "toggle_hide_chinese": "Toggle hide Chinese",
         "toggle_settings": "Toggle settings",
         "adjust_delay": "Adjust delay",
         "click_time": "Click start or end time",
@@ -60,7 +61,8 @@
       "auto": "Auto mode",
       "delay": "Delay (seconds)",
       "font_size": "Font size",
-      "listening_mode": "Listening mode"
+      "listening_mode": "Listening mode",
+      "hide_chinese": "Hide Chinese"
     },
     "waveform": {
       "name": "Waveform",

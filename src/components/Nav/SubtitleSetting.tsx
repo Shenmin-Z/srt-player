@@ -8,16 +8,18 @@ import {
   updateSubtitleAuto,
   updateSubtitleDelay,
   updateSubtitleListeningMode,
+  toggleSubtitleShowCN,
 } from '../../state'
 import { Modal } from '../Modal'
 import { NumberInput } from './form'
-import { useI18n } from '../../utils'
+import { useI18n, Languages } from '../../utils'
 import styles from './Nav.module.less'
 
 export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props => {
   const settings = useSelector(s => s.settings)
   const file = useSelector(s => s.files.selected) as string
-  const { subtitleAuto, subtitleListeningMode } = settings
+  const { subtitleAuto, subtitleListeningMode, subtitleLanguagesHided } = settings
+  const isCNHided = subtitleLanguagesHided.includes(Languages.CN)
   const dispatch = useDispatch()
   const i18n = useI18n()
 
@@ -104,6 +106,25 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
             }}
           >
             {subtitleListeningMode ? 'check_box' : 'check_box_outline_blank'}
+          </span>
+        </div>
+        <label
+          className={styles['title']}
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            dispatch(toggleSubtitleShowCN({ file }))
+          }}
+        >
+          {i18n('nav.subtitle.hide_chinese')}
+        </label>
+        <div className={styles['body']}>
+          <span
+            className={cn('material-icons', 'checkbox', { checked: isCNHided })}
+            onClick={() => {
+              dispatch(toggleSubtitleShowCN({ file }))
+            }}
+          >
+            {isCNHided ? 'check_box' : 'check_box_outline_blank'}
           </span>
         </div>
       </div>

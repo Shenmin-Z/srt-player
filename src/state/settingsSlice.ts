@@ -6,11 +6,13 @@ import {
   saveSubtitleAuto,
   saveSubtitleDelay,
   saveSubtitleListeningMode,
+  saveSubtitleLanguagesHided,
   saveEnableWaveForm,
   EnableWaveForm,
   deleteSampling,
   IS_MOBILE,
   INIT_LANG,
+  Languages,
 } from '../utils'
 
 const INIT_SETTING: Settings = {
@@ -48,6 +50,7 @@ interface InitialState {
   subtitleDelay: number
   subtitleListeningMode: boolean
   subtitleFontSize: number
+  subtitleLanguagesHided: Languages[]
   waveform: EnableWaveForm
   locale: string
 }
@@ -59,6 +62,7 @@ const initialState: InitialState = {
   subtitleDelay: 0,
   subtitleListeningMode: false,
   subtitleFontSize: 16,
+  subtitleLanguagesHided: [],
   waveform: EnableWaveForm.disable,
   locale: '',
 }
@@ -140,6 +144,21 @@ export const updateSubtitleListeningMode = createAsyncThunk<boolean, { file: str
   },
 )
 
+export const toggleSubtitleShowCN = createAsyncThunk<Languages[], { file: string }>(
+  'settings/toggleSubtitleShowCN',
+  async ({ file }, { getState }) => {
+    const state = getState() as { settings: InitialState }
+    let languagesHided = [...state.settings.subtitleLanguagesHided]
+    if (languagesHided.includes(Languages.CN)) {
+      languagesHided = []
+    } else {
+      languagesHided = [Languages.CN]
+    }
+    await saveSubtitleLanguagesHided(file, languagesHided)
+    return languagesHided
+  },
+)
+
 export const updateEnableWaveForm = createAsyncThunk<EnableWaveForm, { file: string; enable: EnableWaveForm }>(
   'settings/updateEnableWaveForm',
   async ({ file, enable }) => {
@@ -173,6 +192,7 @@ export const settingsSlice = createSlice({
         state.subtitleAuto = action.payload.auto
         state.subtitleDelay = action.payload.delay
         state.subtitleListeningMode = action.payload.listeningMode
+        state.subtitleLanguagesHided = action.payload.languagesHided
       })
       .addCase(LoadWaveFormPreference.fulfilled, (state, action) => {
         state.waveform = action.payload
@@ -191,6 +211,9 @@ export const settingsSlice = createSlice({
       })
       .addCase(updateSubtitleListeningMode.fulfilled, (state, action) => {
         state.subtitleListeningMode = action.payload
+      })
+      .addCase(toggleSubtitleShowCN.fulfilled, (state, action) => {
+        state.subtitleLanguagesHided = action.payload
       })
       .addCase(updateEnableWaveForm.fulfilled, (state, action) => {
         state.waveform = action.payload

@@ -12,6 +12,10 @@ export enum EnableWaveForm {
   audio,
 }
 
+export enum Languages {
+  CN, // Chinese
+}
+
 export interface WatchHistory {
   currentTime: number
   duration: number
@@ -20,6 +24,7 @@ export interface WatchHistory {
   subtitleDelay: number
   subtitleListeningMode: boolean
   subtitleLastActive: number | null
+  subtitleLanguagesHided: Languages[]
   waveform: EnableWaveForm
 }
 

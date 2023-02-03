@@ -79,8 +79,6 @@
 .text {
   font-size: var(--subtitle-text);
   line-height: calc(var(--subtitle-text) + 4px);
-  white-space: pre-wrap;
-  margin-top: 2px;
   i {
     font-style: italic;
   }
@@ -90,13 +88,28 @@
   u {
     text-decoration: underline;
   }
+  &:first-of-type {
+    margin-top: 2px;
+  }
 }
 
-.subtitle.listening-mode {
-  .node:global(.highlighted-subtitle) ~ .node {
-    .text {
-      color: transparent;
-      text-shadow: 0 0 8px rgb(255, 255, 255);
+.text-blurred() {
+  color: transparent;
+  text-shadow: 0 0 8px rgb(255, 255, 255);
+}
+
+.subtitle {
+  &.listening-mode {
+    .node:global(.highlighted-subtitle) ~ .node {
+      .text {
+        .text-blurred();
+      }
+    }
+  }
+  &.CN-hided {
+    .isCN {
+      /* .text-blurred(); */
+      display: none;
     }
   }
 }
