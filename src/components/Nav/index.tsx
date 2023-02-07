@@ -38,7 +38,7 @@ export const Nav = () => {
       if (e.code === 'KeyL' && !e.repeat) {
         dispatch(updateSubtitleListeningMode({ file }))
       }
-      if (e.code === 'KeyC' && !e.repeat) {
+      if (e.code === 'KeyC' && !e.repeat && !e.ctrlKey) {
         dispatch(toggleSubtitleShowCN({ file }))
       }
       if (e.code === 'KeyW' && !e.repeat) {
