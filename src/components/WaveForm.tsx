@@ -91,7 +91,7 @@ export const WaveForm: FC<Props> = () => {
         />
         <div
           className={styles['current-time-indicator']}
-          style={{ transform: `translate3d(${Math.floor(offset || -1)}px,0,0)` }}
+          style={{ transform: `translate3d(${Math.floor(offset || 1)}px,0,0)` }}
         />
       </div>
     </div>
