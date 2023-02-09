@@ -82,7 +82,7 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_listening_mode')}</div>
             <div className={styles['title']}>
-              <span className={styles['key']}>C</span>
+              <span className={styles['key']}>K</span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.subtitle.toggle_hide_chinese')}</div>
             <div className={styles['title']}>
