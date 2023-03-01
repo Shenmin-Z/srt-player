@@ -88,7 +88,7 @@ export const Video: FC = () => {
           forward(10)()
         }
       }
-      if (e.code === 'KeyF') {
+      if (e.code === 'KeyF' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         toggleFullScreen()
       }
     }

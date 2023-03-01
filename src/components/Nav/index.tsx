@@ -29,22 +29,22 @@ export const Nav = () => {
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
       if (!window.__SRT_ENABLE_SHORTCUTS__) return
-      if (e.code === 'KeyS' && !e.repeat) {
+      if (e.code === 'KeyS' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         setShowSubtitle(s => !s)
       }
-      if (e.code === 'KeyA' && !e.repeat) {
+      if (e.code === 'KeyA' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         dispatch(updateSubtitleAuto({ file }))
       }
-      if (e.code === 'KeyL' && !e.repeat) {
+      if (e.code === 'KeyL' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         dispatch(updateSubtitleListeningMode({ file }))
       }
-      if (e.code === 'KeyK' && !e.repeat) {
+      if (e.code === 'KeyK' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         dispatch(toggleSubtitleShowCN({ file }))
       }
-      if (e.code === 'KeyW' && !e.repeat) {
+      if (e.code === 'KeyW' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         setShowWaveForm(s => !s)
       }
-      if (e.code === 'KeyI' && !e.repeat) {
+      if (e.code === 'KeyI' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         setShowInfo(s => !s)
       }
     }
