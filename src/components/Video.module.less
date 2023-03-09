@@ -35,7 +35,11 @@
     height: 80px;
     bottom: 0;
   }
-  .video-controls {
+  .video-controls-top {
+    display: none;
+  }
+  .video-controls-bottom {
+    /* always shown */
     &.hidden {
       opacity: 1;
     }
@@ -43,57 +47,89 @@
 }
 
 :global(.audio-only) {
-  .video-controls {
+  .video-controls-bottom {
+    /* always shown */
     &.hidden {
       opacity: 1;
     }
   }
 }
 
-.play-button {
-  display: none;
-}
-
-:global(.is-mobile) {
-  .play-button {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    pointer-events: none;
-    justify-content: center;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 48px;
-    text-shadow: var(--bs-lg);
-  }
-  .play-time {
-    margin-left: 10px;
-  }
-  .play-icon {
-    display: none;
-  }
-  :global(.no-video) {
-    .play-button {
-      display: none;
-    }
-    .play-icon {
-      display: block;
-    }
-  }
-}
-
 .video-controls {
   position: absolute;
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-controls-top {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.float-control {
+  font-size: 48px;
+  text-shadow: var(--bs-lg);
+  color: fade(#fff, 80);
+  padding: 4px;
+  border-radius: 8px;
+  background-color: fade(#fff, 25);
+}
+
+.video-controls-bottom {
+  margin-top: auto;
   background: linear-gradient(0, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
   transition: opacity 0.16s;
   &.hidden {
     opacity: 0;
+  }
+}
+
+/* 1 */
+.use-float() {
+  .float-control {
+    display: block;
+  }
+  .play-time {
+    margin-left: 10px;
+  }
+  .regular-control {
+    display: none;
+  }
+}
+
+/* 2 */
+.not-use-float() {
+  .float-control {
+    display: none;
+  }
+  .play-time {
+    margin-left: 0;
+  }
+  .regular-control {
+    display: block;
+  }
+}
+
+/* default: not use float */
+.not-use-float();
+
+:global(.is-mobile) {
+  .use-float();
+  .is-playing {
+    .not-use-float();
+  }
+  :global(.audio-only) {
+    .use-float();
+  }
+  :global(.no-video) {
+    .not-use-float();
   }
 }
 

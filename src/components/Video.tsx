@@ -110,7 +110,6 @@ export const Video: FC = () => {
             playsInline
             id={VIDEO_ID}
             src={videoUrl}
-            onClick={togglePlay}
             onLoadedData={async e => {
               e.currentTarget.pause()
               await restoreVideo()
@@ -200,20 +199,32 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
   if (!hasVideo) return null
 
   return (
-    <>
-      <div
-        className={cn(styles['play-button'], 'material-icons-outlined')}
-        style={{ display: playing ? 'none' : undefined }}
-      >
-        play_circle
+    <div className={cn(styles['video-controls'], { [styles['is-playing']]: playing })}>
+      <div className={styles['video-controls-top']} onClick={togglePlay}>
+        <div className={cn('material-icons-outlined', styles['float-control'])}>
+          {playing ? 'pause_circle' : 'play_circle'}
+        </div>
+        {hasWaveform && (
+          <div
+            className={cn('material-icons', styles['float-control'])}
+            onClick={e => {
+              e.stopPropagation()
+              window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }))
+            }}
+          >
+            replay
+          </div>
+        )}
       </div>
       <div
-        className={cn(styles['video-controls'], { [styles['hidden']]: IS_MOBILE && hasWaveform ? false : !shown })}
+        className={cn(styles['video-controls-bottom'], {
+          [styles['hidden']]: IS_MOBILE && hasWaveform ? false : !shown,
+        })}
         onMouseOver={show}
         onMouseLeave={hide}
       >
         <div className={styles['controls']}>
-          <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} className={styles['play-icon']} />
+          <Icon type={playing ? 'pause' : 'play_arrow'} onClick={togglePlay} className={styles['regular-control']} />
           <PlayTime total={total} current={current} />
           {hasWaveform && (
             <Icon
@@ -221,13 +232,14 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
               onClick={() => {
                 window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }))
               }}
+              className={styles['regular-control']}
             />
           )}
           <FullscreenIcon />
         </div>
         <ProgressBar value={current / total} />
       </div>
-    </>
+    </div>
   )
 }
 
