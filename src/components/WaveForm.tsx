@@ -210,12 +210,14 @@ const updatePosition = (() => {
 
 const setScrollPosition = (() => {
   let lastScrollLeft = -1
+  let maxScrollLeft = Number.MAX_SAFE_INTEGER
   return (deltaX: TouchEmitValue) => {
     const canvasContainer = document.getElementById(WAVEFORM_ID) as HTMLDivElement
     if (!canvasContainer) return
     const parent = canvasContainer.parentElement as HTMLDivElement
     if (deltaX === 'start') {
       lastScrollLeft = parent.scrollLeft
+      maxScrollLeft = canvasContainer.getBoundingClientRect().width - parent.getBoundingClientRect().width
       parent.classList.add(styles['instant-scroll'])
       return
     }
@@ -223,9 +225,8 @@ const setScrollPosition = (() => {
       parent.classList.remove(styles['instant-scroll'])
       return
     }
-    console.log(lastScrollLeft)
     const newScrollLeft = lastScrollLeft - deltaX
-    if (newScrollLeft < 0) {
+    if (newScrollLeft < 0 || newScrollLeft > maxScrollLeft) {
       return
     }
     parent.scrollLeft = newScrollLeft
