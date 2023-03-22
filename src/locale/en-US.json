@@ -68,8 +68,8 @@
       "name": "Waveform",
       "disable": "Disable",
       "enable": "Enable",
-      "with_video": "Using existing video file",
-      "with_audio": "Using extra audio file",
+      "with_existing": "Using existing file",
+      "with_another": "Using another file",
       "generating": "Generating waveform, this might take a while...",
       "done": "Done"
     }

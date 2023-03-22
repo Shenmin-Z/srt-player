@@ -68,9 +68,16 @@
 .video-controls-top {
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  .two-icons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+  .touch-top,
+  .touch-bottom {
+    flex: 1;
+  }
 }
 
 .float-control {

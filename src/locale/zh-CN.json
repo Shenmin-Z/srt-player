@@ -68,8 +68,8 @@
       "name": "波形图",
       "disable": "关闭",
       "enable": "启用",
-      "with_video": "从现有视频提取",
-      "with_audio": "其他视频/音频源",
+      "with_existing": "从现有文件提取",
+      "with_another": "其他文件源",
       "generating": "波形图生成中，请稍等...",
       "done": "完成"
     }

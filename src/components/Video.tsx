@@ -22,6 +22,7 @@ import {
   IS_IOS,
   toggleFullScreen,
   FULLSCREEN_ENABLED,
+  useTouchEmitter,
 } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm, message } from './Modal'
@@ -34,8 +35,11 @@ export const Video: FC = () => {
   const i18n = useI18n()
   const dispatch = useDispatch()
   const enableStatus = useSelector(s => s.settings.waveform)
+  const hasVideo = useSelector(s => s.video.hasVideo)
   const file = useSelector(s => s.files.selected) as string
   const { controlsShow, showForAWhile, showControls, hideControls } = useShowControls()
+  const { divRef: replayDivRef, emitter: replayEmitter } = useTouchEmitter([hasVideo])
+  const { divRef: scrollDivRef, emitter: scrollEmitter } = useTouchEmitter([hasVideo])
 
   useEffect(() => {
     dispatch(LoadWaveFormPreference(file))
@@ -98,12 +102,28 @@ export const Video: FC = () => {
     }
   }, [])
 
+  useEffect(() => {
+    // automatically create wavefrom when: 1. only audio, 2. first time played (current time is 0)
+    if (audioOnly) {
+      doVideo(v => {
+        if (v.currentTime === 0) {
+          const button = document.querySelector('div[data-button-type="create-waveform"]')
+          if (button) {
+            ;(button as HTMLDivElement).click()
+          }
+        }
+      })
+    }
+  }, [audioOnly])
+
   if (videoUrl) {
     return (
       <div
         className={cn(styles['video-container'], { [styles['has-waveform']]: enableStatus, 'audio-only': audioOnly })}
       >
-        {enableStatus !== EnableWaveForm.disable && <WaveForm key={enableStatus} />}
+        {enableStatus !== EnableWaveForm.disable && (
+          <WaveForm key={enableStatus} replayEmitter={replayEmitter} scrollEmitter={scrollEmitter} />
+        )}
         <div className={styles['inner']}>
           <video
             autoPlay={IS_IOS} // loaddata does not fire on iPhone unless played
@@ -145,6 +165,8 @@ export const Video: FC = () => {
             show={showControls}
             hide={hideControls}
             hasWaveform={enableStatus !== EnableWaveForm.disable}
+            replayDivRef={replayDivRef}
+            scrollDivRef={scrollDivRef}
           />
         </div>
       </div>
@@ -191,9 +213,11 @@ interface VideoControlsProps {
   show(): void
   hide(): void
   hasWaveform: boolean
+  replayDivRef: React.RefObject<HTMLDivElement>
+  scrollDivRef: React.RefObject<HTMLDivElement>
 }
 
-const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform }) => {
+const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform, replayDivRef, scrollDivRef }) => {
   const { hasVideo, playing, total, current } = useSelector(s => s.video)
 
   if (!hasVideo) return null
@@ -201,20 +225,24 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform 
   return (
     <div className={cn(styles['video-controls'], { [styles['is-playing']]: playing })}>
       <div className={styles['video-controls-top']} onClick={togglePlay}>
-        <div className={cn('material-icons-outlined', styles['float-control'])}>
-          {playing ? 'pause_circle' : 'play_circle'}
-        </div>
-        {hasWaveform && (
-          <div
-            className={cn('material-icons', styles['float-control'])}
-            onClick={e => {
-              e.stopPropagation()
-              window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }))
-            }}
-          >
-            replay
+        <div className={styles['touch-top']} ref={replayDivRef} />
+        <div className={styles['two-icons']}>
+          <div className={cn('material-icons-outlined', styles['float-control'])}>
+            {playing ? 'pause_circle' : 'play_circle'}
           </div>
-        )}
+          {hasWaveform && (
+            <div
+              className={cn('material-icons', styles['float-control'])}
+              onClick={e => {
+                e.stopPropagation()
+                window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }))
+              }}
+            >
+              replay
+            </div>
+          )}
+        </div>
+        <div className={styles['touch-bottom']} ref={scrollDivRef} />
       </div>
       <div
         className={cn(styles['video-controls-bottom'], {

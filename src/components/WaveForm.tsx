@@ -1,14 +1,18 @@
 import { FC, useEffect, useState, useRef } from 'react'
 import { getSampling, doVideo, doVideoWithDefault, useVideoEvents, PIXELS_PER_SECOND } from '../utils'
 import { useSelector } from '../state'
+import { TouchEmitterListener, TouchEmitValue } from '../utils'
 import cn from 'classnames'
 import styles from './WaveForm.module.less'
 
-interface Props {}
+interface Props {
+  replayEmitter: { subscribe: (fn: TouchEmitterListener) => void }
+  scrollEmitter: { subscribe: (fn: TouchEmitterListener) => void }
+}
 
 const WAVEFORM_ID = 'srt-player-waveform'
 
-export const WaveForm: FC<Props> = () => {
+export const WaveForm: FC<Props> = ({ replayEmitter, scrollEmitter }) => {
   const file = useSelector(s => s.files.selected) as string
   const waveformDivRef = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
@@ -60,6 +64,19 @@ export const WaveForm: FC<Props> = () => {
     return () => {
       window.removeEventListener('keydown', keyListener)
     }
+  }, [])
+
+  useEffect(() => {
+    replayEmitter.subscribe(deltaX =>
+      setReplayPos(p => {
+        if (deltaX === 'start' || deltaX === 'end') {
+          return p
+        } else {
+          return p + deltaX
+        }
+      }),
+    )
+    scrollEmitter.subscribe(setScrollPosition)
   }, [])
 
   return (
@@ -188,5 +205,30 @@ const updatePosition = (() => {
         parent.scrollLeft = offset - (center ? width / 2 : 0)
       }
     })
+  }
+})()
+
+const setScrollPosition = (() => {
+  let lastScrollLeft = -1
+  return (deltaX: TouchEmitValue) => {
+    const canvasContainer = document.getElementById(WAVEFORM_ID) as HTMLDivElement
+    if (!canvasContainer) return
+    const parent = canvasContainer.parentElement as HTMLDivElement
+    if (deltaX === 'start') {
+      lastScrollLeft = parent.scrollLeft
+      parent.classList.add(styles['instant-scroll'])
+      return
+    }
+    if (deltaX === 'end') {
+      parent.classList.remove(styles['instant-scroll'])
+      return
+    }
+    console.log(lastScrollLeft)
+    const newScrollLeft = lastScrollLeft - deltaX
+    if (newScrollLeft < 0) {
+      return
+    }
+    parent.scrollLeft = newScrollLeft
+    lastScrollLeft = newScrollLeft
   }
 })()

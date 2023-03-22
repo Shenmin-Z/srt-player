@@ -28,7 +28,6 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
   const enableStatus = useSelector(s => s.settings.waveform)
   const active = type === enableStatus
   const file = useSelector(s => s.files.selected) as string
-  const videoDuration = doVideoWithDefault(video => video.duration, 0)
 
   let mainText = ''
   let subText = ''
@@ -40,7 +39,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
       worker,
       arrayBuffer: ab,
       fileName: file,
-      audioDuration: duration ?? videoDuration,
+      audioDuration: duration ?? doVideoWithDefault(video => video.duration, 0),
       onProgress: s => setStage(s),
     })
   }
@@ -51,7 +50,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
     }
     case EnableWaveForm.video: {
       mainText = i18n('nav.waveform.enable')
-      subText = i18n('nav.waveform.with_video')
+      subText = i18n('nav.waveform.with_existing')
 
       cb = async () => {
         setStage(StageEnum.decoding)
@@ -63,7 +62,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
     }
     case EnableWaveForm.audio: {
       mainText = i18n('nav.waveform.enable')
-      subText = i18n('nav.waveform.with_audio')
+      subText = i18n('nav.waveform.with_another')
 
       cb = async () => {
         const handles = await showOpenFilePicker({
@@ -95,6 +94,7 @@ const WaveFormOption: FC<WaveFormOptionProps> = ({ type, disabled, setDisabled, 
   return (
     <div
       className={cn(styles['waveform-option'], { [styles['active']]: active })}
+      data-button-type={type === EnableWaveForm.video ? 'create-waveform' : undefined}
       onClick={async () => {
         if (enableStatus === type) return
         if (disabled) return
