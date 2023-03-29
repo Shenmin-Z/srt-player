@@ -56,13 +56,22 @@
   }
 
   .buffer-container {
-    @p: 24px;
-    width: calc(100vw - @p * 2);
     position: relative;
     left: 50%;
     right: 50%;
-    margin-left: calc(-50vw + @p);
-    margin-right: calc(-50vw + @p);
+    .responsive(@rules) {
+      @p: 24px;
+      @rules();
+      @media only screen and (max-width: 700px) {
+        @p: 0px;
+        @rules();
+      }
+    }
+    .responsive({
+      width: calc(100vw - @p * 2);
+      margin-left: calc(-50vw + @p);
+      margin-right: calc(-50vw + @p);
+    });
   }
 
   .buffer {

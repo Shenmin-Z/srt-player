@@ -17,7 +17,7 @@ async function buildSW() {
     },
   })
   const code = output[0].code
-  writeFileSync(resolve(__dirname, 'dist/sw.js'), code)
+  writeFileSync(resolve(__dirname, '../dist/sw.js'), code)
 }
 
 ;(async () => {

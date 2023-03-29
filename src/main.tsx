@@ -8,13 +8,17 @@ import { store } from './state/store'
 const container = document.getElementById('root') as HTMLElement
 const root = createRoot(container)
 
-root.render(
-  <Provider store={store}>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </Provider>,
-)
+document.fonts.ready.then(() => {
+  document.getElementById('loading')?.remove()
+
+  root.render(
+    <Provider store={store}>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    </Provider>,
+  )
+})
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/srt-player/sw.js')

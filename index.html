@@ -12,6 +12,36 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-STHJFZ79XM"></script>
   </head>
   <body>
+    <div id="loading">
+      <style>
+        body {
+          margin: 0;
+        }
+        #loading > div {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          justify-content: center;
+          align-items: center;
+        }
+        #loading h3 {
+          font-family: sans-serif;
+          font-weight: normal;
+          font-size: 14px;
+          text-align: center;
+          margin: 12px 0 0 0;
+          line-height: 16px;
+        }
+      </style>
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 10" width="54" height="30">
+          <!-- prettier-ignore -->
+          <path d="M1 0 6 0 6 1 6 2 2 2 2 4 5 4 6 5 6 9 5 10 0 10 0 8 4 8 4 6 1 6 0 5 0 1 0 1ZM12 0 18 0 18 2 16 2 16 10 14 10 14 2 12 2 12 0ZM12 10 11 6 9 6 10 10Z" fill="#B2060E" />
+          <path d="M6 0 11 0 12 1 12 5 12 5 12 5 11 6 9 6 8 6 8 10 6 10 6 0M8 2 8 4 10 4 10 2 8 2Z" fill="#E50915" />
+        </svg>
+        <h3>Loading...</h3>
+      </div>
+    </div>
     <div id="root"></div>
     <script src="/version.js"></script>
     <script type="module" src="/src/main.tsx"></script>
