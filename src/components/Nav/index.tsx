@@ -9,7 +9,7 @@ import {
   updateSubtitleListeningMode,
   toggleSubtitleShowCN,
 } from '../../state'
-import { useSaveHistory, IS_MOBILE, trackGoBack, displayFileName } from '../../utils'
+import { useSaveHistory, IS_MOBILE, trackGoBack, displayFileName, GO_BACK_ID } from '../../utils'
 import { SubtitleSetting } from './SubtitleSetting'
 import { Info } from './Info'
 import { WaveForm } from './WaveFormSetting'
@@ -57,12 +57,19 @@ export const Nav = () => {
   return (
     <>
       <nav className={styles['nav']}>
-        <Icon
-          type="arrow_back"
+        <span
+          id={GO_BACK_ID}
+          className={styles['hidden']}
           onClick={async () => {
             await saveHistory()
             dispatch(setSelected(null))
             trackGoBack()
+          }}
+        />
+        <Icon
+          type="arrow_back"
+          onClick={() => {
+            history.back()
           }}
         />
         <div className={styles['name']}>{displayFileName(file)}</div>
@@ -122,11 +129,12 @@ interface IconProps {
   onClick: () => void
   disabled?: boolean
   children?: ReactNode
+  id?: string
 }
 
-const Icon: FC<IconProps> = ({ type, onClick, disabled, children }) => {
+const Icon: FC<IconProps> = ({ type, onClick, disabled, children, id }) => {
   return (
-    <div className={cn(styles['icon'], type, { disabled: disabled })} onClick={onClick}>
+    <div className={cn(styles['icon'], type, { disabled: disabled })} onClick={onClick} id={id}>
       <span className="material-icons">{type}</span>
       {children && <span className={styles['delay']}>{children}</span>}
     </div>

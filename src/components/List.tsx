@@ -9,6 +9,8 @@ import {
   saveVideoSubPair,
   trackOpenFile,
   displayFileName,
+  pushHistory,
+  OPEN_PREVIOUS_ID,
 } from '../utils'
 import styles from './List.module.less'
 
@@ -22,6 +24,15 @@ export const List = () => {
       setHS(hs)
     })
   }, [list])
+  const lastOpened = useRef('')
+
+  const openPrevious = () => {
+    if ((list || []).includes(lastOpened.current)) {
+      dispatch(setSelected(lastOpened.current))
+    } else {
+      history.back()
+    }
+  }
 
   let listItems =
     list !== null && list?.length > 0
@@ -33,6 +44,8 @@ export const List = () => {
                 onClick={() => {
                   dispatch(setSelected(i))
                   trackOpenFile(displayFileName(i))
+                  pushHistory()
+                  lastOpened.current = i
                 }}
               >
                 {displayFileName(i)}
@@ -51,7 +64,12 @@ export const List = () => {
         })
       : null
 
-  return <div className={styles['list']}>{listItems}</div>
+  return (
+    <div className={styles['list']}>
+      {listItems}
+      <div id={OPEN_PREVIOUS_ID} className={styles['hidden']} onClick={openPrevious} />
+    </div>
+  )
 }
 
 const Label: FC<{ history: WatchHistories; file: string }> = ({ history, file }) => {

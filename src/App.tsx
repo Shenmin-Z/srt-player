@@ -24,16 +24,19 @@ const App: FC = migrate(() => {
   }, [])
 
   if (locale === '') return null
-  return subtitleNoes === null ? (
-    <Home />
-  ) : (
-    <Play hasSubtitle={subtitleNoes.length > 0} hasVideo={!isSubtitleOnly(selected || '')} />
+
+  const isVideo = subtitleNoes !== null
+  return (
+    <>
+      <Home hidden={isVideo} />
+      {isVideo && <Play hasSubtitle={subtitleNoes.length > 0} hasVideo={!isSubtitleOnly(selected || '')} />}
+    </>
   )
 })
 
-const Home: FC = () => {
+const Home: FC<{ hidden: boolean }> = ({ hidden }) => {
   return (
-    <div className={styles['home']}>
+    <div className={cn(styles['home'], { [styles['hidden']]: hidden })}>
       <Language />
       <Uploader />
       <List />
