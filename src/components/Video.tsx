@@ -23,6 +23,7 @@ import {
   toggleFullScreen,
   FULLSCREEN_ENABLED,
   useTouchEmitter,
+  isSubtitleOnly,
 } from '../utils'
 import { WaveForm } from './WaveForm'
 import { confirm, message } from './Modal'
@@ -104,7 +105,7 @@ export const Video: FC = () => {
 
   useEffect(() => {
     // automatically create wavefrom when: 1. only audio, 2. first time played (current time is 0)
-    if (audioOnly) {
+    if (audioOnly && !isSubtitleOnly(file)) {
       doVideo(v => {
         if (v.currentTime === 0) {
           const button = document.querySelector('div[data-button-type="create-waveform"]')

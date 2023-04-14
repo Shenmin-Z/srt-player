@@ -14,16 +14,17 @@ import {
 } from '../utils'
 import styles from './List.module.less'
 
-export const List = () => {
+export const List: FC<{ show: boolean }> = ({ show }) => {
   const list = useSelector(state => state.files.list)
   const dispatch = useDispatch()
 
   const [hs, setHS] = useState<WatchHistories>({})
   useEffect(() => {
+    if (!show) return
     getWatchHistory().then(hs => {
       setHS(hs)
     })
-  }, [list])
+  }, [list, show])
   const lastOpened = useRef('')
 
   const openPrevious = () => {

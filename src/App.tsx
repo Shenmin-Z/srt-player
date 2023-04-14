@@ -28,18 +28,18 @@ const App: FC = migrate(() => {
   const isVideo = subtitleNoes !== null
   return (
     <>
-      <Home hidden={isVideo} />
+      <Home show={!isVideo} />
       {isVideo && <Play hasSubtitle={subtitleNoes.length > 0} hasVideo={!isSubtitleOnly(selected || '')} />}
     </>
   )
 })
 
-const Home: FC<{ hidden: boolean }> = ({ hidden }) => {
+const Home: FC<{ show: boolean }> = ({ show }) => {
   return (
-    <div className={cn(styles['home'], { [styles['hidden']]: hidden })}>
+    <div className={cn(styles['home'], { [styles['hidden']]: !show })}>
       <Language />
       <Uploader />
-      <List />
+      <List show={show} />
       <Footer />
       <Message />
       <Confirm />
