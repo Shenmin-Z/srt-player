@@ -1,4 +1,5 @@
 import { FC, ReactNode, useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Subject, useI18n } from '../utils'
 import styles from './Modal.module.less'
 import cn from 'classnames'
@@ -14,10 +15,10 @@ interface ModalProps {
 }
 
 export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader, children, className }) => {
-  return (
+  if (!show) return null
+  return createPortal(
     <div
       className={cn(styles['modal-container'], className)}
-      style={{ display: show ? undefined : 'none' }}
       onClick={e => {
         e.stopPropagation()
       }}
@@ -37,7 +38,8 @@ export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader,
           <div className={styles['padding']}>{children}</div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

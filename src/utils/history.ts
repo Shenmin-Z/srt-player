@@ -1,6 +1,6 @@
 import { useSelector } from '../state'
 import { doVideo } from './video'
-import { db, WatchHistory, EnableWaveForm, Languages } from './idb'
+import { db, WatchHistory, EnableWaveForm, Languages, Bookmark } from './idb'
 import { previousHighlighted } from './subtitle'
 
 export interface WatchHistories {
@@ -45,6 +45,11 @@ export const getSubtitlePreference = async (f: string) => {
   }
 }
 
+export const getBookmarks = async (f: string) => {
+  const h = await getHistoryByFileName(f)
+  return h?.bookmarks || []
+}
+
 export const getWaveFormPreference = async (f: string) => {
   const h = await getHistoryByFileName(f)
   return h?.waveform ?? EnableWaveForm.disable
@@ -83,6 +88,12 @@ export const saveSubtitleLastActive = async (f: string, lastActive: number) => {
 export const saveEnableWaveForm = async (f: string, enable: EnableWaveForm) => {
   return writeHelper(f, h => {
     h.waveform = enable
+  })
+}
+
+export const saveBookmarks = async (f: string, bookmarks: Bookmark[]) => {
+  return writeHelper(f, h => {
+    h.bookmarks = bookmarks
   })
 }
 
@@ -127,6 +138,7 @@ async function writeHelper(file: string, cb: (h: WatchHistory) => void) {
     subtitleLastActive: null,
     subtitleLanguagesHided: [],
     waveform: EnableWaveForm.disable,
+    bookmarks: [],
     ...(h || {}),
   }
   cb(t)

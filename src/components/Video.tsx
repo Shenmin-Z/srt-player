@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect, useRef, Fragment } from 'react'
 import styles from './Video.module.less'
 import {
   setVideo,
@@ -6,9 +6,11 @@ import {
   useSelector,
   setSelected,
   LoadWaveFormPreference,
+  LoadBookmarks,
   deleteFile,
   updateVideoTime,
   setVideoStatus,
+  addBookmark,
 } from '../state'
 import {
   useRestoreVideo,
@@ -24,9 +26,10 @@ import {
   FULLSCREEN_ENABLED,
   useTouchEmitter,
   isSubtitleOnly,
+  formatTime,
 } from '../utils'
 import { WaveForm } from './WaveForm'
-import { confirm, message } from './Modal'
+import { confirm, message, Modal } from './Modal'
 import cn from 'classnames'
 
 export const Video: FC = () => {
@@ -44,6 +47,7 @@ export const Video: FC = () => {
 
   useEffect(() => {
     dispatch(LoadWaveFormPreference(file))
+    dispatch(LoadBookmarks(file))
     ;(async () => {
       try {
         const v = await getVideo(file)
@@ -76,6 +80,7 @@ export const Video: FC = () => {
         e.preventDefault()
         e.stopPropagation() // space may interrupt subtitle's smooth scroll
         togglePlay()
+        return
       }
       if (e.code === 'ArrowLeft') {
         e.preventDefault()
@@ -84,6 +89,7 @@ export const Video: FC = () => {
         } else {
           forward(-10)()
         }
+        return
       }
       if (e.code === 'ArrowRight') {
         e.preventDefault()
@@ -92,9 +98,19 @@ export const Video: FC = () => {
         } else {
           forward(10)()
         }
+        return
       }
       if (e.code === 'KeyF' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
         toggleFullScreen()
+        return
+      }
+      if (e.code === 'KeyM' && !e.repeat && !e.ctrlKey && e.metaKey !== true) {
+        if (e.shiftKey) {
+        } else {
+          doVideo(v => {
+            dispatch(addBookmark({ file, currentTime: v.currentTime }))
+          })
+        }
       }
     }
     window.addEventListener('keydown', keyListener, true)
@@ -264,11 +280,47 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform,
               className={styles['regular-control']}
             />
           )}
+          <BookmarkIcon />
           <FullscreenIcon />
         </div>
-        <ProgressBar value={current / total} />
+        <ProgressBar />
       </div>
     </div>
+  )
+}
+
+const BookmarkIcon = () => {
+  const { bookmarks } = useSelector(s => s.video)
+  const [show, setShow] = useState(false)
+  return (
+    <>
+      <Modal
+        show={show}
+        onClose={() => {
+          setShow(false)
+        }}
+      >
+        <div className={styles['bookmark-list']}>
+          {bookmarks.map(bookmark => {
+            return (
+              <Fragment key={bookmark.time}>
+                <span className="numeric">{formatTime(bookmark.time, 2)}</span>
+                <input type="text" value={bookmark.name} />
+                <span className="material-icons-outlined">bookmark_remove</span>
+              </Fragment>
+            )
+          })}
+        </div>
+      </Modal>
+      <Icon
+        outlined
+        type={'bookmarks'}
+        onClick={() => {
+          setShow(true)
+        }}
+        className={styles['bookmarks']}
+      />
+    </>
   )
 }
 
@@ -289,11 +341,12 @@ interface IconProps {
   type: string
   onClick: () => void
   className?: string
+  outlined?: boolean
 }
 
-const Icon: FC<IconProps> = ({ type, onClick, className }) => {
+const Icon: FC<IconProps> = ({ type, onClick, className, outlined = false }) => {
   return (
-    <div className={cn(styles['icon'], 'material-icons', className)} onClick={onClick}>
+    <div className={cn(styles['icon'], `material-icons${outlined ? '-outlined' : ''}`, className)} onClick={onClick}>
       {type}
     </div>
   )
@@ -312,27 +365,14 @@ const PlayTime: FC<PlayTimeProps> = ({ total, current }) => {
   )
 }
 
-function formatTime(t: number) {
-  const h = Math.floor(t / 3600)
-  const m = Math.floor((t % 3600) / 60)
-  const s = Math.floor(t % 60)
-  if (h > 0) {
-    return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
-  } else {
-    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
-  }
-}
-
-interface ProgressBarProps {
-  value: number
-}
-
-const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
+const ProgressBar: FC = () => {
+  const { bookmarks, total, current } = useSelector(s => s.video)
   const holdDown = useRef(false)
   const timerRef = useRef(0)
   const previousProgress = useRef(-1)
   const [nobPosition, setNobPosition] = useState(-1)
-  const percentage = nobPosition === -1 ? `${(value * 100).toFixed(2)}%` : `${(nobPosition * 100).toFixed(2)}%`
+  const percentage =
+    nobPosition === -1 ? `${((current / total) * 100).toFixed(2)}%` : `${(nobPosition * 100).toFixed(2)}%`
 
   const getProgressByMouse = (e: React.MouseEvent) => {
     const { left, right } = e.currentTarget.getBoundingClientRect()
@@ -360,7 +400,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
     if (previousProgress.current === nobPosition) {
       setNobPosition(-1)
     }
-  }, [value])
+  }, [current / total])
 
   return (
     <div
@@ -395,6 +435,21 @@ const ProgressBar: FC<ProgressBarProps> = ({ value }) => {
     >
       <div>
         <div className={styles['bar']} />
+        {bookmarks.map(bookmark => {
+          return (
+            <div
+              key={bookmark.time}
+              className={styles['bookmark']}
+              style={{ left: `${((bookmark.time / total) * 100).toFixed(2)}%` }}
+              onClick={e => {
+                doVideo(v => {
+                  v.currentTime = bookmark.time
+                })
+                e.stopPropagation()
+              }}
+            />
+          )
+        })}
         <div className={cn(styles['bar'], styles['current-bar'])} style={{ width: percentage }}>
           <div className={styles['nob']} />
         </div>

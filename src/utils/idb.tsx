@@ -16,6 +16,11 @@ export enum Languages {
   CN, // Chinese
 }
 
+export interface Bookmark {
+  time: number // second
+  name: string
+}
+
 export interface WatchHistory {
   currentTime: number
   duration: number
@@ -26,6 +31,7 @@ export interface WatchHistory {
   subtitleLastActive: number | null
   subtitleLanguagesHided: Languages[]
   waveform: EnableWaveForm
+  bookmarks: Bookmark[]
 }
 
 interface SRTPlayerDB extends DBSchema {

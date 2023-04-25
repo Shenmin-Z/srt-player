@@ -11,6 +11,7 @@ import {
   displayFileName,
   pushHistory,
   OPEN_PREVIOUS_ID,
+  formatTime,
 } from '../utils'
 import styles from './List.module.less'
 
@@ -77,10 +78,7 @@ const Label: FC<{ history: WatchHistories; file: string }> = ({ history, file })
   if (!history[file]) return <span />
   const time = history[file].currentTime
   if (time === 0) return <span />
-  const str =
-    time < 3600
-      ? new Date(time * 1000).toISOString().substring(14, 14 + 5)
-      : new Date(time * 1000).toISOString().substring(11, 11 + 8)
+  const str = formatTime(time)
   return <span className={styles['label']}>{str}</span>
 }
 
