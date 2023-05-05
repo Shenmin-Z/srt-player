@@ -15,19 +15,11 @@ export const LoadBookmarks = createAsyncThunk('video/bookmarks', async (file: st
   return await getBookmarks(file)
 })
 
-export const updateBookmark = createAsyncThunk<Bookmark[], { file: string; bookmark: Bookmark }>(
-  'video/updateBookmark',
-  async ({ file, bookmark }, { getState }) => {
-    const state = getState() as { video: InitialState }
-    const newBookmarks = [...state.video.bookmarks]
-    for (let i = 0; i < newBookmarks.length; i++) {
-      if (newBookmarks[i].time === bookmark.time) {
-        newBookmarks[i] = bookmark
-        break
-      }
-    }
-    await saveBookmarks(file, newBookmarks)
-    return newBookmarks
+export const updateBookmarks = createAsyncThunk<Bookmark[], { file: string; bookmarks: Bookmark[] }>(
+  'video/updateBookmarks',
+  async ({ file, bookmarks }) => {
+    await saveBookmarks(file, bookmarks)
+    return bookmarks
   },
 )
 
@@ -81,7 +73,7 @@ export const videoSlice = createSlice({
       .addCase(LoadBookmarks.fulfilled, (state, action) => {
         state.bookmarks = action.payload
       })
-      .addCase(updateBookmark.fulfilled, (state, action) => {
+      .addCase(updateBookmarks.fulfilled, (state, action) => {
         state.bookmarks = action.payload
       })
       .addCase(addBookmark.fulfilled, (state, action) => {

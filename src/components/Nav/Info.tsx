@@ -46,6 +46,10 @@ export const Info: FC<{ show: boolean; onClose: () => void }> = props => {
               <span className={styles['key']}>F</span>
             </div>
             <div className={styles['body']}>{i18n('nav.info.video.fullscreen')}</div>
+            <div className={styles['title']}>
+              <span className={styles['key']}>M</span>
+            </div>
+            <div className={styles['body']}>{i18n('nav.info.video.add_bookmark')}</div>
           </div>
         </div>
         <div className="column subtitle">

@@ -1,11 +1,18 @@
 // time: second
-export function formatTime(t: number, fractionDigits?: number) {
-  const h = Math.floor(t / 3600)
-  const m = Math.floor((t % 3600) / 60)
-  const s = fractionDigits ? (t % 60).toFixed(fractionDigits) : Math.floor(t % 60)
-  if (h > 0) {
-    return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
+export function formatTime(t: number, fractionDigits?: number, paddingZerosForHour?: boolean) {
+  const h = t / 3600
+  const m = (t % 3600) / 60
+  const s = padding(t % 60, fractionDigits)
+  if (h > 1 || paddingZerosForHour) {
+    return `${padding(h)}:${padding(m)}:${s}`
   } else {
-    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
+    return `${padding(m)}:${s}`
   }
+}
+
+function padding(t: number, fractionDigits?: number) {
+  const integer = Math.trunc(t)
+  const decimal = t % 1
+  const paddedInteger = `${integer < 10 ? '0' : ''}${integer}`
+  return fractionDigits ? `${paddedInteger}.${decimal.toFixed(fractionDigits).split('.')[1]}` : paddedInteger
 }

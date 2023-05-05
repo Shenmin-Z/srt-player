@@ -12,9 +12,31 @@ interface ModalProps {
   onClose: () => void
   children?: ReactNode
   className?: string
+  disableShortcuts?: boolean
 }
 
-export const Modal: FC<ModalProps> = ({ width, show, onClose, title, hideHeader, children, className }) => {
+export const Modal: FC<ModalProps> = ({
+  width,
+  show,
+  onClose,
+  title,
+  hideHeader,
+  children,
+  className,
+  disableShortcuts: disableShortcutWhenShown,
+}) => {
+  useEffect(() => {
+    if (!disableShortcutWhenShown) return
+    if (show) {
+      window.__SRT_ENABLE_SHORTCUTS__ = false
+    } else {
+      window.__SRT_ENABLE_SHORTCUTS__ = true
+    }
+    return () => {
+      window.__SRT_ENABLE_SHORTCUTS__ = true
+    }
+  }, [show])
+
   if (!show) return null
   return createPortal(
     <div

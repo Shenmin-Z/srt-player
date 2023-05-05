@@ -14,6 +14,7 @@ const WAVEFORM_ID = 'srt-player-waveform'
 
 export const WaveForm: FC<Props> = ({ replayEmitter, scrollEmitter }) => {
   const file = useSelector(s => s.files.selected) as string
+  const bookmarks = useSelector(s => s.video.bookmarks.map(b => b.time))
   const waveformDivRef = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
   const [offset, setOffset] = useState<number | undefined>(undefined)
@@ -110,6 +111,13 @@ export const WaveForm: FC<Props> = ({ replayEmitter, scrollEmitter }) => {
           className={styles['current-time-indicator']}
           style={{ transform: `translate3d(${Math.floor(offset || 1)}px,0,0)` }}
         />
+        {bookmarks.map(bookmark => (
+          <div
+            key={bookmark}
+            className={styles['bookmark-indicator']}
+            style={{ transform: `translate3d(${Math.floor(bookmark * PIXELS_PER_SECOND)}px,0,0)` }}
+          />
+        ))}
       </div>
     </div>
   )

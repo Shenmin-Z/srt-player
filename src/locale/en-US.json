@@ -29,7 +29,8 @@
         "back_3_seconds": "-3 s",
         "forward_10_seconds": "+10 s",
         "forward_3_seconds": "+3 s",
-        "fullscreen": "Fullscreen"
+        "fullscreen": "Fullscreen",
+        "add_bookmark": "Add bookmark"
       },
       "subtitle": {
         "name": "Subtitle",
@@ -87,5 +88,9 @@
   "error": {
     "database_initialize": "Failed to initialize database",
     "video_src_not_supported": "Sorry, this video's format is not supported in your broswer.<br />You need to convert it to a compatible format first using other software such <a href=\"https://handbrake.fr/\" target=\"_blank\" rel=\"noopener noreferrer\">HandBrake</a> or ffmpeg.<br />Example format: h264(avc) for video, mp3 for audio and mp4 for container."
+  },
+  "bookmark": {
+    "edit": "Edit bookmarks",
+    "add_description": "Add description"
   }
 }

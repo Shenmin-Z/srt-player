@@ -69,7 +69,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  .two-icons {
+  .three-icons {
     display: flex;
     justify-content: center;
     gap: 16px;
@@ -198,7 +198,7 @@
 
 .bookmark-list {
   display: grid;
-  grid-template-columns: minmax(20px, auto) minmax(20px, 100px) minmax(20px, auto);
+  grid-template-columns: repeat(4, auto);
   align-items: center;
   column-gap: 16px;
   row-gap: 8px;
@@ -206,8 +206,11 @@
 
   :global(.numeric) {
     font-variant-numeric: tabular-nums;
+    font-family: Tahoma, sans-serif;
+    cursor: pointer;
   }
   input[type='text'] {
+    width: 100%;
     border: 1px solid var(--black-400);
     border-width: 0 0 1px 0;
     border-radius: 0;
@@ -218,6 +221,10 @@
       border-width: 0 0 2px 0;
       padding-bottom: 0;
     }
+  }
+  :global(.material-icons-outlined) {
+    color: var(--red-500);
+    cursor: pointer;
   }
 }
 

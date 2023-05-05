@@ -23,16 +23,8 @@ export const SubtitleSetting: FC<{ show: boolean; onClose: () => void }> = props
   const dispatch = useDispatch()
   const i18n = useI18n()
 
-  useEffect(() => {
-    if (props.show) {
-      window.__SRT_ENABLE_SHORTCUTS__ = false
-    } else {
-      window.__SRT_ENABLE_SHORTCUTS__ = true
-    }
-  }, [props.show])
-
   return (
-    <Modal {...props} title={i18n('nav.subtitle.name')}>
+    <Modal {...props} title={i18n('nav.subtitle.name')} disableShortcuts>
       <div className={styles['settings']}>
         <div className={styles['title']}>{i18n('nav.subtitle.width')}</div>
         <div className={styles['body']}>

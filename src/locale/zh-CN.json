@@ -29,7 +29,8 @@
         "back_3_seconds": "-3 秒",
         "forward_10_seconds": "+10 秒",
         "forward_3_seconds": "+3 秒",
-        "fullscreen": "全屏"
+        "fullscreen": "全屏",
+        "add_bookmark": "添加书签"
       },
       "subtitle": {
         "name": "字幕",
@@ -87,5 +88,9 @@
   "error": {
     "database_initialize": "数据库初始化错误",
     "video_src_not_supported": "大变！😭<br />你的浏览器不支持这个视频格式。需要先用其他软件转码。<br />比如视频用h264(avc)，音频用mp3，容器用mp4。"
+  },
+  "bookmark": {
+    "edit": "编辑书签",
+    "add_description": "添加备注"
   }
 }

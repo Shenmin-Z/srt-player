@@ -11,6 +11,8 @@ import {
   updateVideoTime,
   setVideoStatus,
   addBookmark,
+  updateBookmarks,
+  removeBookmark,
 } from '../state'
 import {
   useRestoreVideo,
@@ -243,7 +245,7 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform,
     <div className={cn(styles['video-controls'], { [styles['is-playing']]: playing })}>
       <div className={styles['video-controls-top']} onClick={togglePlay}>
         <div className={styles['touch-top']} ref={replayDivRef} />
-        <div className={styles['two-icons']}>
+        <div className={styles['three-icons']}>
           <div className={cn('material-icons-outlined', styles['float-control'])}>
             {playing ? 'pause_circle' : 'play_circle'}
           </div>
@@ -258,6 +260,15 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform,
               replay
             </div>
           )}
+          <div
+            className={cn('material-icons-outlined', styles['float-control'])}
+            onClick={e => {
+              e.stopPropagation()
+              window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyM' }))
+            }}
+          >
+            bookmark_add
+          </div>
         </div>
         <div className={styles['touch-bottom']} ref={scrollDivRef} />
       </div>
@@ -292,34 +303,96 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform,
 const BookmarkIcon = () => {
   const { bookmarks } = useSelector(s => s.video)
   const [show, setShow] = useState(false)
+  const [names, setNames] = useState(bookmarks.map(b => b.name))
+  const dispatch = useDispatch()
+  const file = useSelector(s => s.files.selected) as string
+  const i18n = useI18n()
+
+  useEffect(() => {
+    setNames(bookmarks.map(b => b.name))
+    if (bookmarks.length === 0) {
+      setShow(false)
+    }
+  }, [bookmarks])
+
+  const save = () => {
+    dispatch(
+      updateBookmarks({
+        file,
+        bookmarks: bookmarks.map((bookmark, idx) => ({
+          name: names[idx],
+          time: bookmark.time,
+        })),
+      }),
+    )
+  }
+  const jump = (t: number) => () => {
+    doVideo(v => {
+      v.currentTime = t
+      window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Slash' }))
+      setShow(false)
+    })
+  }
+
   return (
     <>
       <Modal
+        title={i18n('bookmark.edit')}
         show={show}
         onClose={() => {
           setShow(false)
         }}
+        disableShortcuts
       >
         <div className={styles['bookmark-list']}>
-          {bookmarks.map(bookmark => {
+          {bookmarks.map((bookmark, idx) => {
             return (
               <Fragment key={bookmark.time}>
-                <span className="numeric">{formatTime(bookmark.time, 2)}</span>
-                <input type="text" value={bookmark.name} />
-                <span className="material-icons-outlined">bookmark_remove</span>
+                <span className="numeric" onClick={jump(bookmark.time)}>
+                  {idx + 1}
+                </span>
+                <span className="numeric" onClick={jump(bookmark.time)}>
+                  {formatTime(bookmark.time, 3, true)}
+                </span>
+                <input
+                  type="text"
+                  value={names[idx]}
+                  onChange={e => {
+                    const newNames = [...names]
+                    newNames[idx] = e.target.value
+                    setNames(newNames)
+                  }}
+                  onBlur={save}
+                  placeholder={i18n('bookmark.add_description')}
+                />
+                <span
+                  className="material-icons-outlined"
+                  onClick={() => {
+                    dispatch(
+                      removeBookmark({
+                        file,
+                        currentTime: bookmark.time,
+                      }),
+                    )
+                  }}
+                >
+                  bookmark_remove
+                </span>
               </Fragment>
             )
           })}
         </div>
       </Modal>
-      <Icon
-        outlined
-        type={'bookmarks'}
-        onClick={() => {
-          setShow(true)
-        }}
-        className={styles['bookmarks']}
-      />
+      {bookmarks.length > 0 && (
+        <Icon
+          outlined
+          type={'bookmarks'}
+          onClick={() => {
+            setShow(true)
+          }}
+          className={styles['bookmarks']}
+        />
+      )}
     </>
   )
 }
@@ -444,6 +517,7 @@ const ProgressBar: FC = () => {
               onClick={e => {
                 doVideo(v => {
                   v.currentTime = bookmark.time
+                  window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Slash' }))
                 })
                 e.stopPropagation()
               }}
