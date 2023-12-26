@@ -126,10 +126,26 @@ export const Video: FC = () => {
     if (audioOnly && !isSubtitleOnly(file)) {
       doVideo(v => {
         if (v.currentTime === 0) {
-          const button = document.querySelector('div[data-button-type="create-waveform"]')
-          if (button) {
-            ;(button as HTMLDivElement).click()
-          }
+          // mock user action of:
+          // 1.click waveform setting icon
+          document.body.classList.add('hide-modal')
+          const icon = document.getElementById('open-waveform-setting')
+          if (!icon) return
+          icon.click()
+
+          setTimeout(() => {
+            // 2. click generate waveform
+            const button = document.querySelector('div[data-button-type="create-waveform"]')
+            if (button) {
+              ;(button as HTMLDivElement).click()
+            }
+            // 3. close waveform setting
+            const mask = document.querySelector('.modal-mask')
+            if (mask) (mask as HTMLDivElement).click()
+            setTimeout(() => {
+              document.body.classList.remove('hide-modal')
+            })
+          })
         }
       })
     }

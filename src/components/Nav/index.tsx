@@ -77,6 +77,7 @@ export const Nav = () => {
           <Icon
             disabled={!enableWaveForm}
             type="graphic_eq"
+            id="open-waveform-setting"
             onClick={() => {
               setShowWaveForm(true)
             }}

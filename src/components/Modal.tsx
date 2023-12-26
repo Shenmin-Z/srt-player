@@ -45,7 +45,7 @@ export const Modal: FC<ModalProps> = ({
         e.stopPropagation()
       }}
     >
-      <div className={styles['mask']} onClick={onClose} />
+      <div className={cn('modal-mask', styles['mask'])} onClick={onClose} />
       <div className={styles['modal']} style={{ width }}>
         {hideHeader !== true && (
           <div className={styles['header']}>
