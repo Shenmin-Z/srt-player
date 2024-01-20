@@ -57,7 +57,11 @@ export const Subtitle: FC = () => {
         waitTime = node.start.timestamp - current
       }
       if (playing) {
-        timerRef.current = setTimeout(tick, waitTime)
+        let speed = 1
+        doVideo(v => {
+          speed = v.playbackRate
+        })
+        timerRef.current = setTimeout(tick, waitTime / speed)
       }
     })
   }

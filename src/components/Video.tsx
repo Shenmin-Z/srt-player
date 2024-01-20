@@ -309,6 +309,7 @@ const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform,
           )}
           <BookmarkIcon />
           <FullscreenIcon />
+          <PlaySpeedIcon />
         </div>
         <ProgressBar />
       </div>
@@ -420,9 +421,46 @@ const FullscreenIcon = () => {
   }
   return (
     <>
-      <Icon type={'fullscreen_exit'} onClick={onClick} className={styles['fullscreen-exit']} />
-      <Icon type={'fullscreen'} onClick={onClick} className={styles['fullscreen']} />
+      <Icon type="fullscreen_exit" onClick={onClick} className={styles['fullscreen-exit']} />
+      <Icon type="fullscreen" onClick={onClick} className={styles['fullscreen']} />
     </>
+  )
+}
+
+const PlaySpeedIcon = () => {
+  const [open, setOpen] = useState(false)
+  const [speed, setSpeed] = useState(1)
+
+  return (
+    <div className={styles['play-speed-container']}>
+      <Icon
+        outlined
+        type="slow_motion_video"
+        onClick={() => {
+          setOpen(o => !o)
+        }}
+      />
+      {open && (
+        <div className={styles['speed-options']}>
+          {[0.5, 0.75, 1, 1.25, 1.5].map(s => (
+            <div
+              key={s}
+              onClick={() => {
+                setSpeed(s)
+                setOpen(false)
+                doVideo(v => {
+                  v.playbackRate = s
+                })
+              }}
+              className={cn({ [styles['active']]: speed === s })}
+            >
+              <span className="material-icons-outlined">done</span>
+              {s}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
