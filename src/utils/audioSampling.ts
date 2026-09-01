@@ -3,6 +3,7 @@ import { db, getDB } from './idb'
 export interface Payload {
   file: string
   duration: number
+  sampleRate: number
   buffer: [ArrayBuffer, number, number]
 }
 
@@ -52,6 +53,7 @@ export const computeAudioSampling = async (task: ComputeAudioSampling) => {
   const payload: Payload = {
     file: fileName,
     duration: audioDuration,
+    sampleRate: audioBuffer.sampleRate,
     buffer: [float32Array.buffer, float32Array.byteOffset, float32Array.byteLength / Float32Array.BYTES_PER_ELEMENT],
   }
   worker.postMessage(payload, [payload.buffer[0]])

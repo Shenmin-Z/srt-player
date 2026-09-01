@@ -12,31 +12,35 @@ import {
 
 self.addEventListener('message', async e => {
   const data: Payload = e.data
-  if (typeof data.file === 'string' && typeof data.duration === 'number') {
-    try {
-      self.postMessage({ stage: StageEnum.resampling })
-      const result = await sampling(data)
-      self.postMessage({ stage: StageEnum.imageGeneration })
-      await drawWaveForm({ ...result, file: data.file }, 'svg')
-      self.postMessage({ stage: StageEnum.done })
-    } catch (e) {
-      self.postMessage({ type: 'error', error: e + '' })
+  if (typeof data.file !== 'string') return
+  try {
+    if (!Number.isFinite(data.duration) || data.duration <= 0) {
+      throw new Error(`invalid audio duration: ${data.duration}`)
     }
+    self.postMessage({ stage: StageEnum.resampling })
+    const result = await sampling(data)
+    self.postMessage({ stage: StageEnum.imageGeneration })
+    await drawWaveForm({ ...result, file: data.file }, 'svg')
+    self.postMessage({ stage: StageEnum.done })
+  } catch (e) {
+    self.postMessage({ type: 'error', error: e + '' })
   }
 })
 
 async function sampling(payload: Payload): Promise<SamplingResult> {
-  const { buffer: _buffer, duration } = payload
+  const { buffer: _buffer, duration, sampleRate } = payload
   const buffer = new Float32Array(..._buffer)
-  let total = NEW_SAMPLING_RATE * duration
-  const stepSize = buffer.length / total
-  total = Math.ceil(total)
+  // Each bucket must cover a fixed slice of decoded time. Deriving it from the reported
+  // duration instead stretches the waveform whenever that duration is an estimate (MP3).
+  const stepSize = Math.round(sampleRate / NEW_SAMPLING_RATE)
+  // Width is pinned to the media element's timeline, which is what the playhead reads.
+  const total = Math.ceil(NEW_SAMPLING_RATE * duration)
   const samples: number[] = Array.from({ length: total })
   let max = 0
   for (let i = 0; i < total; i++) {
     let tmp = 0
     for (let j = 0; j < stepSize; j++) {
-      const index = Math.floor(i * stepSize) + j
+      const index = i * stepSize + j
       if (index < buffer.length) {
         tmp += Math.abs(buffer[index])
       }
