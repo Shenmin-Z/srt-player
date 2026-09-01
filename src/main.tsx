@@ -19,7 +19,3 @@ document.fonts.ready.then(() => {
     </Provider>,
   )
 })
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/srt-player/sw.js')
-}

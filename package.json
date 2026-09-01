@@ -5,7 +5,7 @@
   "packageManager": "pnpm@11.23.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && node build/index.js",
+    "build": "tsc && vite build",
     "serve": "vite preview"
   },
   "dependencies": {

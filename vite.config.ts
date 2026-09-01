@@ -1,59 +1,7 @@
-import { defineConfig, Plugin, ResolvedConfig, build } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
-
-const SWPlugin = (): Plugin => {
-  let config: ResolvedConfig
-
-  return {
-    name: 'vite-plugin-sw-middleware',
-    config(config, env) {
-      if (env.command !== 'build') return
-      return {
-        build: {
-          rollupOptions: {
-            output: {
-              entryFileNames: '[name].js',
-              assetFileNames: '[name][extname]',
-              chunkFileNames: 'common.js',
-              manualChunks: undefined,
-            },
-          },
-        },
-      }
-    },
-    configResolved(resolvedConfig) {
-      config = resolvedConfig
-    },
-    configureServer({ middlewares }) {
-      // build({
-      //   build: {
-      //     rollupOptions: {
-      //       input: 'sw/sw.ts',
-      //       output: {
-      //         entryFileNames: `[name].js`,
-      //         manualChunks: undefined,
-      //       },
-      //     },
-      //     minify: false,
-      //     watch: {},
-      //   },
-      // })
-      // middlewares.use((req, res, next) => {
-      //   if (req.originalUrl === config.base + 'sw.js') {
-      //     const sw = readFileSync(resolve(__dirname, 'dist/sw.js'))
-      //     res.setHeader('Content-Type', 'text/javascript')
-      //     res.end(sw)
-      //   } else {
-      //     next()
-      //   }
-      // })
-    },
-  }
-}
 
 export default defineConfig({
-  plugins: [react(), SWPlugin()],
+  plugins: [react()],
   base: '/srt-player/',
 })

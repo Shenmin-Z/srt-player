@@ -26,10 +26,6 @@ Video demo: [youtube](https://youtu.be/ZPnu17pJsIo), [哔哩哔哩](https://www.
 
 - find the exact location to replay (`click` to set replay position)
 
-### Offline usable
-
-- onced loaded, can be used without internet next time
-
 ## About importing videos
 
 To persist imported videos:

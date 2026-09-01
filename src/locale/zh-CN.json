@@ -12,8 +12,6 @@
     "downloading": "下载中..."
   },
   "footer": {
-    "current_version": "当前版本",
-    "update": "升级",
     "feedback": "反馈",
     "feedback_email": "如果你有遇到bug，有使用上的建议或者任何问题，都可以通过下面的邮箱反馈给我：",
     "feedback_video": "也可以在这个视频下面的评论区留言：",
@@ -78,7 +76,6 @@
   "confirm": {
     "ok": "确定",
     "cancel": "取消",
-    "reload_update": "要升级吗？",
     "cannot_find_file": "找不到文件{0}，从列表里移除吗？",
     "overwrite_existing_file": "{0}已经存在，要覆盖吗？"
   },

@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "lib": ["WebWorker", "ES2015"],
-    "strict": true
-  },
-  "files": ["sw.ts"]
-}
