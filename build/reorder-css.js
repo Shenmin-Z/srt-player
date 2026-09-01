@@ -1,5 +1,8 @@
-const { resolve } = require('path')
-const { readFileSync, writeFileSync } = require('fs')
+import { resolve, dirname } from 'path'
+import { readFileSync, writeFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const filePath = resolve(__dirname, '../dist/index.html')
 const html = readFileSync(filePath).toString()

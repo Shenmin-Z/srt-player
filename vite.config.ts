@@ -9,22 +9,18 @@ const SWPlugin = (): Plugin => {
   return {
     name: 'vite-plugin-sw-middleware',
     config(config, env) {
-      if (env.command === 'build') {
-        return {
-          ...config,
-          build: {
-            rollupOptions: {
-              output: {
-                entryFileNames: '[name].js',
-                assetFileNames: '[name][extname]',
-                chunkFileNames: 'common.js',
-                manualChunks: undefined,
-              },
+      if (env.command !== 'build') return
+      return {
+        build: {
+          rollupOptions: {
+            output: {
+              entryFileNames: '[name].js',
+              assetFileNames: '[name][extname]',
+              chunkFileNames: 'common.js',
+              manualChunks: undefined,
             },
           },
-        }
-      } else {
-        return config
+        },
       }
     },
     configResolved(resolvedConfig) {

@@ -1,25 +1,21 @@
-const { build } = require('vite')
-const { resolve } = require('path')
-const { writeFileSync } = require('fs')
+import { build } from 'vite'
+import { resolve, dirname } from 'path'
+import { writeFileSync } from 'fs'
+import { fileURLToPath } from 'url'
 
-async function buildSW() {
-  const { output } = await build({
-    configFile: false,
-    build: {
-      rollupOptions: {
-        input: 'sw/sw.ts',
-        output: {
-          entryFileNames: `[name].js`,
-          manualChunks: undefined,
-        },
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+const { output } = await build({
+  configFile: false,
+  build: {
+    rollupOptions: {
+      input: 'sw/sw.ts',
+      output: {
+        entryFileNames: `[name].js`,
+        manualChunks: undefined,
       },
-      write: false,
     },
-  })
-  const code = output[0].code
-  writeFileSync(resolve(__dirname, '../dist/sw.js'), code)
-}
-
-;(async () => {
-  await buildSW()
-})()
+    write: false,
+  },
+})
+writeFileSync(resolve(__dirname, '../dist/sw.js'), output[0].code)

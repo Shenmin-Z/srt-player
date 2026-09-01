@@ -248,8 +248,8 @@ interface VideoControlsProps {
   show(): void
   hide(): void
   hasWaveform: boolean
-  replayDivRef: React.RefObject<HTMLDivElement>
-  scrollDivRef: React.RefObject<HTMLDivElement>
+  replayDivRef: React.RefObject<HTMLDivElement | null>
+  scrollDivRef: React.RefObject<HTMLDivElement | null>
 }
 
 const VideoControls: FC<VideoControlsProps> = ({ shown, show, hide, hasWaveform, replayDivRef, scrollDivRef }) => {
